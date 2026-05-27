@@ -803,11 +803,19 @@ const observer = new IntersectionObserver(entries => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 // ─── FORMS ──────────────────────────────────────────────────────────────────
+const MC_URL = 'https://reviveiq.us20.list-manage.com/subscribe/post?u=03d471d66e867f4d7a8551e72&id=27dd22be42&f_id=00447fe0f0';
+
+function submitToMailchimp(email) {
+  fetch(MC_URL + '&EMAIL=' + encodeURIComponent(email), {
+    method: 'POST', mode: 'no-cors'
+  });
+}
+
 function handleHeroSubmit(e) {
   e.preventDefault();
   const email = document.getElementById('hero-email').value;
   if (email) {
-    // In production: POST to your email capture endpoint (Mailchimp, ConvertKit, etc.)
+    submitToMailchimp(email);
     scrollToWaitlist();
     document.getElementById('waitlist-email').value = email;
     handleWaitlist({ preventDefault: ()=>{} });
@@ -818,8 +826,7 @@ function handleWaitlist(e) {
   e.preventDefault();
   const email = document.getElementById('waitlist-email').value;
   if (!email) return;
-  // In production: POST to your email capture endpoint
-  console.log('Waitlist signup:', email);
+  submitToMailchimp(email);
   document.getElementById('waitlist-form').style.display = 'none';
   document.querySelector('.waitlist-note').style.display = 'none';
   const msg = document.getElementById('success-msg');
