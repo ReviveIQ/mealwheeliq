@@ -4,541 +4,840 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MealsWheel — Dinner. Solved.</title>
+<meta name="description" content="Stop arguing about what's for dinner. MealsWheel spins up AI-generated recipes from what's already in your fridge — organic, flavorful, and done in minutes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-/* fonts loaded via link tag */
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --coral:#D85A30;--coral-light:#FAECE7;--coral-dark:#BA4D28;
-  --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#0F6E56;
-  --blue:#185FA5;--blue-light:#E6F1FB;
-  --gold:#BA7517;--gold-light:#FAEEDA;
-  --red:#A32D2D;
-  --bg:#FAFAF8;--card:#FFFFFF;--border:#E8E4DF;--border2:#D4CFC9;
-  --text:#1A1714;--text2:#6B6560;--text3:#9B9590;
-  --radius:14px;--radius-sm:8px;
+:root {
+  --ink: #1C1714;
+  --ink2: #4A3F38;
+  --ink3: #8C7B72;
+  --cream: #FAF7F2;
+  --warm: #F2EBE0;
+  --border: #E2D9CE;
+  --coral: #C94B2A;
+  --coral2: #E8603E;
+  --coral-pale: #FAF0EB;
+  --green: #2A6B4A;
+  --green-pale: #EAF3EE;
+  --gold: #B8860B;
+  --gold-pale: #FDF6E3;
+  --radius: 16px;
+  --radius-sm: 8px;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.app{max-width:720px;margin:0 auto;padding:1.5rem 1rem 4rem}
-.hdr{text-align:center;margin-bottom:1.75rem}
-.hdr h1{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;line-height:1}
-.hdr h1 span{color:var(--coral)}
-.hdr .sub{font-size:12px;color:var(--text3);margin-top:6px;letter-spacing:.05em;text-transform:uppercase}
-.cal-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.25rem}
-.panel-title{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.75rem}
-.cal-inputs{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.cal-inputs label{font-size:12px;color:var(--text2);white-space:nowrap;font-weight:500}
-.cal-inputs input[type=number]{width:90px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif}
-.cal-inputs input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.1)}
-.cal-inputs select{padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif}
-.cal-stats{display:flex;gap:8px;margin-top:.9rem;flex-wrap:wrap}
-.cst{flex:1;min-width:90px;background:var(--bg);border-radius:var(--radius-sm);padding:8px 10px;text-align:center;border:1px solid var(--border)}
-.cst .v{font-size:18px;font-weight:600;color:var(--text)}
-.cst .l{font-size:10px;color:var(--text3);margin-top:2px}
-.cst.ok .v{color:var(--green-dark)}.cst.over .v{color:var(--red)}.cst.low .v{color:var(--blue)}
-.pb-bg{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:.85rem}
-.pb-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1),background .3s}
-.pb-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:4px}
-.mode-sw{display:flex;background:var(--border);border-radius:var(--radius);padding:4px;gap:4px;margin-bottom:1.25rem}
-.mbtn{flex:1;padding:10px 8px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;color:var(--text2);border-radius:10px;transition:all .2s;text-align:center;line-height:1.3}
-.mbtn.act{background:var(--card);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.1)}
-.mbtn .mi{font-size:16px;display:block;margin-bottom:2px}
-.mbtn .md{font-size:10px;color:var(--text3)}
-.onote{background:linear-gradient(135deg,#f0faf5 0%,#e8f7f0 100%);border:1px solid #b8e8d4;border-radius:var(--radius);padding:.7rem 1rem;font-size:11px;line-height:1.6;color:#2d6e4e;margin-bottom:1.25rem}
-.ing-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.25rem}
-.ing-search{width:100%;padding:8px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);margin-bottom:.85rem}
-.ing-search:focus{outline:none;border-color:var(--green)}
-.ing-cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.85rem}
-.cat-btn{padding:4px 11px;border:1px solid var(--border2);border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;background:var(--bg);color:var(--text2);transition:all .15s;font-family:'DM Sans',sans-serif}
-.cat-btn.act{background:var(--coral);color:white;border-color:var(--coral)}
-.ing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:5px;max-height:280px;overflow-y:auto;padding-right:4px}
-.ing-grid::-webkit-scrollbar{width:4px}
-.ing-grid::-webkit-scrollbar-track{background:var(--border)}
-.ing-grid::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-.gi{display:flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:11.5px;color:var(--text2);background:var(--bg);user-select:none;transition:all .15s}
-.gi:hover{border-color:var(--green);background:var(--green-light)}
-.gi.sel{border-color:var(--green);background:var(--green-light);color:var(--green-dark);font-weight:500}
-.gi .dot{width:6px;height:6px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:background .15s}
-.gi.sel .dot{background:var(--green)}
-.sel-bar{display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;flex-wrap:wrap;gap:6px}
-.sel-count{font-size:11px;color:var(--text2)}
-.sel-count strong{color:var(--green-dark)}
-.sel-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:.5rem}
-.sel-tag{font-size:11px;padding:2px 8px;border-radius:12px;background:var(--green-light);color:var(--green-dark);border:1px solid #b8e8d4;display:flex;align-items:center;gap:4px}
-.sel-tag .rm{cursor:pointer;font-size:14px;line-height:1;opacity:.7}
-.sel-tag .rm:hover{opacity:1}
-.spin-area{display:flex;flex-direction:column;align-items:center;margin:1.25rem 0;gap:.9rem}
-.ww{position:relative;width:210px;height:210px}
-.ptr{position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:22px solid var(--coral);z-index:10;filter:drop-shadow(0 2px 4px rgba(216,90,48,.3))}
-canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
-.spin-controls{display:flex;flex-direction:column;align-items:center;gap:.6rem}
-.sbtn{background:var(--coral);color:white;border:none;padding:13px 40px;border-radius:30px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(216,90,48,.3);letter-spacing:.02em}
-.sbtn:hover{background:var(--coral-dark);transform:translateY(-1px)}
-.sbtn:active{transform:scale(.97)}
-.sbtn:disabled{background:var(--border2);box-shadow:none;cursor:not-allowed;transform:none}
-.wk-label{font-size:11.5px;color:var(--text3);text-align:center}
-.winfo{background:var(--blue-light);border:1px solid #b5d4f4;border-radius:var(--radius-sm);padding:.55rem .9rem;font-size:11.5px;color:var(--blue);line-height:1.5;margin-bottom:.9rem}
-.loading-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:.8rem}
-.loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--coral);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto .75rem}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-card p{font-size:13px;color:var(--text2)}
-.results{margin-top:1.25rem}
-.rh{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;margin-bottom:.75rem;text-align:center;color:var(--text)}
-.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:.9rem;font-size:11px;color:var(--text2);align-items:center}
-.legend-item{display:flex;align-items:center;gap:4px}
-.rcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.9rem;overflow:hidden;animation:fadeUp .4s ease forwards;opacity:0;transform:translateY(10px)}
-.rcard.bon{border:2px solid var(--coral)}
-@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
-.rch{padding:.9rem 1.1rem .7rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.rch h3{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;line-height:1.2;color:var(--text)}
-.pills{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
-.pill{font-size:10px;padding:2px 7px;border-radius:9px;font-weight:500}
-.pt{background:var(--gold-light);color:var(--gold)}.pd{background:var(--blue-light);color:var(--blue)}
-.pc{background:#EEEDFE;color:#534AB7}.pb{background:var(--coral-light);color:var(--coral-dark)}
-.em{font-size:1.8rem;flex-shrink:0;line-height:1}
-.cbrow{display:flex;gap:6px;padding:.6rem 1.1rem;background:#FAFAF8;border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap}
-.cb{font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:9px}
-.cbc{background:var(--green-light);color:var(--green-dark)}.cbp{background:var(--blue-light);color:var(--blue)}
-.cbk{background:var(--gold-light);color:var(--gold)}.cbf{background:var(--coral-light);color:var(--coral-dark)}
-.gbw{flex:1;min-width:120px}
-.gbb{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
-.gbf{height:100%;border-radius:3px;transition:width .4s}
-.gbl{font-size:9px;color:var(--text3);margin-top:2px}
-.bonlbl{font-size:11px;font-weight:600;color:var(--coral-dark);margin-bottom:3px}
-.rcb{padding:.9rem 1.1rem}
-.sub-lbl{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
-.il{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.85rem}
-.ing{font-size:11px;padding:2px 8px;border-radius:9px;border:1px solid var(--border);color:var(--text2);background:var(--bg)}
-.ing.org{border-color:#b8e8d4;background:var(--green-light);color:var(--green-dark)}
-.ing.buy{border-color:#f0c9b8;background:var(--coral-light);color:var(--coral-dark)}
-.sol{list-style:none}
-.sol li{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.55;padding:5px 0;border-bottom:1px solid var(--border);color:var(--text)}
-.sol li:last-child{border-bottom:none}
-.sn{width:18px;height:18px;border-radius:50%;background:var(--coral);color:white;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.glp{background:var(--card);border:2px solid var(--green);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:.9rem;animation:fadeUp .4s .5s ease forwards;opacity:0}
-.glh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem}
-.glh h3{font-family:'Playfair Display',serif;font-size:1rem;color:var(--green-dark)}
-.glcats{display:flex;flex-direction:column;gap:8px}
-.glcn{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--green-dark);margin-bottom:3px}
-.glit{font-size:11.5px;padding:3px 9px;border-radius:10px;background:var(--green-light);color:var(--green-dark);border:1px solid #b8e8d4;cursor:pointer;display:inline-block;margin:2px;transition:all .15s}
-.glit.ck{background:var(--bg);color:var(--text3);border-color:var(--border);text-decoration:line-through}
-.cpb{background:var(--green);color:white;border:none;padding:6px 13px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer}
-.cpb:hover{background:var(--green-dark)}
-.wcs{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1.1rem;margin-bottom:.9rem;animation:fadeUp .4s .1s ease forwards;opacity:0}
-.wcs h4{font-size:13px;font-weight:500;margin-bottom:8px}
-.wcg{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-.wcc{background:var(--bg);border-radius:var(--radius-sm);padding:7px 6px;border:1px solid var(--border);text-align:center}
-.wcc .wd{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
-.wcc .wm{font-size:10.5px;font-weight:500;margin:2px 0;line-height:1.2}
-.wcc .wc2{font-size:13px;font-weight:600}
-.wcc.ok .wc2{color:var(--green-dark)}.wcc.over .wc2{color:var(--red)}.wcc.under .wc2{color:var(--blue)}
-.rbtn{width:100%;padding:9px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text2);cursor:pointer;margin-top:.25rem;transition:all .15s}
-.rbtn:hover{background:var(--border)}
-.hidden{display:none!important}
 
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
+html { scroll-behavior: smooth; }
 
+body {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .9rem 2.5rem;
+  background: rgba(250,247,242,.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem; font-weight: 700; color: var(--ink);
+  text-decoration: none; letter-spacing: -.01em;
+}
+.nav-logo span { color: var(--coral); }
+.nav-links { display: flex; align-items: center; gap: 2rem; }
+.nav-links a { font-size: 13px; font-weight: 500; color: var(--ink2); text-decoration: none; transition: color .2s; }
+.nav-links a:hover { color: var(--coral); }
+.nav-cta {
+  background: var(--coral); color: white;
+  padding: 8px 20px; border-radius: 24px;
+  font-size: 13px; font-weight: 700; text-decoration: none;
+  transition: all .2s; letter-spacing: .02em;
+}
+.nav-cta:hover { background: var(--coral2); transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 8rem 2rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,75,42,.07) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(42,107,74,.05) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 60%, rgba(184,134,11,.04) 0%, transparent 60%);
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--coral-pale); border: 1px solid rgba(201,75,42,.2);
+  color: var(--coral); font-size: 11.5px; font-weight: 700;
+  padding: 5px 14px; border-radius: 20px; letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: 1.5rem; position: relative; z-index: 1;
+  animation: fadeDown .6s ease both;
+}
+
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3.2rem, 8vw, 6.5rem);
+  font-weight: 700; line-height: 1.0;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  max-width: 820px;
+  position: relative; z-index: 1;
+  animation: fadeDown .6s .1s ease both;
+}
+
+.hero h1 em { color: var(--coral); font-style: italic; }
+
+.hero-sub {
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  color: var(--ink2); line-height: 1.6;
+  max-width: 520px; margin: 1.5rem auto 0;
+  font-weight: 400;
+  position: relative; z-index: 1;
+  animation: fadeDown .6s .2s ease both;
+}
+
+.hero-form {
+  display: flex; gap: 10px; margin-top: 2.5rem;
+  flex-wrap: wrap; justify-content: center;
+  position: relative; z-index: 1;
+  animation: fadeDown .6s .3s ease both;
+}
+
+.hero-form input {
+  padding: 14px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 32px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 14px; font-weight: 500;
+  background: white; color: var(--ink);
+  width: 300px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.hero-form input:focus {
+  outline: none; border-color: var(--coral);
+  box-shadow: 0 0 0 4px rgba(201,75,42,.08);
+}
+.hero-form input::placeholder { color: var(--ink3); }
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--coral); color: white;
+  padding: 14px 28px; border-radius: 32px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 14px; font-weight: 700;
+  border: none; cursor: pointer;
+  transition: all .2s; letter-spacing: .02em;
+  text-decoration: none;
+}
+.btn-primary:hover { background: var(--coral2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,75,42,.25); }
+.btn-primary:active { transform: scale(.98); }
+
+.hero-note {
+  font-size: 12px; color: var(--ink3); margin-top: .9rem;
+  position: relative; z-index: 1;
+  animation: fadeDown .6s .4s ease both;
+}
+
+.hero-social-proof {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 2rem; position: relative; z-index: 1;
+  animation: fadeDown .6s .45s ease both;
+}
+.avatars { display: flex; }
+.avatars span {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 2.5px solid white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; margin-left: -8px;
+  background: var(--warm);
+}
+.avatars span:first-child { margin-left: 0; }
+.proof-text { font-size: 12.5px; color: var(--ink2); font-weight: 500; }
+.proof-text strong { color: var(--ink); }
+
+/* ── WHEEL VISUAL ── */
+.wheel-section {
+  padding: 5rem 2rem;
+  display: flex; flex-direction: column; align-items: center;
+  position: relative; overflow: hidden;
+}
+
+.wheel-container {
+  position: relative; width: 280px; height: 280px;
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.wheel-canvas-demo {
+  border-radius: 50%;
+  box-shadow: 0 24px 60px rgba(0,0,0,.15), 0 8px 20px rgba(201,75,42,.1);
+}
+
+.wheel-pointer-demo {
+  position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 11px solid transparent; border-right: 11px solid transparent;
+  border-top: 26px solid var(--coral);
+  filter: drop-shadow(0 3px 6px rgba(201,75,42,.4));
+  z-index: 10;
+}
+
+.orbit-tags {
+  position: absolute; inset: -60px;
+}
+
+.orbit-tag {
+  position: absolute;
+  background: white; border: 1px solid var(--border);
+  border-radius: 20px; padding: 6px 12px;
+  font-size: 11.5px; font-weight: 600; color: var(--ink2);
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+  white-space: nowrap;
+  animation: float 4s ease-in-out infinite;
+}
+
+.orbit-tag:nth-child(1) { top: 10%; left: -10%; animation-delay: -.5s; }
+.orbit-tag:nth-child(2) { top: 10%; right: -5%; animation-delay: -1s; }
+.orbit-tag:nth-child(3) { top: 45%; left: -20%; animation-delay: -1.5s; }
+.orbit-tag:nth-child(4) { top: 45%; right: -15%; animation-delay: -2s; }
+.orbit-tag:nth-child(5) { bottom: 10%; left: 0%; animation-delay: -2.5s; }
+.orbit-tag:nth-child(6) { bottom: 10%; right: 0%; animation-delay: -3s; }
+
+/* ── SECTION SHARED ── */
+section { padding: 5rem 2rem; }
+
+.section-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--coral);
+  margin-bottom: .75rem;
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700; line-height: 1.1;
+  letter-spacing: -.01em; color: var(--ink);
+  max-width: 600px; margin-bottom: 1rem;
+}
+
+.section-body {
+  font-size: 15px; color: var(--ink2); line-height: 1.7;
+  max-width: 520px; margin-bottom: 2rem;
+}
+
+/* ── HOW IT WORKS ── */
+.how-section {
+  background: var(--warm);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+
+.how-inner {
+  max-width: 1000px; margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+
+.steps-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem; margin-top: 3rem; width: 100%;
+}
+
+.step-card {
+  background: white; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 2rem 1.5rem;
+  text-align: left; position: relative;
+  transition: transform .2s, box-shadow .2s;
+}
+.step-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.08); }
+
+.step-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.5rem; font-weight: 700;
+  color: rgba(201,75,42,.12); line-height: 1;
+  position: absolute; top: 1rem; right: 1.25rem;
+}
+
+.step-icon { font-size: 2rem; margin-bottom: .75rem; display: block; }
+.step-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: .4rem; }
+.step-desc { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+
+/* ── FEATURES ── */
+.features-section { max-width: 1000px; margin: 0 auto; }
+
+.features-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem; margin-top: 3rem;
+}
+
+.feature-card {
+  background: white; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.75rem;
+  transition: transform .2s, box-shadow .2s;
+}
+.feature-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,.07); }
+.feature-card.highlight {
+  background: var(--ink); color: white; border-color: var(--ink);
+}
+
+.feat-icon { font-size: 1.75rem; margin-bottom: .85rem; display: block; }
+.feat-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: .4rem; }
+.feature-card.highlight .feat-title { color: white; }
+.feat-desc { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+.feature-card.highlight .feat-desc { color: rgba(255,255,255,.7); }
+
+/* ── PRICING ── */
+.pricing-section {
+  background: var(--ink);
+  color: white;
+}
+
+.pricing-inner {
+  max-width: 900px; margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+
+.pricing-section .section-title { color: white; }
+.pricing-section .section-body { color: rgba(255,255,255,.65); }
+
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem; margin-top: 3rem; width: 100%;
+}
+
+.price-card {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--radius); padding: 2rem 1.75rem;
+  text-align: left; position: relative;
+  transition: all .2s;
+}
+.price-card:hover { background: rgba(255,255,255,.08); transform: translateY(-3px); }
+.price-card.featured {
+  background: var(--coral); border-color: var(--coral);
+  transform: scale(1.03);
+}
+.price-card.featured:hover { transform: scale(1.03) translateY(-3px); }
+
+.price-badge {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--gold); color: white;
+  font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  padding: 3px 12px; border-radius: 12px;
+}
+
+.price-tier { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: .5rem; }
+.price-card.featured .price-tier { color: rgba(255,255,255,.75); }
+.price-amount { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 700; color: white; line-height: 1; }
+.price-amount span { font-family: 'Cabinet Grotesk', sans-serif; font-size: 14px; font-weight: 500; color: rgba(255,255,255,.5); }
+.price-desc { font-size: 13px; color: rgba(255,255,255,.55); margin-top: .35rem; margin-bottom: 1.5rem; }
+.price-card.featured .price-desc { color: rgba(255,255,255,.75); }
+
+.price-features { list-style: none; margin-bottom: 2rem; }
+.price-features li {
+  font-size: 13px; color: rgba(255,255,255,.7); padding: 5px 0;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.price-features li:last-child { border-bottom: none; }
+.price-card.featured .price-features li { color: rgba(255,255,255,.9); border-color: rgba(255,255,255,.12); }
+.price-features li::before { content: "✓"; color: var(--coral); font-weight: 700; font-size: 12px; flex-shrink: 0; }
+.price-card.featured .price-features li::before { color: white; }
+
+.btn-price {
+  width: 100%; padding: 12px; border-radius: 24px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 13.5px; font-weight: 700; cursor: pointer;
+  border: 1.5px solid rgba(255,255,255,.2);
+  background: transparent; color: white;
+  transition: all .2s; letter-spacing: .02em;
+}
+.btn-price:hover { background: rgba(255,255,255,.1); }
+.price-card.featured .btn-price {
+  background: white; color: var(--coral); border-color: white;
+}
+.price-card.featured .btn-price:hover { background: var(--cream); }
+
+/* ── ORGANIC STRIP ── */
+.organic-strip {
+  background: var(--green-pale);
+  border-top: 1px solid rgba(42,107,74,.15);
+  border-bottom: 1px solid rgba(42,107,74,.15);
+  padding: 3rem 2rem;
+}
+
+.organic-inner {
+  max-width: 800px; margin: 0 auto;
+  display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap;
+}
+
+.organic-icon { font-size: 3rem; flex-shrink: 0; }
+
+.organic-content h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem; font-weight: 700; color: var(--green);
+  margin-bottom: .5rem;
+}
+.organic-content p { font-size: 13.5px; color: var(--ink2); line-height: 1.7; }
+.organic-content p strong { color: var(--green); }
+
+/* ── WAITLIST SECTION ── */
+.waitlist-section {
+  background: var(--coral);
+  color: white; text-align: center;
+  padding: 6rem 2rem;
+}
+
+.waitlist-section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  font-weight: 700; line-height: 1.05;
+  color: white; max-width: 700px; margin: 0 auto 1rem;
+}
+
+.waitlist-section p {
+  font-size: 15px; color: rgba(255,255,255,.8);
+  max-width: 480px; margin: 0 auto 2.5rem; line-height: 1.6;
+}
+
+.waitlist-form {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+  max-width: 480px; margin: 0 auto;
+}
+
+.waitlist-form input {
+  flex: 1; min-width: 220px;
+  padding: 14px 20px; border-radius: 32px;
+  border: none; font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 14px; background: rgba(255,255,255,.15);
+  color: white; backdrop-filter: blur(8px);
+  transition: background .2s;
+}
+.waitlist-form input::placeholder { color: rgba(255,255,255,.6); }
+.waitlist-form input:focus { outline: none; background: rgba(255,255,255,.25); }
+
+.btn-waitlist {
+  padding: 14px 28px; border-radius: 32px; border: none;
+  background: white; color: var(--coral);
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: all .2s; letter-spacing: .02em;
+}
+.btn-waitlist:hover { background: var(--cream); transform: translateY(-2px); }
+
+.waitlist-note { font-size: 12px; color: rgba(255,255,255,.6); margin-top: .9rem; }
+
+.success-msg {
+  display: none; background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: var(--radius); padding: 1.25rem 2rem;
+  font-size: 15px; color: white; font-weight: 500;
+  max-width: 400px; margin: 0 auto;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--ink); color: rgba(255,255,255,.45);
+  padding: 2.5rem 2rem; text-align: center;
+}
+footer .footer-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem; font-weight: 700; color: white;
+  text-decoration: none; display: block; margin-bottom: .5rem;
+}
+footer .footer-logo span { color: var(--coral); }
+footer p { font-size: 12px; line-height: 1.8; }
+footer a { color: rgba(255,255,255,.5); text-decoration: none; }
+footer a:hover { color: white; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  nav { padding: .75rem 1.25rem; }
+  .nav-links { display: none; }
+  .hero { padding: 6rem 1.25rem 3rem; }
+  .hero-form input { width: 100%; }
+  .hero-form { flex-direction: column; align-items: stretch; max-width: 340px; }
+  .organic-inner { flex-direction: column; }
+  .price-card.featured { transform: scale(1); }
+}
+</style>
 </head>
 <body>
-<div class="app">
 
-<div class="hdr">
-  <h1>🍽️ Dinner <span>Roulette</span></h1>
-  <div class="sub">AI-Powered · Organic · Bobby Flay Energy · Infinite Variety</div>
-
-</div>
-
-<div class="cal-panel">
-  <div class="panel-title">Calorie goal &amp; servings</div>
-  <div class="cal-inputs">
-    <label>Daily goal</label>
-    <input type="number" id="calgoal" value="2000" min="800" max="5000" step="50">
-    <span style="font-size:11px;color:var(--text3)">kcal/day</span>
-    <label>Servings</label>
-    <select id="servings">
-      <option value="1">1 person</option>
-      <option value="2" selected>2 people</option>
-      <option value="3">3 people</option>
-      <option value="4">4 people</option>
-      <option value="5">5 people</option>
-      <option value="6">6 people</option>
-    </select>
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Meals<span>Wheel</span></a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="login.html" style="font-size:13px;font-weight:500;color:var(--ink2);text-decoration:none">Sign In</a>
+    <a href="#waitlist" class="nav-cta">Join Waitlist</a>
   </div>
-  <div class="cal-stats hidden" id="cstats">
-    <div class="cst" id="cs1"><div class="v" id="cs1v">—</div><div class="l">Dinner kcal</div></div>
-    <div class="cst" id="cs2"><div class="v" id="cs2v">—</div><div class="l">% of goal</div></div>
-    <div class="cst" id="cs3"><div class="v" id="cs3v">—</div><div class="l">Remaining</div></div>
-    <div class="cst" id="cs4"><div class="v" id="cs4v">—</div><div class="l">Avg/night</div></div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+
+  <div class="hero-eyebrow">🎡 Now in early access</div>
+
+  <h1>Dinner. <em>Solved.</em><br>Every single night.</h1>
+
+  <p class="hero-sub">
+    Stop arguing about what's for dinner. MealsWheel spins up AI-generated recipes from what's already in your fridge — organic, flavorful, and ready in minutes.
+  </p>
+
+  <form class="hero-form" onsubmit="handleHeroSubmit(event)">
+    <input type="email" id="hero-email" placeholder="Your email address" required>
+    <button type="submit" class="btn-primary">Get Early Access →</button>
+  </form>
+
+  <p class="hero-note">Free to join · No credit card · Be first when we launch</p>
+
+  <div class="hero-social-proof">
+    <div class="avatars">
+      <span>👩</span><span>👨</span><span>👩‍🦱</span><span>🧔</span><span>👩‍🍳</span>
+    </div>
+    <p class="proof-text"><strong>Join 200+ families</strong> already on the waitlist</p>
   </div>
-  <div class="hidden" id="pbwrap">
-    <div class="pb-bg"><div class="pb-fill" id="pbfill" style="width:0"></div></div>
-    <div class="pb-labels"><span id="pbl"></span><span id="pbr"></span></div>
+</section>
+
+<!-- WHEEL DEMO -->
+<section class="wheel-section" id="demo">
+  <div class="wheel-container">
+    <div class="wheel-pointer-demo"></div>
+    <canvas class="wheel-canvas-demo" id="demo-wheel" width="280" height="280"></canvas>
+    <div class="orbit-tags">
+      <div class="orbit-tag">🍔 Smash Burgers</div>
+      <div class="orbit-tag">🌮 Chicken Tacos</div>
+      <div class="orbit-tag">🍝 Pasta Night</div>
+      <div class="orbit-tag">🐟 Salmon Teriyaki</div>
+      <div class="orbit-tag">🥣 Cozy Soup</div>
+      <div class="orbit-tag">🥩 BBQ Ribs</div>
+    </div>
+  </div>
+  <p style="margin-top:3.5rem;font-size:13px;color:var(--ink3);font-weight:500;letter-spacing:.05em;text-transform:uppercase">Give it a spin ↓</p>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="how-inner">
+    <div class="section-eyebrow reveal">How it works</div>
+    <h2 class="section-title reveal">From "I don't know" to dinner<br>in under 60 seconds</h2>
+
+    <div class="steps-grid">
+      <div class="step-card reveal">
+        <div class="step-num">01</div>
+        <span class="step-icon">🧊</span>
+        <div class="step-title">Tell us what you have</div>
+        <div class="step-desc">Select ingredients from your fridge and pantry. We've got 200+ to choose from across every category.</div>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num">02</div>
+        <span class="step-icon">🎡</span>
+        <div class="step-title">Spin the wheel</div>
+        <div class="step-desc">Our wheel picks a dinner style — comfort food, quick meal, chef's special — and sends it to AI to build your recipe.</div>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num">03</div>
+        <span class="step-icon">🍽️</span>
+        <div class="step-title">Get 3 options instantly</div>
+        <div class="step-desc">AI generates real, technique-driven recipes using what you have. Pick your favorite and follow the step-by-step instructions.</div>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num">04</div>
+        <span class="step-icon">📋</span>
+        <div class="step-title">Plan the whole week</div>
+        <div class="step-desc">Spin 5 times to fill your week, then generate a complete, categorized grocery list. One tap to copy it to your phone.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="padding:5rem 2rem">
+  <div class="features-section">
+    <div class="section-eyebrow reveal">Features</div>
+    <h2 class="section-title reveal">Everything your family needs.<br>Nothing you don't.</h2>
+
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <span class="feat-icon">🤖</span>
+        <div class="feat-title">AI-Generated Recipes</div>
+        <div class="feat-desc">Every recipe is built fresh by Claude AI from your exact ingredients. You'll never see the same dinner twice.</div>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feat-icon">🥦</span>
+        <div class="feat-title">Organic-Forward</div>
+        <div class="feat-desc">Every recipe flags organic priority items based on Harvard and WHO research. Eat cleaner without the guesswork.</div>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feat-icon">📊</span>
+        <div class="feat-title">Calorie Tracking</div>
+        <div class="feat-desc">Set your daily calorie goal. Every recipe shows macros scaled to your serving size, with a live progress bar.</div>
+      </div>
+      <div class="feature-card highlight reveal">
+        <span class="feat-icon">👨‍🍳</span>
+        <div class="feat-title">Bobby Flay Energy</div>
+        <div class="feat-desc">Not "mix and bake." Real techniques — proper searing, deglazing, wok heat, low-and-slow BBQ. Recipes that teach.</div>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feat-icon">🛒</span>
+        <div class="feat-title">Smart Grocery Lists</div>
+        <div class="feat-desc">Plan your week and get a full shopping list organized by protein, produce, dairy, pantry, and spices. Copy in one tap.</div>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feat-icon">📅</span>
+        <div class="feat-title">Weekly Meal Planner</div>
+        <div class="feat-desc">Spin 5 nights at once. See a calorie overview for the full week and know exactly what you're eating before you shop.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ORGANIC STRIP -->
+<div class="organic-strip reveal">
+  <div class="organic-inner">
+    <div class="organic-icon">🌿</div>
+    <div class="organic-content">
+      <h3>Why we care about organic</h3>
+      <p>
+        <strong>USDA Certified Organic</strong> produce contains no synthetic pesticides or GMOs.
+        <strong>Harvard T.H. Chan School of Public Health</strong> research links organic diets to measurably lower pesticide exposure — especially important for children.
+        Organic livestock cannot receive antibiotics or growth hormones. The <strong>World Health Organization</strong> identifies routine antibiotic use in livestock as a primary driver of global antibiotic resistance.
+        MealsWheel flags organic priorities on every recipe so you know exactly where to spend the extra dollar.
+      </p>
+    </div>
   </div>
 </div>
 
-<div class="mode-sw">
-  <button class="mbtn act" id="bfridge" onclick="setMode('fridge')">
-    <span class="mi">🧊</span>Use what I have
-    <div class="md">AI recipes from your fridge</div>
-  </button>
-  <button class="mbtn" id="bweek" onclick="setMode('week')">
-    <span class="mi">📅</span>Plan next week
-    <div class="md">5 AI dinners + grocery list</div>
-  </button>
-</div>
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="pricing-inner">
+    <div class="section-eyebrow reveal" style="color:rgba(255,255,255,.4)">Pricing</div>
+    <h2 class="section-title reveal">Simple pricing.<br>Cancel anytime.</h2>
+    <p class="section-body reveal">Less than a single meal out. Saves you from ordering takeout at least once a week.</p>
 
-<div class="onote">
-  🌿 <strong>Why organic matters:</strong> USDA organic = zero synthetic pesticides or GMOs. Harvard T.H. Chan research links organic diets to measurably lower pesticide exposure, especially in children. Organic livestock means no antibiotics or growth hormones — the WHO identifies routine antibiotic use in livestock as a key driver of global antibiotic resistance. <strong>Green tags</strong> below mark your highest-priority organic swaps.
-</div>
+    <div class="pricing-grid reveal">
 
-<div class="ing-panel" id="ing-panel">
-  <div class="panel-title">Your pantry &amp; fridge — select everything you have (or want to cook with)</div>
-  <input type="text" class="ing-search" id="ing-search" placeholder="🔍 Search ingredients..." oninput="renderGrid()">
-  <div class="ing-cats" id="ing-cats"></div>
-  <div class="ing-grid" id="ing-grid"></div>
-  <div class="sel-bar">
-    <div class="sel-count">Selected: <strong id="sel-count">0</strong> ingredients</div>
-    <div style="font-size:10px;color:var(--text3)">No limit · more = better AI recipes</div>
+      <div class="price-card">
+        <div class="price-tier">Free</div>
+        <div class="price-amount">$0 <span>/ mo</span></div>
+        <div class="price-desc">Try it out, no card needed</div>
+        <ul class="price-features">
+          <li>5 spins per month</li>
+          <li>Fridge mode only</li>
+          <li>3 recipe options per spin</li>
+          <li>Basic ingredient list</li>
+        </ul>
+        <button class="btn-price" onclick="scrollToWaitlist()">Join Waitlist</button>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-badge">Most Popular</div>
+        <div class="price-tier">Home Chef</div>
+        <div class="price-amount">$4.99 <span>/ mo</span></div>
+        <div class="price-desc">For families who cook 3–5x a week</div>
+        <ul class="price-features">
+          <li>Unlimited spins</li>
+          <li>Fridge mode + Week planning</li>
+          <li>AI recipe generation</li>
+          <li>Calorie & macro tracking</li>
+          <li>Weekly grocery lists</li>
+          <li>200+ ingredient database</li>
+        </ul>
+        <button class="btn-price" onclick="scrollToWaitlist()">Get Early Access</button>
+      </div>
+
+      <div class="price-card">
+        <div class="price-tier">Family Plan</div>
+        <div class="price-amount">$9.99 <span>/ mo</span></div>
+        <div class="price-desc">Multiple profiles, saved history</div>
+        <ul class="price-features">
+          <li>Everything in Home Chef</li>
+          <li>Up to 4 family profiles</li>
+          <li>Saved recipe history</li>
+          <li>Favorite recipes library</li>
+          <li>Custom dietary preferences</li>
+          <li>Priority support</li>
+        </ul>
+        <button class="btn-price" onclick="scrollToWaitlist()">Join Waitlist</button>
+      </div>
+
+    </div>
   </div>
-  <div class="sel-tags" id="sel-tags"></div>
-</div>
+</section>
 
-<div class="winfo hidden" id="winfo">
-  📅 <strong>Week mode:</strong> Spin 5 times. Each spin asks AI to generate a unique dinner from your ingredients. After 5 spins, see your full calorie breakdown and a ready-to-copy grocery list.
-</div>
+<!-- WAITLIST CTA -->
+<section class="waitlist-section" id="waitlist">
+  <h2>Stop dreading the question.<br>Start spinning.</h2>
+  <p>Join the waitlist and be first through the door when MealsWheel launches. Early members get Home Chef free for 3 months.</p>
 
-<div class="spin-area">
-  <div class="ww"><div class="ptr"></div><canvas id="wc" width="210" height="210"></canvas></div>
-  <div class="spin-controls">
-    <div id="wklabel" class="wk-label hidden"></div>
-    <button class="sbtn" id="sbtn" onclick="spin()">✨ Spin &amp; Generate Recipe</button>
+  <form class="waitlist-form" id="waitlist-form" onsubmit="handleWaitlist(event)">
+    <input type="email" id="waitlist-email" placeholder="Your email address" required>
+    <button type="submit" class="btn-waitlist">Count Me In →</button>
+  </form>
+  <p class="waitlist-note">No spam. No credit card. Just dinner, sorted.</p>
+
+  <div class="success-msg" id="success-msg">
+    🎉 You're on the list! We'll be in touch soon. In the meantime, tell a friend who also hates the "what's for dinner" question.
   </div>
-</div>
+</section>
 
-<div class="results hidden" id="results">
-  <div class="rh" id="rh"></div>
-  <div id="wcalsec"></div>
-  <div class="legend">
-    <div class="legend-item"><span class="ing org" style="padding:2px 6px">green</span>Buy organic</div>
-    <div class="legend-item"><span class="ing buy" style="padding:2px 6px">orange</span>Need to buy</div>
-    <div class="legend-item"><span class="ing" style="padding:2px 6px">grey</span>Have it</div>
-  </div>
-  <div id="rcards"></div>
-  <div id="glsec"></div>
-  <button class="rbtn" onclick="resetApp()">↻ Spin again / reset</button>
-</div>
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">Meals<span>Wheel</span></a>
+  <p>
+    Built for families who cook. &nbsp;·&nbsp;
+    <a href="mailto:hello@mealswheel.com">hello@mealswheel.com</a> &nbsp;·&nbsp;
+    <a href="#">Privacy</a> &nbsp;·&nbsp;
+    <a href="#">Terms</a>
+  </p>
+  <p style="margin-top:.5rem">© 2026 MealsWheel. Spin it. Cook it. Love it.</p>
+</footer>
 
-</div>
 <script>
-const INGREDIENT_DB = {
-  "Beef & Pork": ["Ground Beef","Beef Sirloin","Beef Chuck Roast","Beef Short Ribs","Flank Steak","Ribeye Steak","NY Strip Steak","Beef Tenderloin","Beef Brisket","Beef Stew Meat","Pork Chops","Pork Tenderloin","Pork Shoulder","Baby Back Ribs","Spare Ribs","Italian Sausage","Chorizo","Bacon","Pancetta","Ham","Prosciutto","Ground Pork","Pork Belly","Bratwurst","Kielbasa"],
-  "Poultry": ["Chicken Breast","Chicken Thighs","Chicken Drumsticks","Whole Chicken","Ground Chicken","Chicken Wings","Turkey Breast","Ground Turkey","Duck Breast","Rotisserie Chicken","Cornish Hen"],
-  "Seafood": ["Salmon","Tuna Steak","Cod","Tilapia","Halibut","Sea Bass","Mahi-Mahi","Swordfish","Trout","Sardines","Shrimp","Scallops","Lobster Tail","Crab Legs","Clams","Mussels","Oysters","Squid / Calamari","Anchovies","Canned Tuna","Canned Salmon"],
-  "Vegetables": ["Potatoes","Sweet Potatoes","Carrots","Broccoli","Cauliflower","Spinach","Kale","Arugula","Romaine Lettuce","Mixed Greens","Zucchini","Yellow Squash","Butternut Squash","Acorn Squash","Spaghetti Squash","Asparagus","Green Beans","Brussels Sprouts","Snap Peas","Edamame","Bell Peppers","Jalapeños","Poblano Peppers","Serrano Peppers","Corn","Cherry Tomatoes","Roma Tomatoes","Beefsteak Tomatoes","Artichokes","Eggplant","Mushrooms","Portobello Mushrooms","Shiitake Mushrooms","Cremini Mushrooms","Beets","Radishes","Turnips","Parsnips","Celery","Fennel","Leeks","Bok Choy","Napa Cabbage","Red Cabbage","Cabbage","Cucumber","Avocado","Frozen Peas","Frozen Corn","Frozen Edamame","Jicama","Watercress","Endive","Radicchio","Swiss Chard","Collard Greens"],
-  "Aromatics": ["Garlic","Onions","Red Onion","Shallots","Green Onions / Scallions","Ginger","Lemongrass","Lemons","Limes","Oranges","Jalapeños","Ginger Paste","Garlic Paste"],
-  "Grains & Pasta": ["Spaghetti","Penne","Rigatoni","Fettuccine","Linguine","Pappardelle","Orzo","Farfalle","Lasagna Sheets","Ramen Noodles","Udon Noodles","Soba Noodles","Rice Noodles","Egg Noodles","Rice (White)","Jasmine Rice","Basmati Rice","Brown Rice","Wild Rice","Arborio Rice","Quinoa","Farro","Barley","Couscous","Polenta / Cornmeal","Panko Breadcrumbs","Bread Crumbs","Pita Bread","Naan","Flour Tortillas","Corn Tortillas","Burger Buns","Hoagie Rolls","Sourdough","Baguette","Ciabatta","English Muffins","Wonton Wrappers","Rice Paper Wrappers","Phyllo Dough","Puff Pastry","Pie Crust"],
-  "Canned & Pantry": ["Canned Diced Tomatoes","Canned Crushed Tomatoes","Canned Whole Tomatoes","Tomato Paste","Canned Chickpeas","Canned Black Beans","Canned Kidney Beans","Canned White Beans","Canned Lentils","Canned Corn","Canned Coconut Milk","Chicken Broth","Beef Broth","Vegetable Broth","Olive Oil","Vegetable Oil","Sesame Oil","Coconut Oil","Avocado Oil","Apple Cider Vinegar","Balsamic Vinegar","Red Wine Vinegar","Rice Wine Vinegar","Soy Sauce","Tamari","Coconut Aminos","Fish Sauce","Worcestershire Sauce","Hot Sauce","Sriracha","Hoisin Sauce","Oyster Sauce","Miso Paste","Tahini","Peanut Butter","Almond Butter","Honey","Maple Syrup","Brown Sugar","White Sugar","Dijon Mustard","Whole Grain Mustard","Yellow Mustard","Ketchup","Mayonnaise","Salsa","BBQ Sauce","Teriyaki Sauce","Sweet Chili Sauce","Capers","Sun-dried Tomatoes","Artichoke Hearts","Roasted Red Peppers","Olives","Anchovies in Oil","Dried Lentils","Dried Chickpeas","Dried Black Beans","All-Purpose Flour","Cornstarch","Baking Powder","Pancake Mix"],
-  "Dairy & Eggs": ["Eggs","Butter","Heavy Cream","Whole Milk","Half & Half","Cream Cheese","Sour Cream","Greek Yogurt","Plain Yogurt","Ricotta","Fresh Mozzarella","Shredded Mozzarella","Parmesan","Pecorino Romano","Cheddar","Sharp Cheddar","Gruyère","Feta","Goat Cheese","Gouda","Smoked Gouda","Brie","Monterey Jack","Pepper Jack","Colby Jack","Cottage Cheese","String Cheese","Shredded Mexican Blend"],
-  "Herbs (Fresh)": ["Fresh Basil","Fresh Parsley","Fresh Cilantro","Fresh Rosemary","Fresh Thyme","Fresh Sage","Fresh Dill","Fresh Mint","Bay Leaves","Fresh Chives","Fresh Tarragon","Fresh Oregano","Fresh Marjoram"],
-  "Spices & Dry": ["Cumin","Smoked Paprika","Paprika","Chili Powder","Cayenne Pepper","Turmeric","Garam Masala","Curry Powder","Coriander","Dried Oregano","Italian Seasoning","Dried Thyme","Dried Rosemary","Dried Basil","Cinnamon","Nutmeg","Cardamom","Star Anise","Cloves","Black Pepper","White Pepper","Red Pepper Flakes","Old Bay","Za'atar","Everything Bagel Seasoning","Garlic Powder","Onion Powder","Celery Salt","Mustard Powder","Smoked Salt","Kosher Salt","Chinese Five Spice","Baharat","Herbes de Provence","Creole Seasoning","Taco Seasoning"],
-  "Specialty & International": ["Mirin","Sake","White Wine","Red Wine","Beer","Dried Pasta","Coconut Cream","Sambal Oelek","Gochujang","Doubanjiang","Black Bean Paste","XO Sauce","Curry Paste (Red)","Curry Paste (Green)","Curry Paste (Yellow)","Tamarind Paste","Pomegranate Molasses","Rose Water","Sumac","Preserved Lemons","Harissa","Ras el Hanout","Shawarma Spice","Berbere","Sherry Vinegar","Truffle Oil","Anchovy Paste","Dashi","Kombu"]
-};
+// ─── DEMO WHEEL ────────────────────────────────────────────────────────────
+const WC = ['#C94B2A','#2A6B4A','#534AB7','#B8860B','#185FA5','#8B3A3A','#1D7A5A','#6B4A8B'];
+const labels = ["Tonight's Pick","Family Fave","Chef's Special","Quick Meal","Comfort Food","Weekend Cook","Something New","Seasonal Dish"];
+let demoAngle = 0;
+let spinning = false;
 
-const ORGANIC_PRIORITY = new Set(["Ground Beef","Beef Sirloin","Chicken Breast","Chicken Thighs","Pork Chops","Salmon","Shrimp","Eggs","Spinach","Kale","Arugula","Bell Peppers","Potatoes","Sweet Potatoes","Carrots","Cherry Tomatoes","Roma Tomatoes","Strawberries","Apples","Grapes","Celery","Peaches"]);
-
-let selectedIngs = new Set();
-let mode = 'fridge', spinning = false, ang = 0, wk = [];
-const DAYS = ['Mon','Tue','Wed','Thu','Fri'];
-const WC = ['#D85A30','#1D9E75','#534AB7','#BA7517','#185FA5','#993C1D','#3B6D11','#0F6E56','#854F0B','#D4537E','#378ADD','#639922'];
-const WHEEL_LABELS = ["Tonight's Pick","Family Fave","Chef's Special","Something New","Quick Meal","Weekend Cook","Comfort Food","Seasonal Dish"];
-let activeCat = 'All';
-
-function buildIngUI() {
-  const cats = ['All', ...Object.keys(INGREDIENT_DB)];
-  document.getElementById('ing-cats').innerHTML = cats.map(c =>
-    `<button class="cat-btn${c==='All'?' act':''}" onclick="setCat('${c}')">${c}</button>`
-  ).join('');
-  renderGrid();
-}
-
-function setCat(cat) {
-  activeCat = cat;
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('act', b.textContent === cat));
-  renderGrid();
-}
-
-function renderGrid() {
-  const search = document.getElementById('ing-search').value.toLowerCase();
-  let items = activeCat === 'All' ? Object.values(INGREDIENT_DB).flat() : (INGREDIENT_DB[activeCat] || []);
-  if (search) items = items.filter(i => i.toLowerCase().includes(search));
-  document.getElementById('ing-grid').innerHTML = items.map(item => {
-    const s = selectedIngs.has(item);
-    return `<div class="gi${s?' sel':''}" onclick="toggleIng(this,'${item.replace(/'/g,"\\'")}')" ><span class="dot"></span>${item}</div>`;
-  }).join('');
-}
-
-function toggleIng(el, item) {
-  if (selectedIngs.has(item)) { selectedIngs.delete(item); el.classList.remove('sel'); el.querySelector('.dot').style.background=''; }
-  else { selectedIngs.add(item); el.classList.add('sel'); }
-  document.getElementById('sel-count').textContent = selectedIngs.size;
-  renderTags();
-  drawWheel();
-}
-
-function renderTags() {
-  document.getElementById('sel-tags').innerHTML = Array.from(selectedIngs).map(item =>
-    `<div class="sel-tag">${item}<span class="rm" onclick="removeTag('${item.replace(/'/g,"\\'")}')">×</span></div>`
-  ).join('');
-}
-
-function removeTag(item) {
-  selectedIngs.delete(item);
-  document.getElementById('sel-count').textContent = selectedIngs.size;
-  renderGrid();
-  renderTags();
-}
-
-function drawWheel() {
-  const c = document.getElementById('wc'), ctx = c.getContext('2d');
-  const segs=8, arc=2*Math.PI/segs, cx=105, cy=105, r=100;
-  ctx.clearRect(0,0,210,210);
-  ctx.save(); ctx.translate(cx,cy); ctx.rotate(ang);
-  for(let i=0;i<segs;i++){
-    ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,i*arc,(i+1)*arc);ctx.closePath();
-    ctx.fillStyle=WC[i%WC.length];ctx.fill();
-    ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.stroke();
-    ctx.save();ctx.rotate(i*arc+arc/2);ctx.textAlign='right';ctx.fillStyle='white';
-    ctx.font='500 10px DM Sans,sans-serif';
-    ctx.fillText(WHEEL_LABELS[i],r-6,4);
+function drawDemoWheel(angle) {
+  const c = document.getElementById('demo-wheel');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const segs = 8, arc = 2*Math.PI/segs, cx = 140, cy = 140, r = 132;
+  ctx.clearRect(0, 0, 280, 280);
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(angle);
+  for (let i = 0; i < segs; i++) {
+    ctx.beginPath(); ctx.moveTo(0, 0);
+    ctx.arc(0, 0, r, i*arc, (i+1)*arc); ctx.closePath();
+    ctx.fillStyle = WC[i]; ctx.fill();
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.save(); ctx.rotate(i*arc + arc/2);
+    ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.font = '600 11px Cabinet Grotesk, sans-serif';
+    ctx.fillText(labels[i], r - 10, 4);
     ctx.restore();
   }
   ctx.restore();
-  ctx.beginPath();ctx.arc(cx,cy,21,0,2*Math.PI);ctx.fillStyle='white';ctx.fill();
-  ctx.beginPath();ctx.arc(cx,cy,15,0,2*Math.PI);ctx.fillStyle='#D85A30';ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, 24, 0, 2*Math.PI);
+  ctx.fillStyle = 'white'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, 17, 0, 2*Math.PI);
+  ctx.fillStyle = '#C94B2A'; ctx.fill();
 }
 
-let st=0,sd=0;
-function eOut(t){return 1-Math.pow(1-t,4);}
+// Slow continuous rotation for demo
+function animateDemo() {
+  if (!spinning) {
+    demoAngle += 0.003;
+    drawDemoWheel(demoAngle);
+  }
+  requestAnimationFrame(animateDemo);
+}
 
-function spin() {
+// Click wheel to spin
+document.getElementById('demo-wheel').addEventListener('click', function() {
   if (spinning) return;
-  if (selectedIngs.size < 3) { alert('Select at least 3 ingredients first!'); return; }
-  if (mode==='week' && wk.length>=5) { showWeekResults(); return; }
   spinning = true;
-  document.getElementById('sbtn').disabled = true;
-  if (mode==='fridge') document.getElementById('results').classList.add('hidden');
-  const sa=ang, extra=(Math.random()*4+6)*2*Math.PI;
-  const wi=Math.floor(Math.random()*8), arc=2*Math.PI/8;
-  const stopA=-(wi*arc+arc/2)+Math.PI/2;
-  st=sa+extra+(stopA-((sa+extra)%(2*Math.PI)));sd=performance.now();
-  function anim(now){
-    const t=Math.min((now-sd)/3800,1);ang=sa+(st-sa)*eOut(t);drawWheel();
-    if(t<0.9999){requestAnimationFrame(anim);}
-    else{ang=st%(2*Math.PI);drawWheel();generateRecipe(wi);}
+  const start = demoAngle;
+  const extra = (Math.random()*3+5)*2*Math.PI;
+  const target = start + extra;
+  const startTime = performance.now();
+  const duration = 3000;
+  function eOut(t) { return 1 - Math.pow(1-t, 4); }
+  function anim(now) {
+    const t = Math.min((now - startTime) / duration, 1);
+    demoAngle = start + (target - start) * eOut(t);
+    drawDemoWheel(demoAngle);
+    if (t < 1) requestAnimationFrame(anim);
+    else { demoAngle = target % (2*Math.PI); spinning = false; }
   }
   requestAnimationFrame(anim);
+});
+
+drawDemoWheel(0);
+animateDemo();
+
+// ─── SCROLL REVEAL ──────────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ─── FORMS ──────────────────────────────────────────────────────────────────
+const MC_URL = 'https://reviveiq.us20.list-manage.com/subscribe/post?u=03d471d66e867f4d7a8551e72&id=27dd22be42&f_id=00447fe0f0';
+
+function submitToMailchimp(email) {
+  fetch(MC_URL + '&EMAIL=' + encodeURIComponent(email), {
+    method: 'POST', mode: 'no-cors'
+  });
 }
 
-async function generateRecipe(wi) {
-  const resultEl=document.getElementById('results'), cardsEl=document.getElementById('rcards');
-  const rh = document.getElementById('rh');
-  rh.textContent = mode==='week' ? `Week in progress — ${wk.length+1}/5 generating...` : 'Chef Claude is cooking something up...';
-  cardsEl.innerHTML = `<div class="loading-card"><div class="loading-spinner"></div><p>Crafting your recipe from <strong>${selectedIngs.size} ingredients</strong>...</p><p style="font-size:11px;margin-top:4px;color:var(--text3)">Bobby Flay energy · Real technique · Organic-forward</p></div>`;
-  resultEl.classList.remove('hidden');
-  resultEl.scrollIntoView({behavior:'smooth',block:'start'});
-
-  const ingList = Array.from(selectedIngs).join(', ');
-  const s=parseInt(document.getElementById('servings').value)||2;
-  const g=parseInt(document.getElementById('calgoal').value)||2000;
-  const styleGuides={
-    "Tonight's Pick":"a flavorful satisfying weeknight dinner","Family Fave":"a crowd-pleasing family comfort food dish",
-    "Chef's Special":"an elevated technique-forward dish inspired by Bobby Flay","Something New":"a creative unexpected flavor combination",
-    "Quick Meal":"a fast under-30-minute dinner","Weekend Cook":"a slow-cooked BBQ or weekend project recipe",
-    "Comfort Food":"a warming cozy comfort food dinner","Seasonal Dish":"a fresh produce-forward seasonal recipe"
-  };
-  const styleHint = styleGuides[WHEEL_LABELS[wi]] || "a delicious dinner";
-  const avoidStr = wk.length ? `Do NOT repeat: ${wk.map(r=>r.name).join(', ')}.` : '';
-  const count = mode==='week' ? 1 : 3;
-
-  const prompt = `You are a professional chef inspired by Bobby Flay. Generate ${count} dinner recipe${count>1?'s':''} that ${count>1?'are':'is'} ${styleHint}.
-
-User's available ingredients: ${ingList}
-
-Requirements:
-- Use primarily these ingredients
-- Flag buy:true for any extra ingredients needed (max 3-4 per recipe)
-- Flag organic:true for meats, eggs, leafy greens, thin-skin produce
-- Servings: ${s} people, daily calorie goal: ${g} kcal
-- ${avoidStr}
-- Real cooking techniques, bold flavors, family-friendly
-- Calories should be realistic per serving
-
-Respond ONLY with valid JSON, no markdown, no explanation:
-{"recipes":[{"name":"Recipe Name","emoji":"🍽️","time":"30 min","difficulty":"Easy","style":"culinary style","calories_per_serving":520,"protein_g":38,"carbs_g":45,"fat_g":18,"ingredients":[{"name":"ingredient","organic":false,"buy":false}],"steps":["Step with technique detail.","Next step."]}${count>1?',{"name":"Second Recipe","emoji":"🥘","time":"25 min","difficulty":"Easy","style":"style","calories_per_serving":460,"protein_g":32,"carbs_g":40,"fat_g":18,"ingredients":[{"name":"ingredient","organic":false,"buy":false}],"steps":["Step 1."]},{"name":"Third Recipe","emoji":"🍳","time":"20 min","difficulty":"Easy","style":"style","calories_per_serving":420,"protein_g":28,"carbs_g":35,"fat_g":16,"ingredients":[{"name":"ingredient","organic":false,"buy":false}],"steps":["Step 1."]}':''}]}`;
-
-  try {
-    // Call YOUR Railway server — API key never exposed to users
-    const RAILWAY_URL = 'https://mealswheel-production.up.railway.app';
-    const resp = await fetch(RAILWAY_URL + '/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
-    const data = await resp.json();
-    const raw = data.content.map(b=>b.text||'').join('');
-    const clean = raw.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-    const recipes = parsed.recipes || [];
-    spinning=false; document.getElementById('sbtn').disabled=false;
-    if(mode==='week'){
-      if(recipes[0]) wk.push(recipes[0]);
-      updateWkLabel();
-      if(wk.length>=5) document.getElementById('sbtn').textContent='🎉 See My Week!';
-      showWeekResults();
-    } else {
-      showFridgeResults(recipes);
-    }
-  } catch(err) {
-    spinning=false; document.getElementById('sbtn').disabled=false;
-    cardsEl.innerHTML=`<div class="loading-card"><p style="color:var(--red)">⚠️ Recipe generation failed — please try again.</p><p style="font-size:11px;margin-top:6px;color:var(--text3)">${err.message}</p></div>`;
+function handleHeroSubmit(e) {
+  e.preventDefault();
+  const email = document.getElementById('hero-email').value;
+  if (email) {
+    submitToMailchimp(email);
+    scrollToWaitlist();
+    document.getElementById('waitlist-email').value = email;
+    handleWaitlist({ preventDefault: ()=>{} });
   }
 }
 
-function cg(){return parseInt(document.getElementById('calgoal').value)||2000;}
-function sv(){return parseInt(document.getElementById('servings').value)||2;}
-
-function cbHTML(r){
-  const s=sv(),g=cg(),tc=(r.calories_per_serving||0)*s,pct=Math.round(tc/g*100),bw=Math.min(pct,100);
-  const bc=pct>100?'#A32D2D':pct>80?'#1D9E75':'#185FA5';
-  return `<div class="cbrow"><span class="cb cbc">${tc} kcal${s>1?' ('+s+'×)':''}</span><span class="cb cbp">${(r.protein_g||0)*s}g protein</span><span class="cb cbk">${(r.carbs_g||0)*s}g carbs</span><span class="cb cbf">${(r.fat_g||0)*s}g fat</span><div class="gbw"><div class="gbb"><div class="gbf" style="width:${bw}%;background:${bc}"></div></div><div class="gbl">${pct}% of ${g} kcal daily goal</div></div></div>`;
+function handleWaitlist(e) {
+  e.preventDefault();
+  const email = document.getElementById('waitlist-email').value;
+  if (!email) return;
+  submitToMailchimp(email);
+  document.getElementById('waitlist-form').style.display = 'none';
+  document.querySelector('.waitlist-note').style.display = 'none';
+  const msg = document.getElementById('success-msg');
+  msg.style.display = 'block';
+  msg.style.animation = 'fadeUp .5s ease both';
 }
 
-function ingTag(ing){
-  const cls=ing.organic?'ing org':ing.buy?'ing buy':'ing';
-  return `<span class="${cls}">${ing.buy?'+ ':''}${ing.name}</span>`;
+function scrollToWaitlist() {
+  document.getElementById('waitlist').scrollIntoView({ behavior: 'smooth' });
 }
-
-function cardHTML(r,delay){
-  return `<div class="rcard" style="animation-delay:${delay}s">
-    <div class="rch"><div><h3>${r.name}</h3><div class="pills"><span class="pill pt">⏱ ${r.time}</span><span class="pill pd">${r.difficulty}</span><span class="pill pc">${r.style}</span></div></div><div class="em">${r.emoji}</div></div>
-    ${cbHTML(r)}
-    <div class="rcb"><div class="sub-lbl">Ingredients</div><div class="il">${(r.ingredients||[]).map(ingTag).join('')}</div><div class="sub-lbl">How to make it</div><ol class="sol">${(r.steps||[]).map((s,n)=>`<li><span class="sn">${n+1}</span><span>${s}</span></li>`).join('')}</ol></div>
-  </div>`;
-}
-
-function showFridgeResults(recipes){
-  document.getElementById('rh').textContent='🎲 AI-Generated Dinner Options — Just for You!';
-  document.getElementById('rcards').innerHTML=recipes.map((r,i)=>cardHTML(r,i*0.12)).join('');
-  document.getElementById('glsec').innerHTML='';document.getElementById('wcalsec').innerHTML='';
-  showCalPanel(recipes);
-  document.getElementById('results').classList.remove('hidden');
-  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-function showWeekResults(){
-  document.getElementById('rh').textContent=wk.length<5?`Week in progress — ${wk.length}/5 nights planned:`:'🎉 Your week is set! Here\'s what you\'re cooking:';
-  document.getElementById('rcards').innerHTML=wk.map((r,i)=>cardHTML(r,i*0.07)).join('');
-  if(wk.length>=5){buildWkCal();buildGL();}
-  else{document.getElementById('wcalsec').innerHTML='';document.getElementById('glsec').innerHTML='';}
-  showCalPanel(wk);
-  document.getElementById('results').classList.remove('hidden');
-  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-function showCalPanel(recipes){
-  if(!recipes||!recipes.length)return;
-  const g=cg(),s=sv();
-  const perN=Math.round(recipes.reduce((a,r)=>a+(r.calories_per_serving||0),0)/recipes.length*s);
-  const pct=Math.round(perN/g*100),rem=g-perN;
-  document.getElementById('cstats').classList.remove('hidden');
-  document.getElementById('pbwrap').classList.remove('hidden');
-  document.getElementById('cs1v').textContent=perN+' kcal';
-  document.getElementById('cs2v').textContent=pct+'%';
-  document.getElementById('cs3v').textContent=(rem>=0?'+':'')+rem+' kcal';
-  document.getElementById('cs4v').textContent=Math.round(recipes.reduce((a,r)=>a+(r.calories_per_serving||0)*s,0)/recipes.length)+' kcal';
-  document.getElementById('cs2').className='cst'+(pct>100?' over':pct>75?' ok':' low');
-  document.getElementById('cs3').className='cst'+(rem<0?' over':rem<300?' ok':' low');
-  const bc=pct>100?'#A32D2D':pct>80?'#1D9E75':'#185FA5';
-  const f=document.getElementById('pbfill');f.style.width=Math.min(pct,100)+'%';f.style.background=bc;
-  document.getElementById('pbl').textContent=perN+' kcal dinner ('+s+' serving'+(s>1?'s':'')+')';
-  document.getElementById('pbr').textContent='Goal: '+g+' kcal/day';
-}
-
-function buildWkCal(){
-  const g=cg(),s=sv(),avg=Math.round(wk.reduce((a,r)=>a+(r.calories_per_serving||0)*s,0)/5);
-  const cards=wk.map((r,i)=>{const c=(r.calories_per_serving||0)*s,p=Math.round(c/g*100),cls=p>100?'over':p>80?'ok':'under';
-    return `<div class="wcc ${cls}"><div class="wd">${DAYS[i]}</div><div class="wm">${r.name.split(' ').slice(0,3).join(' ')}</div><div class="wc2">${c} kcal</div><div style="font-size:9px;color:var(--text3)">${p}% of goal</div></div>`;
-  }).join('');
-  document.getElementById('wcalsec').innerHTML=`<div class="wcs"><h4>📊 Week overview — avg ${avg} kcal/dinner · goal ${g} kcal/day</h4><div class="wcg">${cards}</div></div>`;
-}
-
-function buildGL(){
-  const cats={'Proteins — choose organic':[],'Produce — organic priority':[],'Pantry & dry goods':[],'Dairy & refrigerated':[],'Spices & sauces':[]};
-  const PROT=['beef','chicken','pork','salmon','shrimp','sausage','bacon','egg','rib','fish','tuna','cod','turkey','duck','lamb','crab','scallop','clam','mussel'];
-  const PROD=['potato','sweet potato','carrot','squash','zucchini','pepper','spinach','broccoli','onion','garlic','lemon','lime','asparagus','cabbage','avocado','tomato','mushroom','kale','eggplant','corn','beet','fennel','leek','bok choy','celery','cucumber','artichoke','lettuce','arugula','chard','collard'];
-  const DAIRY=['cheese','cheddar','parmesan','butter','cream','milk','sour cream','yogurt','mozzarella','ricotta','gruyere','feta','goat','brie','gouda','pecorino'];
-  const PANT=['pasta','noodle','rice','bread','bun','roll','tortilla','bean','broth','tomato','oil','vinegar','sauce','maple','peanut','pancake','breadcrumb','caper','wine','naan','flour','stock','coconut','miso','tahini','honey','mustard','ketchup'];
-  const seen=new Set();
-  wk.flatMap(r=>(r.ingredients||[]).filter(i=>i.buy)).forEach(ing=>{
-    const k=ing.name.toLowerCase();if(seen.has(k))return;seen.add(k);
-    const e={l:ing.name,o:ing.organic};
-    if(PROT.some(p=>k.includes(p)))cats['Proteins — choose organic'].push(e);
-    else if(PROD.some(p=>k.includes(p)))cats['Produce — organic priority'].push(e);
-    else if(DAIRY.some(p=>k.includes(p)))cats['Dairy & refrigerated'].push(e);
-    else if(PANT.some(p=>k.includes(p)))cats['Pantry & dry goods'].push(e);
-    else cats['Spices & sauces'].push(e);
-  });
-  let html='<div class="glp"><div class="glh"><h3>🛒 Weekly Grocery List</h3><button class="cpb" onclick="copyGL()">Copy list</button></div><div class="glcats">';
-  Object.entries(cats).forEach(([cat,items])=>{
-    if(!items.length)return;
-    html+=`<div><div class="glcn">${cat}</div><div>`;
-    items.forEach(item=>{html+=`<span class="glit" onclick="this.classList.toggle('ck')">${item.o?'🌿 ':''}${item.l}</span>`;});
-    html+='</div></div>';
-  });
-  document.getElementById('glsec').innerHTML=html+'</div></div>';
-}
-
-function copyGL(){
-  const txt=Array.from(document.querySelectorAll('.glit:not(.ck)')).map(i=>i.textContent.trim()).join('\n');
-  navigator.clipboard.writeText('Weekly Dinner Grocery List\n\n'+txt).then(()=>{
-    const b=document.querySelector('.cpb');b.textContent='Copied!';setTimeout(()=>b.textContent='Copy list',2000);
-  });
-}
-
-function setMode(m){
-  mode=m;wk=[];
-  document.getElementById('bfridge').classList.toggle('act',m==='fridge');
-  document.getElementById('bweek').classList.toggle('act',m==='week');
-  document.getElementById('winfo').classList.toggle('hidden',m==='fridge');
-  document.getElementById('wklabel').classList.toggle('hidden',m==='fridge');
-  document.getElementById('results').classList.add('hidden');
-  document.getElementById('cstats').classList.add('hidden');
-  document.getElementById('pbwrap').classList.add('hidden');
-  document.getElementById('sbtn').textContent='✨ Spin & Generate Recipe';
-  if(m==='week')updateWkLabel();
-  drawWheel();
-}
-
-function updateWkLabel(){
-  const el=document.getElementById('wklabel');if(mode!=='week')return;
-  const r=5-wk.length;
-  el.textContent=r>0?`Spin ${r} more time${r>1?'s':''} — ${wk.length}/5 nights planned`:'All 5 nights planned! 🎉';
-}
-
-function resetApp(){
-  wk=[];
-  document.getElementById('results').classList.add('hidden');
-  document.getElementById('cstats').classList.add('hidden');
-  document.getElementById('pbwrap').classList.add('hidden');
-  document.getElementById('sbtn').textContent='✨ Spin & Generate Recipe';
-  if(mode==='week')updateWkLabel();
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-buildIngUI();
-drawWheel();
 </script>
 </body>
 </html>

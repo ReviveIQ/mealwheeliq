@@ -100,6 +100,21 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .sel-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:.5rem}
 .sel-tag{font-size:11px;padding:2px 8px;border-radius:12px;background:var(--green-pale);color:var(--green-dark);border:1px solid #b8e8d4;display:flex;align-items:center;gap:4px}
 .sel-tag .rm{cursor:pointer;font-size:14px;line-height:1;opacity:.7}.sel-tag .rm:hover{opacity:1}
+.diet-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.75rem}
+.diet-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid var(--border2);border-radius:20px;font-size:11.5px;font-weight:500;cursor:pointer;background:var(--cream);color:var(--ink2);transition:all .15s;font-family:'DM Sans',sans-serif}
+.diet-btn:hover{border-color:var(--green);background:var(--green-pale)}
+.diet-btn.act{border-color:var(--green);background:var(--green-pale);color:var(--green-dark)}
+.search-bar{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);margin-bottom:.75rem}
+.search-bar:focus{outline:none;border-color:var(--green)}
+.share-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem}
+.share-modal-card{background:var(--card);border-radius:var(--radius);padding:1.5rem;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.share-modal-card h3{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;margin-bottom:.75rem}
+.share-url{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;background:var(--cream);color:var(--ink);font-family:monospace;margin-bottom:.75rem}
+.share-btns{display:flex;gap:8px}
+.share-copy-btn{flex:1;padding:10px;background:var(--coral);color:white;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.share-close-btn{padding:10px 16px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;color:var(--ink2)}
+.save-plan-btn{width:100%;padding:10px;background:var(--green);color:white;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:.75rem;transition:all .2s}
+.save-plan-btn:hover{background:var(--green-dark)}
 
 /* SPIN */
 .spin-area{display:flex;flex-direction:column;align-items:center;margin:1rem 0;gap:.85rem}
@@ -232,6 +247,19 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
     <button class="stab" id="stab-favorites" onclick="showSection('favorites')">⭐ Favorites</button>
   </div>
 
+  <!-- SHARE MODAL -->
+  <div class="share-modal hidden" id="share-modal">
+    <div class="share-modal-card">
+      <h3>Share this recipe 🍽️</h3>
+      <p style="font-size:13px;color:var(--ink3);margin-bottom:.75rem">Copy the link below to share with friends and family.</p>
+      <input type="text" class="share-url" id="share-url-input" readonly>
+      <div class="share-btns">
+        <button class="share-copy-btn" onclick="copyShareLink()">Copy Link</button>
+        <button class="share-close-btn" onclick="closeShareModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- SPIN SECTION -->
   <div id="section-spin">
 
@@ -271,7 +299,16 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
     <div class="onote">🌿 <strong>Why organic matters:</strong> USDA organic = no synthetic pesticides. Harvard research links it to lower pesticide exposure in children. Organic livestock = no antibiotics — the WHO flags this as a key driver of antibiotic resistance. <strong>Green tags</strong> = highest-priority swaps.</div>
 
     <div class="ing-panel">
-      <div class="panel-title">Your pantry &amp; fridge — select what you have</div>
+      <div class="panel-title">Dietary preferences</div>
+    <div class="diet-filters" id="diet-filters">
+      <button class="diet-btn" id="diet-vegetarian" onclick="toggleDiet('vegetarian')">🥦 Vegetarian</button>
+      <button class="diet-btn" id="diet-vegan" onclick="toggleDiet('vegan')">🌱 Vegan</button>
+      <button class="diet-btn" id="diet-glutenfree" onclick="toggleDiet('glutenfree')">🌾 Gluten-Free</button>
+      <button class="diet-btn" id="diet-dairyfree" onclick="toggleDiet('dairyfree')">🥛 Dairy-Free</button>
+      <button class="diet-btn" id="diet-lowcarb" onclick="toggleDiet('lowcarb')">📉 Low-Carb</button>
+      <button class="diet-btn" id="diet-highprotein" onclick="toggleDiet('highprotein')">💪 High-Protein</button>
+    </div>
+    <div class="panel-title" style="margin-top:.5rem">Your pantry &amp; fridge — select what you have</div>
       <input type="text" class="ing-search" id="ing-search" placeholder="🔍 Search ingredients..." oninput="renderGrid()">
       <div class="ing-cats" id="ing-cats"></div>
       <div class="ing-grid" id="ing-grid"></div>
@@ -300,6 +337,7 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
       </div>
       <div id="rcards"></div>
       <div id="glsec"></div>
+      <button class="save-plan-btn hidden" id="save-plan-btn" onclick="saveMealPlan()">💾 Save this week's plan to my account</button>
       <button class="rbtn" onclick="resetApp()">↻ Spin again</button>
     </div>
 
@@ -309,6 +347,7 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
   <div id="section-history" class="hidden">
     <div class="history-panel">
       <div class="panel-title">Recent recipes</div>
+      <input type="text" class="search-bar" id="history-search" placeholder="🔍 Search your recipe history..." oninput="filterHistory()">
       <div class="history-list" id="history-list">
         <div class="empty-state">Spin the wheel to start building your recipe history!</div>
       </div>
@@ -430,6 +469,19 @@ async function loadPreferences() {
     const prefs = await resp.json();
     if (prefs.daily_calorie_goal) document.getElementById('calgoal').value = prefs.daily_calorie_goal;
     if (prefs.servings) document.getElementById('servings').value = prefs.servings;
+    // Restore dietary preferences
+    if (prefs.dietary_preferences) {
+      const diets = typeof prefs.dietary_preferences === 'string'
+        ? JSON.parse(prefs.dietary_preferences)
+        : prefs.dietary_preferences;
+      if (Array.isArray(diets)) {
+        diets.forEach(d => {
+          activeDiets.add(d);
+          const btn = document.getElementById('diet-' + d);
+          if (btn) btn.classList.add('act');
+        });
+      }
+    }
   } catch {}
 }
 
@@ -438,7 +490,11 @@ async function savePreferences() {
     await fetch(API + '/preferences', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
-      body: JSON.stringify({ daily_calorie_goal: parseInt(document.getElementById('calgoal').value), servings: parseInt(document.getElementById('servings').value) })
+      body: JSON.stringify({
+        daily_calorie_goal: parseInt(document.getElementById('calgoal').value),
+        servings: parseInt(document.getElementById('servings').value),
+        dietary_preferences: Array.from(activeDiets)
+      })
     });
   } catch {}
 }
@@ -561,11 +617,12 @@ async function generateRecipe(wi) {
   const styleGuides={"Tonight's Pick":"a flavorful satisfying weeknight dinner","Family Fave":"a crowd-pleasing family comfort food dish","Chef's Special":"an elevated technique-forward dish inspired by Bobby Flay","Something New":"a creative unexpected flavor combination","Quick Meal":"a fast under-30-minute dinner","Weekend Cook":"a slow-cooked BBQ or weekend project recipe","Comfort Food":"a warming cozy comfort food dinner","Seasonal Dish":"a fresh produce-forward seasonal recipe"};
   const styleHint=styleGuides[WHEEL_LABELS[wi]]||"a delicious dinner";
   const avoidStr=wk.length?`Do NOT repeat: ${wk.map(r=>r.name).join(', ')}.`:'';
+  const dietStr=getDietPromptText();
   const count=mode==='week'?1:3;
 
   const prompt=`You are a professional chef inspired by Bobby Flay. Generate ${count} dinner recipe${count>1?'s':''} that ${count>1?'are':'is'} ${styleHint}.
 User's available ingredients: ${ingList}
-Requirements: use primarily these ingredients, flag buy:true for extras needed (max 3-4), flag organic:true for meats/eggs/leafy greens/thin-skin produce, servings: ${s}, daily calorie goal: ${g} kcal, ${avoidStr} real cooking techniques, family-friendly.
+Requirements: use primarily these ingredients, flag buy:true for extras needed (max 3-4), flag organic:true for meats/eggs/leafy greens/thin-skin produce, servings: ${s}, daily calorie goal: ${g} kcal, ${avoidStr} ${dietStr} real cooking techniques, family-friendly.
 Respond ONLY with valid JSON no markdown:
 {"recipes":[{"name":"Recipe Name","emoji":"🍽️","time":"30 min","difficulty":"Easy","style":"culinary style","calories_per_serving":520,"protein_g":38,"carbs_g":45,"fat_g":18,"ingredients":[{"name":"ingredient","organic":false,"buy":false}],"steps":["Step with technique."]}${count>1?',{"name":"Second Recipe","emoji":"🥘","time":"25 min","difficulty":"Easy","style":"style","calories_per_serving":460,"protein_g":32,"carbs_g":40,"fat_g":18,"ingredients":[{"name":"ingredient","organic":false,"buy":false}],"steps":["Step 1."]},{"name":"Third Recipe","emoji":"🍳","time":"20 min","difficulty":"Easy","style":"style","calories_per_serving":420,"protein_g":28,"carbs_g":35,"fat_g":16,"ingredients":[{"name":"ingredient","organic":false,"buy":false}],"steps":["Step 1."]}':''}]}`;
 
@@ -674,7 +731,8 @@ function showFridgeResults(recipes){
 function showWeekResults(){
   document.getElementById('rh').textContent=wk.length<5?`Week in progress — ${wk.length}/5 nights planned:`:'🎉 Your week is set!';
   document.getElementById('rcards').innerHTML=wk.map((r,i)=>cardHTML(r,i*0.08)).join('');
-  if(wk.length>=5){buildWkCal();buildGL();}
+  if(wk.length>=5){buildWkCal();buildGL();
+    document.getElementById('save-plan-btn').classList.remove('hidden');}
   else{document.getElementById('wcalsec').innerHTML='';document.getElementById('glsec').innerHTML='';}
   showCalPanel(wk);
   document.getElementById('results').classList.remove('hidden');
@@ -829,6 +887,168 @@ function resetApp(){
   document.getElementById('sbtn').textContent='✨ Spin & Generate Recipe';
   if(mode==='week')updateWkLabel();
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ─── DIETARY FILTERS ────────────────────────────────────────────────────────
+let activeDiets = new Set();
+
+function toggleDiet(diet) {
+  const btn = document.getElementById('diet-' + diet);
+  if (activeDiets.has(diet)) {
+    activeDiets.delete(diet);
+    btn.classList.remove('act');
+  } else {
+    activeDiets.add(diet);
+    btn.classList.add('act');
+  }
+  savePreferences();
+}
+
+function getDietPromptText() {
+  if (!activeDiets.size) return '';
+  const labels = {
+    vegetarian: 'vegetarian (no meat or fish)',
+    vegan: 'vegan (no animal products)',
+    glutenfree: 'gluten-free (no wheat, barley, or rye)',
+    dairyfree: 'dairy-free (no milk, cheese, or butter)',
+    lowcarb: 'low-carb (under 30g net carbs per serving)',
+    highprotein: 'high-protein (at least 40g protein per serving)'
+  };
+  const active = Array.from(activeDiets).map(d => labels[d]).filter(Boolean);
+  return active.length ? `DIETARY REQUIREMENTS — the recipe MUST be: ${active.join(', ')}.` : '';
+}
+
+// ─── RECIPE SEARCH & FILTER ──────────────────────────────────────────────────
+let allHistory = [];
+
+async function loadHistory() {
+  try {
+    const resp = await fetch(API + '/history', { headers: { 'Authorization': 'Bearer ' + userToken } });
+    if (!resp.ok) return;
+    allHistory = await resp.json();
+    renderHistory(allHistory);
+  } catch {}
+}
+
+function filterHistory() {
+  const q = document.getElementById('history-search').value.toLowerCase();
+  if (!q) { renderHistory(allHistory); return; }
+  const filtered = allHistory.filter(r =>
+    r.recipe_name.toLowerCase().includes(q) ||
+    (r.style || '').toLowerCase().includes(q) ||
+    (r.difficulty || '').toLowerCase().includes(q)
+  );
+  renderHistory(filtered);
+}
+
+function renderHistory(recipes) {
+  const el = document.getElementById('history-list');
+  if (!recipes.length) {
+    el.innerHTML = '<div class="empty-state">No recipes found.</div>';
+    return;
+  }
+  el.innerHTML = recipes.map(r => `
+    <div class="history-item">
+      <div class="hi-em">${r.emoji || '🍽️'}</div>
+      <div class="hi-info">
+        <div class="hi-name">${r.recipe_name}</div>
+        <div class="hi-meta">${r.cook_time || ''} · ${r.difficulty || ''} · ${r.style || ''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="hi-cal">${(r.calories_per_serving || 0) * sv()} kcal</div>
+        <button onclick="shareRecipeById(${r.id}, '${r.recipe_name.replace(/'/g, "\'")}')" style="background:none;border:none;cursor:pointer;font-size:14px;color:var(--ink3)" title="Share">🔗</button>
+        <button onclick="favoriteRecipe(${r.id})" style="background:none;border:none;cursor:pointer;font-size:14px;color:var(--ink3)" title="Favorite">⭐</button>
+      </div>
+    </div>`).join('');
+}
+
+// ─── SHARE ────────────────────────────────────────────────────────────────────
+let shareRecipeName = '';
+
+function shareRecipe(name) {
+  shareRecipeName = name;
+  const url = `https://reviveiq.github.io/mealswheel?recipe=${encodeURIComponent(name)}`;
+  document.getElementById('share-url-input').value = url;
+  document.getElementById('share-modal').classList.remove('hidden');
+}
+
+function shareRecipeById(id, name) {
+  shareRecipeName = name;
+  const url = `https://reviveiq.github.io/mealswheel?recipe=${encodeURIComponent(name)}&id=${id}`;
+  document.getElementById('share-url-input').value = url;
+  document.getElementById('share-modal').classList.remove('hidden');
+}
+
+function copyShareLink() {
+  const input = document.getElementById('share-url-input');
+  navigator.clipboard.writeText(input.value).then(() => {
+    const btn = document.querySelector('.share-copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy Link', 2000);
+  });
+}
+
+function closeShareModal() {
+  document.getElementById('share-modal').classList.add('hidden');
+}
+
+// Close on overlay click
+document.getElementById('share-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeShareModal();
+});
+
+// ─── SAVE MEAL PLAN ───────────────────────────────────────────────────────────
+async function saveMealPlan() {
+  if (!wk.length) return;
+  const btn = document.getElementById('save-plan-btn');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  try {
+    // Get recipe IDs from history for the last 5 spins
+    const resp = await fetch(API + '/history', { headers: { 'Authorization': 'Bearer ' + userToken } });
+    const history = await resp.json();
+
+    // Match week recipes to history IDs by name
+    const items = [];
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+    wk.forEach((recipe, i) => {
+      const match = history.find(h => h.recipe_name === recipe.name);
+      if (match) {
+        items.push({ day: days[i], recipe_id: match.id });
+      }
+    });
+
+    if (!items.length) {
+      btn.textContent = 'Could not save — spin first then try again';
+      btn.disabled = false;
+      return;
+    }
+
+    // Get Monday of current week
+    const today = new Date();
+    const day = today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+    const weekStart = monday.toISOString().split('T')[0];
+
+    await fetch(API + '/mealplans', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+      body: JSON.stringify({ week_start_date: weekStart, items })
+    });
+
+    btn.textContent = '✅ Week saved to your account!';
+    btn.style.background = 'var(--green-dark)';
+    setTimeout(() => {
+      btn.textContent = '💾 Save this week's plan to my account';
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 3000);
+  } catch (err) {
+    btn.textContent = 'Save failed — please try again';
+    btn.disabled = false;
+  }
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
