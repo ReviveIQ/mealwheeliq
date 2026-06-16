@@ -221,7 +221,7 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
   <div class="nav-right">
     <span class="nav-plan" id="nav-plan">Free</span>
     <span class="nav-user" id="nav-user"></span>
-    <button class="nav-btn upgrade hidden" id="upgrade-btn" onclick="upgradeAccount()">Upgrade</button>
+    <button class="nav-btn upgrade hidden" id="upgrade-btn" onclick="upgradeAccount('trial')">Upgrade</button>
     <button class="nav-btn" onclick="signOut()">Sign Out</button>
   </div>
 </nav>
@@ -240,7 +240,7 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
   <!-- UPGRADE BANNER -->
   <div class="upgrade-banner hidden" id="upgrade-banner">
     <p>🔒 You've used all 5 free spins this month. Upgrade for unlimited recipes.</p>
-    <button onclick="upgradeAccount()">Upgrade to Home Chef — $4.99/mo</button>
+    <button onclick="upgradeAccount('trial')">Upgrade to Home Chef — $4.99/mo</button>
   </div>
 
   <!-- SECTION TABS -->
@@ -664,7 +664,7 @@ Respond ONLY with valid JSON no markdown:
       if (data.error==='spin_limit_reached') {
         spinning=false; document.getElementById('sbtn').disabled=false;
         document.getElementById('upgrade-banner').classList.remove('hidden');
-        cardsEl.innerHTML=`<div class="loading-card"><p style="color:var(--red)">🔒 You've used all 5 free spins this month.</p><p style="font-size:12px;margin-top:8px"><button onclick="upgradeAccount()" style="background:var(--coral);color:white;border:none;padding:8px 20px;border-radius:20px;cursor:pointer;font-family:DM Sans,sans-serif;font-weight:600">Upgrade to Home Chef — $4.99/mo</button></p></div>`;
+        cardsEl.innerHTML=`<div class="loading-card"><p style="color:var(--red)">🔒 You've used all 5 free spins this month.</p><p style="font-size:12px;margin-top:8px"><button onclick="upgradeAccount('trial')" style="background:var(--coral);color:white;border:none;padding:8px 20px;border-radius:20px;cursor:pointer;font-family:DM Sans,sans-serif;font-weight:600">Upgrade to Home Chef — $4.99/mo</button></p></div>`;
         spinCount=5; updateSpinCounter();
         return;
       }
