@@ -370,7 +370,7 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 </div><!-- end app -->
 
 <script>
-const API = 'https://mealwheeliq-production.up.railway.app';
+const API = 'https://api.mealwheeliq.com';
 const INGREDIENT_DB = {
   "Beef & Pork":["Ground Beef","Beef Sirloin","Beef Chuck Roast","Beef Short Ribs","Flank Steak","Ribeye Steak","NY Strip Steak","Beef Tenderloin","Beef Brisket","Pork Chops","Pork Tenderloin","Pork Shoulder","Baby Back Ribs","Italian Sausage","Chorizo","Bacon","Ham","Prosciutto","Ground Pork","Pork Belly"],
   "Poultry":["Chicken Breast","Chicken Thighs","Chicken Drumsticks","Whole Chicken","Ground Chicken","Chicken Wings","Turkey Breast","Ground Turkey","Duck Breast","Rotisserie Chicken"],
@@ -875,8 +875,8 @@ async function favoriteRecipe(id, btn) {
 }
 
 function shareRecipe(name){
-  if(navigator.share){navigator.share({title:'MealsWheel Recipe',text:`Check out this recipe: ${name}`,url:'https://reviveiq.github.io/mealwheeliq'});}
-  else{navigator.clipboard.writeText('https://reviveiq.github.io/mealwheeliq').then(()=>alert('Link copied!'));}
+  if(navigator.share){navigator.share({title:'MealsWheel Recipe',text:`Check out this recipe: ${name}`,url:'https://mealwheeliq.com'});}
+  else{navigator.clipboard.writeText('https://mealwheeliq.com').then(()=>alert('Link copied!'));}
 }
 
 // ─── SECTIONS & MODES ────────────────────────────────────────────────────────
@@ -997,14 +997,14 @@ let shareRecipeName = '';
 
 function shareRecipe(name) {
   shareRecipeName = name;
-  const url = `https://reviveiq.github.io/mealwheeliq?recipe=${encodeURIComponent(name)}`;
+  const url = `https://mealwheeliq.com?recipe=${encodeURIComponent(name)}`;
   document.getElementById('share-url-input').value = url;
   document.getElementById('share-modal').classList.remove('hidden');
 }
 
 function shareRecipeById(id, name) {
   shareRecipeName = name;
-  const url = `https://reviveiq.github.io/mealwheeliq?recipe=${encodeURIComponent(name)}&id=${id}`;
+  const url = `https://mealwheeliq.com?recipe=${encodeURIComponent(name)}&id=${id}`;
   document.getElementById('share-url-input').value = url;
   document.getElementById('share-modal').classList.remove('hidden');
 }
