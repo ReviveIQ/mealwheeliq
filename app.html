@@ -741,8 +741,8 @@ async function loadPantryFromDB() {
       renderPantrySummary();
       renderPantryTags();
     } else {
-      // First time — open pantry modal after short delay
-      setTimeout(() => openPantryModal(), 800);
+      // First time — open pantry modal after wheel renders
+      setTimeout(() => openPantryModal(), 1200);
     }
   } catch(e) { console.error('Pantry load failed:', e); }
 }
