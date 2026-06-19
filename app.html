@@ -306,6 +306,44 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
     </div>
   </div>
 
+  <!-- PANTRY SETUP MODAL -->
+  <div id="pantry-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>🛒 What's in your kitchen?</h2>
+        <p>Tell us what you have and we'll spin recipes you can actually make.</p>
+      </div>
+      <div class="pantry-tabs">
+        <button class="ptab active" onclick="setPantryTab('saved')">My Pantry</button>
+        <button class="ptab" onclick="setPantryTab('tonight')">Tonight's Extras</button>
+      </div>
+      <div id="ptab-saved" class="ptab-content">
+        <div class="pantry-search-row">
+          <input type="text" id="pantry-search" placeholder="Search or type any ingredient..." oninput="filterPantryList()" autocomplete="off">
+          <button class="pantry-add-btn" onclick="addCustomPantryItem()">+ Add</button>
+        </div>
+        <div id="pantry-suggestions" class="pantry-suggestions hidden"></div>
+        <div class="pantry-categories" id="pantry-categories"></div>
+        <div class="pantry-saved-list" id="pantry-saved-list"></div>
+      </div>
+      <div id="ptab-tonight" class="ptab-content hidden">
+        <p class="tonight-desc">Picked something up? Add it just for tonight — won't save to your pantry.</p>
+        <div class="pantry-search-row">
+          <input type="text" id="tonight-input" placeholder="e.g. fresh basil, salmon fillet..." autocomplete="off" onkeydown="if(event.key==='Enter')addTonightItem()">
+          <button class="pantry-add-btn" onclick="addTonightItem()">+ Add</button>
+        </div>
+        <div id="tonight-list" class="tonight-list"></div>
+      </div>
+      <div class="modal-footer">
+        <div class="pantry-count-label" id="pantry-count-label">0 items in your pantry</div>
+        <div class="modal-actions">
+          <button class="btn-ghost" onclick="closePantryModal()">Skip for now</button>
+          <button class="btn-primary" onclick="savePantryAndClose()">Save & Spin 🎰</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SPIN SECTION -->
   <div id="section-spin">
 
