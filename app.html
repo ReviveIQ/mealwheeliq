@@ -530,9 +530,9 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
       <div class="rh" id="rh"></div>
       <div id="wcalsec"></div>
       <div class="legend">
-        <div style="display:flex;align-items:center;gap:3px"><span class="ing org" style="padding:2px 6px">green</span>Buy organic</div>
-        <div style="display:flex;align-items:center;gap:3px"><span class="ing buy" style="padding:2px 6px">orange</span>Need to buy</div>
-        <div style="display:flex;align-items:center;gap:3px"><span class="ing" style="padding:2px 6px">grey</span>Have it</div>
+        <div style="display:flex;align-items:center;gap:3px"><span class="ing" style="padding:2px 6px">✓</span>You have it</div>
+        <div style="display:flex;align-items:center;gap:3px"><span class="ing org" style="padding:2px 6px">🌿</span>Worth buying organic</div>
+        <div style="display:flex;align-items:center;gap:3px"><span class="ing buy" style="padding:2px 6px">🛒</span>Quick grocery grab</div>
       </div>
       <div id="rcards"></div>
       <div id="glsec"></div>
@@ -661,7 +661,7 @@ async function rateRecipe(id, stars, container) {
 
 
 // ─── PANTRY SYSTEM ───────────────────────────────────────────────────────────
-let chefName = 'Chef Claude';  // personalized chef name
+let chefName = 'Chef';  // personalized chef name — loaded from preferences
 let pantryItems = new Set();   // saved to DB
 let tonightItems = new Set();  // session only
 
@@ -894,7 +894,7 @@ function setChefName(name) {
 
 async function saveChefAndNext() {
   const input = document.getElementById('chef-name-input').value.trim();
-  chefName = input || 'Chef Claude';
+  chefName = input || 'Chef';
   // Save to preferences
   try {
     const prefs = await fetch(API + '/preferences', {
@@ -1165,7 +1165,7 @@ function spin() {
 // ─── AI RECIPE GENERATION ────────────────────────────────────────────────────
 async function generateRecipe(wi) {
   const resultEl=document.getElementById('results'),cardsEl=document.getElementById('rcards');
-  document.getElementById('rh').textContent = mode==='week'?`Week in progress — ${wk.length+1}/5 generating...`:'Chef Claude is cooking...';
+  document.getElementById('rh').textContent = mode==='week'?`Week in progress — ${wk.length+1}/5 generating...`:`${chefName} is cooking...`;
   cardsEl.innerHTML=`<div class="loading-card"><div class="loading-spinner"></div><p><strong>${chefName}</strong> is cooking from <strong>${selectedIngs.size} ingredients</strong>...</p><p style="font-size:11px;margin-top:4px;color:var(--ink3)">Bold flavors · Real technique · Organic-forward</p></div>`;
   resultEl.classList.remove('hidden');
   resultEl.scrollIntoView({behavior:'smooth',block:'start'});
