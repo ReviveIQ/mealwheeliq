@@ -1183,7 +1183,7 @@ async function generateRecipe(wi) {
     : 'STRICT PANTRY RULE: no more than 40% of ingredients may have buy:true. Prioritize what the user already has.';
 
   // Build single-recipe prompt — fire in parallel for speed
-  const makePrompt = () => ``You are ${chefName}, a professional chef with expertise in bold flavors, live-fire cooking, and fresh ingredients.` Generate 1 dinner recipe that is ${styleHint}.
+  const makePrompt = () => `You are ${chefName}, a professional chef with expertise in bold flavors, live-fire cooking, and fresh ingredients. Generate 1 dinner recipe that is ${styleHint}.
 User's available ingredients: ${ingList}
 Requirements: use primarily these ingredients, flag buy:true for extras needed (max 3), flag organic:true for meats/eggs/leafy greens/thin-skin produce, servings: ${s}, daily calorie goal: ${g} kcal. ${avoidStr} ${dietStr}
 ${buyRule}
