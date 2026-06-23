@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MealsWheel — Let's Cook</title>
+<title>MealWheelIQ — Let's Cook</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -425,7 +425,7 @@ button, a { touch-action: manipulation; }
 <body>
 
 <nav>
-  <a href="index.html" class="nav-logo">Meals<span>Wheel</span></a>
+  <a href="index.html" class="nav-logo">MealWheel<span>IQ</span></a>
   <div class="nav-right">
     <span class="nav-plan" id="nav-plan">Free</span>
     <span class="nav-user" id="nav-user"></span>
@@ -1565,7 +1565,7 @@ async function favoriteRecipe(id, btn) {
 }
 
 function shareRecipe(name){
-  if(navigator.share){navigator.share({title:'MealsWheel Recipe',text:`Check out this recipe: ${name}`,url:'https://mealwheeliq.com'});}
+  if(navigator.share){navigator.share({title:'MealWheelIQ Recipe',text:`Check out this recipe: ${name}`,url:'https://mealwheeliq.com'});}
   else{navigator.clipboard.writeText('https://mealwheeliq.com').then(()=>alert('Link copied!'));}
 }
 
