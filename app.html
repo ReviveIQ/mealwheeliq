@@ -1586,19 +1586,16 @@ async function sendToShopper(id) {
     const buyList = ings.filter(i=>i.buy).map(i=>'• '+i.name);
     const haveList = ings.filter(i=>!i.buy).map(i=>i.name);
 
-    const msg = [
-      `🍽️ Tonight's dinner: ${r.recipe_name} ${r.emoji||''}`,
-      `⏱️ ${r.cook_time||'~30 min'} · ${r.calories_per_serving||0} kcal/person`,
-      '',
-      buyList.length
-        ? '🛒 NEED TO BUY (' + buyList.length + ' item' + (buyList.length>1?'s':'') + '):\n' + buyList.join('\n')
-        : '✅ We have everything — no shopping needed!',
-      '',
-      haveList.length ? `✅ Already have: ${haveList.slice(0,6).join(', ')}${haveList.length>6?' + more':''}` : '',
-      '',
-      `📱 Spun on MealWheelIQ — mealwheeliq.com`
-    ].filter(Boolean).join('
-');
+    let msg = '🍽️ Tonight: ' + r.recipe_name + ' ' + (r.emoji||'') + '\n';
+    msg += '⏱️ ' + (r.cook_time||'~30 min') + ' · ' + (r.calories_per_serving||0) + ' kcal/person\n\n';
+    if (buyList.length) {
+      msg += '🛒 NEED TO BUY (' + buyList.length + ' item' + (buyList.length>1?'s':'') + '):\n';
+      msg += buyList.join('\n') + '\n\n';
+    } else {
+      msg += '✅ We have everything — no shopping needed!\n\n';
+    }
+    if (haveList.length) msg += '✅ Already have: ' + haveList.slice(0,6).join(', ') + (haveList.length>6?' + more':'') + '\n\n';
+    msg += '📱 Spun on MealWheelIQ — mealwheeliq.com';
 
     if (navigator.share) {
       navigator.share({ title: `Tonight: ${r.recipe_name}`, text: msg });
