@@ -214,6 +214,21 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .stab{padding:8px 14px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--ink3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
 .stab.act{color:var(--coral);border-bottom-color:var(--coral)}
 
+.fav-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;margin-bottom:.65rem}
+.fav-card-header{display:flex;gap:.75rem;align-items:flex-start;margin-bottom:.5rem}
+.fav-emoji{font-size:28px;flex-shrink:0}
+.fav-info{flex:1;min-width:0}
+.fav-name{font-size:14px;font-weight:600;color:var(--ink1);line-height:1.3}
+.fav-meta{font-size:11px;color:var(--ink3);margin-top:2px}
+.fav-buy-list{font-size:12px;color:var(--ink2);background:var(--bg);border-radius:8px;padding:6px 10px;margin-bottom:.6rem;line-height:1.5}
+.fav-actions{display:flex;gap:6px;flex-wrap:wrap}
+.fav-action-btn{font-size:12px;padding:.4rem .75rem;border-radius:16px;border:1px solid var(--border);background:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--ink2);transition:all .15s;white-space:nowrap}
+.fav-action-btn:hover{border-color:var(--ink2);color:var(--ink1)}
+.fav-action-btn.send{background:var(--green);color:white;border-color:var(--green)}
+.fav-action-btn.send:hover{background:var(--green-dark)}
+.fav-action-btn.remove{color:#C0392B;border-color:rgba(192,57,43,.2)}
+.fav-action-btn.remove:hover{background:#FDF0F0}
+@media(max-width:600px){.fav-action-btn{flex:1;text-align:center;min-height:40px}}
 /* ── WELCOME ONBOARDING ── */
 .welcome-box{max-width:460px;padding:0}
 .welcome-step{padding:2rem 1.75rem}
@@ -1559,6 +1574,67 @@ async function loadHistory(){
   } catch {}
 }
 
+async function sendToShopper(id) {
+  // Fetch the full recipe from favorites
+  try {
+    const resp = await fetch(API+'/favorites', {headers:{'Authorization':'Bearer '+userToken}});
+    const recipes = await resp.json();
+    const r = recipes.find(x => x.id === id);
+    if (!r) return;
+
+    const ings = JSON.parse(r.ingredients||'[]');
+    const buyList = ings.filter(i=>i.buy).map(i=>'• '+i.name);
+    const haveList = ings.filter(i=>!i.buy).map(i=>i.name);
+
+    const msg = [
+      `🍽️ Tonight's dinner: ${r.recipe_name} ${r.emoji||''}`,
+      `⏱️ ${r.cook_time||'~30 min'} · ${r.calories_per_serving||0} kcal/person`,
+      '',
+      buyList.length
+        ? `🛒 NEED TO BUY (${buyList.length} item${buyList.length>1?'s':''}):
+${buyList.join('
+')}`
+        : '✅ We have everything — no shopping needed!',
+      '',
+      haveList.length ? `✅ Already have: ${haveList.slice(0,6).join(', ')}${haveList.length>6?' + more':''}` : '',
+      '',
+      `📱 Spun on MealWheelIQ — mealwheeliq.com`
+    ].filter(Boolean).join('
+');
+
+    if (navigator.share) {
+      navigator.share({ title: `Tonight: ${r.recipe_name}`, text: msg });
+    } else {
+      await navigator.clipboard.writeText(msg);
+      alert('Shopping list copied! Paste it in a text or email to send.');
+    }
+  } catch(e) { console.error(e); alert('Could not load recipe details.'); }
+}
+
+async function shareFavorite(id) {
+  try {
+    const resp = await fetch(API+'/favorites', {headers:{'Authorization':'Bearer '+userToken}});
+    const recipes = await resp.json();
+    const r = recipes.find(x => x.id === id);
+    if (!r) return;
+    const text = `Check out this recipe I found on MealWheelIQ: ${r.recipe_name} ${r.emoji||''}`;
+    if (navigator.share) {
+      navigator.share({ title: r.recipe_name, text, url: 'https://mealwheeliq.com' });
+    } else {
+      await navigator.clipboard.writeText(text + ' — mealwheeliq.com');
+      alert('Recipe link copied!');
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function removeFavorite(id, btn) {
+  if (!confirm('Remove from favorites?')) return;
+  try {
+    const resp = await fetch(API+'/favorites/'+id, {method:'DELETE',headers:{'Authorization':'Bearer '+userToken}});
+    if (resp.ok) { btn.closest('.fav-card').remove(); }
+  } catch(e) { console.error(e); }
+}
+
 async function loadFavorites(){
   try {
     const resp=await fetch(API+'/favorites',{headers:{'Authorization':'Bearer '+userToken}});
@@ -1566,15 +1642,27 @@ async function loadFavorites(){
     const recipes=await resp.json();
     const el=document.getElementById('favorites-list');
     if(!recipes.length){el.innerHTML='<div class="empty-state">Heart a recipe after spinning to save it here.</div>';return;}
-    el.innerHTML=recipes.map(r=>`
-      <div class="history-item">
-        <div class="hi-em">${r.emoji||'🍽️'}</div>
-        <div class="hi-info">
-          <div class="hi-name">${r.recipe_name}</div>
-          <div class="hi-meta">${r.cook_time} · ${r.difficulty}</div>
+    el.innerHTML=recipes.map(r=>{
+      const ings = JSON.parse(r.ingredients||'[]');
+      const buyList = ings.filter(i=>i.buy).map(i=>i.name);
+      const haveList = ings.filter(i=>!i.buy);
+      return `
+      <div class="fav-card">
+        <div class="fav-card-header">
+          <span class="fav-emoji">${r.emoji||'🍽️'}</span>
+          <div class="fav-info">
+            <div class="fav-name">${r.recipe_name}</div>
+            <div class="fav-meta">${r.cook_time||''} · ${r.difficulty||''} · ${r.calories_per_serving||0} kcal/person</div>
+          </div>
         </div>
-        <div class="hi-cal">${r.calories_per_serving||0} kcal/person</div>
-      </div>`).join('');
+        ${buyList.length ? `<div class="fav-buy-list">🛒 <strong>Need to buy:</strong> ${buyList.join(', ')}</div>` : '<div class="fav-buy-list" style="color:var(--green-dark)">✅ You have everything for this recipe!</div>'}
+        <div class="fav-actions">
+          <button class="fav-action-btn send" onclick="sendToShopper(${r.id})">📨 Send to shopper</button>
+          <button class="fav-action-btn" onclick="shareFavorite(${r.id})">🔗 Share recipe</button>
+          <button class="fav-action-btn remove" onclick="removeFavorite(${r.id}, this)">✕ Remove</button>
+        </div>
+      </div>`;
+    }).join('');
   } catch {}
 }
 
