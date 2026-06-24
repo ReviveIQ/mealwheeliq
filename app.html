@@ -1415,7 +1415,7 @@ function cg(){
 function sv(){return parseInt(document.getElementById('servings').value)||2;}
 
 function cbHTML(r){
-  const s=sv(),g=cg(),tc=(r.calories_per_serving||0)*s,pct=Math.round(tc/g*100),bw=Math.min(pct,100);
+  const s=sv(),g=cg(),tc=(r.calories_per_serving||0),pct=Math.round(tc/g*100),bw=Math.min(pct,100); // calories per person
   const bc=pct>100?'#C0392B':pct>80?'#2A6B4A':'#185FA5';
   const isVerified = r.nutrition_source === 'USDA FoodData Central';
   const sourceBadge = isVerified
@@ -1482,25 +1482,25 @@ function showWeekResults(){
 function showCalPanel(recipes){
   if(!recipes||!recipes.length)return;
   const g=cg(),s=sv();
-  const perN=Math.round(recipes.reduce((a,r)=>a+(r.calories_per_serving||0),0)/recipes.length*s);
+  const perN=Math.round(recipes.reduce((a,r)=>a+(r.calories_per_serving||0),0)/recipes.length); // per person
   const pct=Math.round(perN/g*100),rem=g-perN;
   document.getElementById('cstats').classList.remove('hidden');
   document.getElementById('pbwrap').classList.remove('hidden');
   document.getElementById('cs1v').textContent=perN+' kcal';
   document.getElementById('cs2v').textContent=pct+'%';
   document.getElementById('cs3v').textContent=(rem>=0?'+':'')+rem+' kcal';
-  document.getElementById('cs4v').textContent=Math.round(recipes.reduce((a,r)=>a+(r.calories_per_serving||0)*s,0)/recipes.length)+' kcal';
+  document.getElementById('cs4v').textContent=Math.round(recipes.reduce((a,r)=>a+(r.calories_per_serving||0),0)/recipes.length)+' kcal'; // per person
   document.getElementById('cs2').className='cst'+(pct>100?' over':pct>75?' ok':' low');
   document.getElementById('cs3').className='cst'+(rem<0?' over':rem<300?' ok':' low');
   const bc=pct>100?'#C0392B':pct>80?'#2A6B4A':'#185FA5';
   const f=document.getElementById('pbfill');f.style.width=Math.min(pct,100)+'%';f.style.background=bc;
-  document.getElementById('pbl').textContent=perN+' kcal dinner ('+s+' serving'+(s>1?'s':'')+')';
+  document.getElementById('pbl').textContent=perN+' kcal per person · feeds '+s;
   document.getElementById('pbr').textContent='Goal: '+g+' kcal/day';
 }
 
 function buildWkCal(){
-  const g=cg(),s=sv(),avg=Math.round(wk.reduce((a,r)=>a+(r.calories_per_serving||0)*s,0)/5);
-  const cards=wk.map((r,i)=>{const c=(r.calories_per_serving||0)*s,p=Math.round(c/g*100),cls=p>100?'over':p>80?'ok':'under';
+  const g=cg(),s=sv(),avg=Math.round(wk.reduce((a,r)=>a+(r.calories_per_serving||0),0)/5); // per person
+  const cards=wk.map((r,i)=>{const c=(r.calories_per_serving||0),p=Math.round(c/g*100),cls=p>100?'over':p>80?'ok':'under'; // per person
     return `<div class="wcc ${cls}"><div class="wd">${DAYS[i]}</div><div class="wm">${r.name.split(' ').slice(0,3).join(' ')}</div><div class="wc2">${c} kcal</div><div style="font-size:9px;color:var(--ink3)">${p}%</div></div>`;
   }).join('');
   document.getElementById('wcalsec').innerHTML=`<div class="wcs"><h4>📊 Week overview — avg ${avg} kcal/dinner · target ~${g} kcal/dinner</h4><div class="wcg">${cards}</div></div>`;
@@ -1554,7 +1554,7 @@ async function loadHistory(){
           <div class="hi-name">${r.recipe_name}</div>
           <div class="hi-meta">${r.cook_time} · ${r.difficulty} · ${r.style}</div>
         </div>
-        <div class="hi-cal">${(r.calories_per_serving||0)*sv()} kcal</div>
+        <div class="hi-cal">${r.calories_per_serving||0} kcal/person</div>
       </div>`).join('');
   } catch {}
 }
@@ -1573,7 +1573,7 @@ async function loadFavorites(){
           <div class="hi-name">${r.recipe_name}</div>
           <div class="hi-meta">${r.cook_time} · ${r.difficulty}</div>
         </div>
-        <div class="hi-cal">${(r.calories_per_serving||0)*sv()} kcal</div>
+        <div class="hi-cal">${r.calories_per_serving||0} kcal/person</div>
       </div>`).join('');
   } catch {}
 }
