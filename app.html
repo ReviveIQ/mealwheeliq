@@ -1591,9 +1591,7 @@ async function sendToShopper(id) {
       `⏱️ ${r.cook_time||'~30 min'} · ${r.calories_per_serving||0} kcal/person`,
       '',
       buyList.length
-        ? `🛒 NEED TO BUY (${buyList.length} item${buyList.length>1?'s':''}):
-${buyList.join('
-')}`
+        ? '🛒 NEED TO BUY (' + buyList.length + ' item' + (buyList.length>1?'s':'') + '):\n' + buyList.join('\n')
         : '✅ We have everything — no shopping needed!',
       '',
       haveList.length ? `✅ Already have: ${haveList.slice(0,6).join(', ')}${haveList.length>6?' + more':''}` : '',
