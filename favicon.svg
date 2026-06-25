@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#1a1a1a"/>
+  <!-- Wheel segments simplified -->
+  <path d="M16 16 L16 2 A14 14 0 0 1 27.1 9" fill="#C94B2A"/>
+  <path d="M16 16 L27.1 9 A14 14 0 0 1 27.1 23" fill="#2A6B4A"/>
+  <path d="M16 16 L27.1 23 A14 14 0 0 1 16 30" fill="#534AB7"/>
+  <path d="M16 16 L16 30 A14 14 0 0 1 4.9 23" fill="#B8860B"/>
+  <path d="M16 16 L4.9 23 A14 14 0 0 1 4.9 9" fill="#185FA5"/>
+  <path d="M16 16 L4.9 9 A14 14 0 0 1 16 2" fill="#8B3A3A"/>
+  <!-- Center circle -->
+  <circle cx="16" cy="16" r="5" fill="white"/>
+  <circle cx="16" cy="16" r="3.5" fill="#C94B2A"/>
+</svg>
