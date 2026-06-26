@@ -439,6 +439,22 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 button, a { touch-action: manipulation; }
 
 </style>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#C94B2A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MealWheelIQ">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <!-- iOS Splash Screens -->
+  <link rel="apple-touch-startup-image" media="(device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2)" href="/splash/splash-750x1334.png">
+  <link rel="apple-touch-startup-image" media="(device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3)" href="/splash/splash-1170x2532.png">
+  <link rel="apple-touch-startup-image" media="(device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3)" href="/splash/splash-1284x2778.png">
+  <link rel="apple-touch-startup-image" media="(device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3)" href="/splash/splash-1179x2556.png">
+  <link rel="apple-touch-startup-image" media="(device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3)" href="/splash/splash-1290x2796.png">
 </head>
 <body>
 
@@ -2015,5 +2031,12 @@ async function saveMealPlan() {
 // ─── INIT ────────────────────────────────────────────────────────────────────
 initApp();
 </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW:', e));
+      });
+    }
+  </script>
 </body>
 </html>
