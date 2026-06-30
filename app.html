@@ -262,6 +262,31 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .ostep.active{background:var(--green-pale);color:var(--green-dark);border-color:var(--green)}
 .ostep.done{background:var(--ink1);color:white;border-color:var(--ink1)}
 .ostep-arrow{font-size:11px;color:var(--ink3)}
+/* ── PHOTO SCAN ── */
+.scan-photo-row{margin-bottom:.6rem}
+.scan-photo-btn{width:100%;background:linear-gradient(135deg,#C94B2A,#E8603E);color:white;border:none;border-radius:12px;padding:.85rem 1rem;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s}
+.scan-photo-btn:hover{opacity:.9}
+.scan-photo-btn:disabled{opacity:.6;cursor:wait}
+.or-divider-pantry{display:flex;align-items:center;text-align:center;margin:.75rem 0;color:var(--ink3);font-size:11px}
+.or-divider-pantry::before,.or-divider-pantry::after{content:'';flex:1;border-bottom:1px solid var(--border)}
+.or-divider-pantry span{padding:0 .6rem}
+.scan-confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1100;display:flex;align-items:center;justify-content:center;padding:1rem}
+.scan-confirm-box{background:var(--card);border-radius:16px;max-width:440px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+.scan-confirm-header{padding:1.1rem 1.3rem .8rem;border-bottom:1px solid var(--border)}
+.scan-confirm-header h3{font-size:16px;font-weight:700;margin-bottom:.3rem}
+.scan-confirm-header p{font-size:13px;color:var(--ink2)}
+.scan-confirm-body{padding:1rem 1.3rem;overflow-y:auto;flex:1}
+.scan-item-row{display:flex;align-items:center;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--border)}
+.scan-item-row:last-child{border-bottom:none}
+.scan-item-check{width:20px;height:20px;border-radius:5px;border:2px solid var(--green);background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
+.scan-item-check.off{background:white;border-color:var(--border);color:transparent}
+.scan-item-name{flex:1;font-size:14px}
+.scan-confirm-footer{padding:1rem 1.3rem;border-top:1px solid var(--border);display:flex;gap:.6rem}
+.scan-confirm-footer button{flex:1}
+.scan-loading{text-align:center;padding:2rem 1rem}
+.scan-loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--coral);border-radius:50%;margin:0 auto 1rem;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 /* ── PANTRY MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
 .modal-box{background:var(--card);border-radius:16px;width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
@@ -559,6 +584,13 @@ button, a { touch-action: manipulation; }
         <div class="welcome-emoji" style="font-size:52px">🛒</div>
         <h2 style="font-size:24px">What's in your kitchen?</h2>
         <p style="font-size:14px">Tap everything you have in your fridge, freezer, and pantry. Don't worry about spices or oil — <strong id="chef-name-display">your chef</strong> assumes you have the basics!</p>
+        <div class="scan-photo-row">
+          <input type="file" id="welcome-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleWelcomePhoto(event)">
+          <button class="scan-photo-btn" onclick="document.getElementById('welcome-photo-input').click()">
+            📸 Snap a photo instead
+          </button>
+        </div>
+        <div class="or-divider-pantry"><span>or add manually</span></div>
         <div class="pantry-search-row">
           <input type="text" id="welcome-pantry-search" placeholder="Search ingredients..." 
             oninput="filterWelcomePantry()" autocomplete="off">
@@ -599,6 +631,13 @@ button, a { touch-action: manipulation; }
         <button class="ptab" onclick="setPantryTab('tonight')">Tonight's Extras</button>
       </div>
       <div id="ptab-saved" class="ptab-content">
+        <div class="scan-photo-row">
+          <input type="file" id="pantry-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePantryPhoto(event)">
+          <button class="scan-photo-btn" onclick="document.getElementById('pantry-photo-input').click()">
+            📸 Snap a photo of your fridge or pantry
+          </button>
+        </div>
+        <div class="or-divider-pantry"><span>or add manually</span></div>
         <div class="pantry-search-row">
           <input type="text" id="pantry-search" placeholder="Search or type any ingredient..." oninput="filterPantryList()" autocomplete="off">
           <button class="pantry-add-btn" onclick="addCustomPantryItem()">+ Add</button>
@@ -657,9 +696,9 @@ button, a { touch-action: manipulation; }
       </div>
     </div>
 
-    <div class="mode-sw">
-      <button class="mbtn act" id="bfridge" onclick="setMode('fridge')"><span class="mi">🧊</span>Use what I have<div class="md">AI recipes from your fridge</div></button>
-      <button class="mbtn" id="bweek" onclick="setMode('week')"><span class="mi">📅</span>Plan next week<div class="md">5 AI dinners + grocery list</div></button>
+    <div class="mode-sw" id="mode-sw">
+      <button class="mbtn act" id="bfridge" onclick="setMode('fridge')"><span class="mi">🧊</span>Tonight's Dinner<div class="md">One quick spin</div></button>
+      <button class="mbtn" id="bweek" onclick="setMode('week')"><span class="mi">📅</span>Plan My Week<div class="md">5 dinners + grocery list, all at once</div></button>
     </div>
 
     <div class="onote">🌿 <strong>Why organic matters:</strong> USDA organic = no synthetic pesticides. Harvard research links it to lower pesticide exposure in children. Organic livestock = no antibiotics — the WHO flags this as a key driver of antibiotic resistance. <strong>Green tags</strong> = highest-priority swaps.</div>
@@ -1245,6 +1284,145 @@ async function saveWhatsNew() {
   renderPantrySummary();
 }
 
+
+// ─── PANTRY PHOTO SCAN ───────────────────────────────────────────────────────
+let scanTargetMode = 'pantry'; // 'pantry' or 'welcome' — determines where confirmed items go
+
+function handlePantryPhoto(event) {
+  scanTargetMode = 'pantry';
+  processPantryPhoto(event);
+}
+
+function handleWelcomePhoto(event) {
+  scanTargetMode = 'welcome';
+  processPantryPhoto(event);
+}
+
+async function processPantryPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Show loading state on the button
+  const btnSelector = scanTargetMode === 'welcome' ? '#welcome-photo-input' : '#pantry-photo-input';
+  const btn = document.querySelector(btnSelector)?.previousElementSibling || document.querySelector(btnSelector)?.parentElement?.querySelector('.scan-photo-btn');
+
+  showScanLoadingOverlay();
+
+  try {
+    // Convert to base64
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const mediaType = file.type || 'image/jpeg';
+
+    const resp = await fetch(API + '/pantry/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+      body: JSON.stringify({ image: base64, mediaType })
+    });
+
+    const data = await resp.json();
+    hideScanLoadingOverlay();
+
+    if (!resp.ok || !data.items || !data.items.length) {
+      alert('Couldn\'t identify any items in that photo. Try a clearer, well-lit shot, or add items manually.');
+      return;
+    }
+
+    showScanConfirmScreen(data.items);
+  } catch (e) {
+    hideScanLoadingOverlay();
+    console.error('Pantry scan error:', e);
+    alert('Photo scan failed. Please try again or add items manually.');
+  } finally {
+    event.target.value = ''; // reset file input
+  }
+}
+
+function showScanLoadingOverlay() {
+  const overlay = document.createElement('div');
+  overlay.className = 'scan-confirm-overlay';
+  overlay.id = 'scan-loading-overlay';
+  overlay.innerHTML = `
+    <div class="scan-confirm-box">
+      <div class="scan-loading">
+        <div class="scan-loading-spinner"></div>
+        <p style="font-weight:600;margin-bottom:.3rem">Looking at your photo...</p>
+        <p style="font-size:13px;color:var(--ink2)">${chefName} is identifying what's there</p>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function hideScanLoadingOverlay() {
+  document.getElementById('scan-loading-overlay')?.remove();
+}
+
+let scanConfirmedItems = new Set();
+
+function showScanConfirmScreen(items) {
+  scanConfirmedItems = new Set(items); // all checked by default
+
+  const overlay = document.createElement('div');
+  overlay.className = 'scan-confirm-overlay';
+  overlay.id = 'scan-confirm-overlay';
+  overlay.innerHTML = `
+    <div class="scan-confirm-box">
+      <div class="scan-confirm-header">
+        <h3>📸 Here's what we found</h3>
+        <p>Uncheck anything that's wrong or you don't want to add. ${chefName} can fix mistakes — just review below.</p>
+      </div>
+      <div class="scan-confirm-body" id="scan-confirm-list"></div>
+      <div class="scan-confirm-footer">
+        <button class="btn-ghost" onclick="closeScanConfirm()">Cancel</button>
+        <button class="btn-primary" onclick="confirmScanItems()">Add to pantry</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  renderScanConfirmList(items);
+}
+
+function renderScanConfirmList(items) {
+  const el = document.getElementById('scan-confirm-list');
+  if (!el) return;
+  el.innerHTML = items.map(item => `
+    <div class="scan-item-row">
+      <div class="scan-item-check ${scanConfirmedItems.has(item) ? '' : 'off'}" onclick="toggleScanItem('${item.replace(/'/g,"\\'")}')">✓</div>
+      <div class="scan-item-name">${item}</div>
+    </div>
+  `).join('');
+}
+
+function toggleScanItem(item) {
+  if (scanConfirmedItems.has(item)) scanConfirmedItems.delete(item);
+  else scanConfirmedItems.add(item);
+  const items = Array.from(document.querySelectorAll('.scan-item-name')).map(el => el.textContent);
+  renderScanConfirmList(items);
+}
+
+function closeScanConfirm() {
+  document.getElementById('scan-confirm-overlay')?.remove();
+}
+
+function confirmScanItems() {
+  const itemsToAdd = Array.from(scanConfirmedItems);
+  itemsToAdd.forEach(item => pantryItems.add(item));
+
+  closeScanConfirm();
+
+  if (scanTargetMode === 'welcome') {
+    renderWelcomePantryCats();
+  } else {
+    renderPantryTags();
+    renderPantryCategories();
+    updatePantryCount();
+  }
+}
+
 function signOut() {
   localStorage.removeItem('mw_token');
   localStorage.removeItem('mw_user');
@@ -1400,9 +1578,17 @@ function spin() {
   // Always sync selectedIngs from pantry before spinning
   selectedIngs = new Set([...pantryItems, ...tonightItems]);
   if (selectedIngs.size < 3) { openPantryModal(); return; }
-  if (mode==='week' && wk.length>=5) { showWeekResults(); return; }
+
+  // WEEK MODE — generate all 5 nights in one batch, no wheel spin needed
+  if (mode === 'week') {
+    if (wk.length >= 5) { showWeekResults(); return; }
+    generateFullWeek();
+    return;
+  }
+
+  // TONIGHT MODE — normal wheel spin
   spinning=true; document.getElementById('sbtn').disabled=true;
-  if (mode==='fridge') document.getElementById('results').classList.add('hidden');
+  document.getElementById('results').classList.add('hidden');
   const sa=ang,extra=(Math.random()*4+6)*2*Math.PI;
   const wi=Math.floor(Math.random()*8),arc=2*Math.PI/8;
   const stopA=-(wi*arc+arc/2)+Math.PI/2;
@@ -1413,6 +1599,116 @@ function spin() {
     else{ang=st%(2*Math.PI); drawWheel(); generateRecipe(wi);}
   }
   requestAnimationFrame(anim);
+}
+
+// ─── WEEK BATCH GENERATION — all 5 dinners in one shot ──────────────────────
+async function generateFullWeek() {
+  spinning = true;
+  document.getElementById('sbtn').disabled = true;
+  const resultEl = document.getElementById('results'), cardsEl = document.getElementById('rcards');
+  document.getElementById('rh').textContent = 'Planning your whole week...';
+  cardsEl.innerHTML = `<div class="loading-card"><div class="loading-spinner"></div><p><strong>${chefName}</strong> is planning 5 dinners from <strong>${selectedIngs.size} ingredients</strong>...</p><p style="font-size:11px;margin-top:4px;color:var(--ink3)">This takes a little longer — worth the wait!</p></div>`;
+  resultEl.classList.remove('hidden');
+  resultEl.scrollIntoView({behavior:'smooth', block:'start'});
+
+  const ingList = Array.from(selectedIngs).join(', ');
+  const s = parseInt(document.getElementById('servings').value) || 2;
+  const dailyGoal = parseInt(document.getElementById('calgoal').value) || 2000;
+  window._dailyGoal = dailyGoal;
+  const g = Math.round(dailyGoal * 0.35);
+  const dietStr = getDietPromptText();
+  const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+
+  const makeWeekPrompt = (dayIndex, avoidNames) => {
+    const avoidStr = avoidNames.length ? `Do NOT repeat any of: ${avoidNames.join(', ')}.` : '';
+    return `You are ${chefName}, a professional chef with expertise in bold flavors, live-fire cooking, and fresh ingredients. Generate 1 dinner recipe for ${dayNames[dayIndex]} — make it distinctly different in style and protein from other nights this week.
+
+User's available ingredients: ${ingList}
+
+ASSUMED KITCHEN STAPLES (always available — never mark these buy:true):
+Fats: olive oil, vegetable oil, butter
+Seasonings: salt, black pepper, garlic powder, onion powder, paprika, cumin, chili powder, oregano, thyme, rosemary, red pepper flakes, Italian seasoning, cinnamon
+Condiments: soy sauce, Worcestershire sauce, hot sauce, Dijon mustard, ketchup, mayonnaise, honey, vinegar
+Pantry: flour, sugar, cornstarch, chicken broth, beef broth
+Aromatics: garlic, onion (assume always on hand)
+
+You may suggest additional ingredients to buy as needed — mark them buy:true. Flag organic:true for meats, eggs, leafy greens, thin-skin produce.
+Servings: ${s}. Target approximately ${g} kcal per serving for dinner. ${avoidStr} ${dietStr}
+
+Recipe steps MUST follow professional cookbook standards (America's Test Kitchen / Bon Appétit style):
+- Lead every step with an action verb: Heat, Sear, Brown, Stir, Whisk, Fold, Simmer, Roast, Toss, Season, Garnish
+- Combine actions that happen together — never split "add X" and "stir X" into separate steps
+- Include timing AND visual cues: "cook until golden brown, about 4 minutes" not just "cook chicken"
+- Organize by cooking phase: Prep → Sear → Build flavor → Simmer or Bake → Finish → Serve
+- Final step: taste, season with salt and pepper, and a service instruction
+- Target 5–7 steps. Maximum 8. Eliminate all micro-steps.
+- Never use passive voice. Never start a step with "The", "Once", or "After".
+Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️","time":"30 min","difficulty":"Easy","style":"American","calories_per_serving":520,"protein_g":38,"carbs_g":45,"fat_g":18,"ingredients":[{"name":"ingredient","organic":false,"buy":false}],"steps":["Heat oil in a large skillet over medium-high heat.","Sear chicken until golden brown, about 4 minutes per side.","Add onion, cook until softened, about 3 minutes.","Simmer until cooked through, about 15 minutes.","Taste, season with salt and pepper, and serve hot."]}]}`;
+  };
+
+  try {
+    // Fire all 5 sequentially-aware but actually parallel — pass running list of names to avoid via closures isn't possible in true parallel,
+    // so we fire them in 2 waves: first 3 parallel, then 2 more avoiding those 3 names, for variety without serial latency.
+    const wave1 = await Promise.all([0,1,2].map(i =>
+      fetch(API+'/generate', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+userToken},
+        body: JSON.stringify({prompt: makeWeekPrompt(i, [])})
+      })
+    ));
+
+    if (wave1[0].status === 403) {
+      const data = await wave1[0].json();
+      if (data.error === 'spin_limit_reached') {
+        spinning=false; document.getElementById('sbtn').disabled=false;
+        document.getElementById('upgrade-banner').classList.remove('hidden');
+        cardsEl.innerHTML = `<div class="loading-card"><p style="color:var(--red)">🔒 You've used all 5 free spins.</p><p style="font-size:12px;margin-top:8px"><button onclick="upgradeAccount('trial')" style="background:var(--coral);color:white;border:none;padding:8px 20px;border-radius:20px;cursor:pointer;font-family:DM Sans,sans-serif;font-weight:600">Try a Week — $4.99</button></p></div>`;
+        spinCount=5; updateSpinCounter();
+        return;
+      }
+    }
+
+    const wave1Data = await Promise.all(wave1.map(r => r.json()));
+    const wave1Recipes = wave1Data.map(data => {
+      try {
+        const raw = data.content.map(b=>b.text||'').join('');
+        const clean = raw.replace(/```json|```/g,'').trim();
+        return JSON.parse(clean).recipes?.[0] || null;
+      } catch(e) { return null; }
+    }).filter(Boolean);
+
+    const avoidNames = wave1Recipes.map(r => r.name);
+
+    const wave2 = await Promise.all([3,4].map(i =>
+      fetch(API+'/generate', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+userToken},
+        body: JSON.stringify({prompt: makeWeekPrompt(i, avoidNames)})
+      })
+    ));
+
+    const wave2Data = await Promise.all(wave2.map(r => r.json()));
+    const wave2Recipes = wave2Data.map(data => {
+      try {
+        const raw = data.content.map(b=>b.text||'').join('');
+        const clean = raw.replace(/```json|```/g,'').trim();
+        return JSON.parse(clean).recipes?.[0] || null;
+      } catch(e) { return null; }
+    }).filter(Boolean);
+
+    wk = [...wave1Recipes, ...wave2Recipes];
+    spinning = false;
+    document.getElementById('sbtn').disabled = false;
+    document.getElementById('sbtn').textContent = '🎉 See My Week!';
+    spinCount += 5; if (userPlan === 'free') updateSpinCounter();
+    updateWkLabel();
+    showWeekResults();
+    loadHistory();
+  } catch(err) {
+    spinning = false;
+    document.getElementById('sbtn').disabled = false;
+    cardsEl.innerHTML = `<div class="loading-card"><p style="color:var(--red)">⚠️ Week planning failed. Please try again.</p><p style="font-size:11px;margin-top:6px;color:var(--ink3)">${err.message}</p></div>`;
+  }
 }
 
 // ─── AI RECIPE GENERATION ────────────────────────────────────────────────────
@@ -1845,15 +2141,14 @@ function setMode(m){
   document.getElementById('results').classList.add('hidden');
   document.getElementById('cstats').classList.add('hidden');
   document.getElementById('pbwrap').classList.add('hidden');
-  document.getElementById('sbtn').textContent='✨ Spin & Generate Recipe';
+  document.getElementById('sbtn').textContent = m==='week' ? '📅 Plan My Whole Week' : '✨ Spin & Generate Recipe';
   if(m==='week')updateWkLabel();
   drawWheel();
 }
 
 function updateWkLabel(){
   const el=document.getElementById('wklabel');if(mode!=='week')return;
-  const r=5-wk.length;
-  el.textContent=r>0?`Spin ${r} more time${r>1?'s':''} — ${wk.length}/5 nights planned`:'All 5 nights planned! 🎉';
+  el.textContent = wk.length>=5 ? 'All 5 nights planned! 🎉' : 'Tap below to generate all 5 dinners for the week at once';
 }
 
 function resetApp(){
@@ -1861,7 +2156,7 @@ function resetApp(){
   document.getElementById('results').classList.add('hidden');
   document.getElementById('cstats').classList.add('hidden');
   document.getElementById('pbwrap').classList.add('hidden');
-  document.getElementById('sbtn').textContent='✨ Spin & Generate Recipe';
+  document.getElementById('sbtn').textContent = mode==='week' ? '📅 Plan My Whole Week' : '✨ Spin & Generate Recipe';
   if(mode==='week')updateWkLabel();
   window.scrollTo({top:0,behavior:'smooth'});
 }
