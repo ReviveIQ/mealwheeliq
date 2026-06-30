@@ -231,6 +231,15 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .fav-action-btn.remove{color:#C0392B;border-color:rgba(192,57,43,.2)}
 .fav-action-btn.remove:hover{background:#FDF0F0}
 @media(max-width:600px){.fav-action-btn{flex:1;text-align:center;min-height:40px}}
+/* ── MEAL PLANS ── */
+.mealplan-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;margin-bottom:.75rem}
+.mealplan-header{font-size:14px;font-weight:700;color:var(--ink1);margin-bottom:.65rem}
+.mealplan-days{display:flex;flex-direction:column;gap:.4rem}
+.mealplan-day{display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:1px solid var(--border)}
+.mealplan-day:last-child{border-bottom:none}
+.mealplan-day-label{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;width:60px;flex-shrink:0}
+.mealplan-recipe{font-size:13px;color:var(--ink2)}
+
 /* ── WELCOME ONBOARDING ── */
 .welcome-box{max-width:500px;padding:0}
 .welcome-step{padding:2rem 1.75rem}
@@ -515,6 +524,7 @@ button, a { touch-action: manipulation; }
     <button class="stab act" id="stab-spin" onclick="showSection('spin')">🎡 Spin</button>
     <button class="stab" id="stab-history" onclick="showSection('history')">📖 History</button>
     <button class="stab" id="stab-favorites" onclick="showSection('favorites')">⭐ Favorites</button>
+    <button class="stab" id="stab-mealplans" onclick="showSection('mealplans')">📅 Meal Plans</button>
   </div>
 
   <!-- SHARE MODAL -->
@@ -774,6 +784,16 @@ button, a { touch-action: manipulation; }
       <div class="panel-title">Your favorite recipes</div>
       <div class="history-list" id="favorites-list">
         <div class="empty-state">Heart a recipe after spinning to save it here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEAL PLANS SECTION -->
+  <div id="section-mealplans" class="hidden">
+    <div class="history-panel">
+      <div class="panel-title">Your saved weekly plans</div>
+      <div id="mealplans-list">
+        <div class="empty-state">Plan a week and tap "Save this week's plan" to see it here.</div>
       </div>
     </div>
   </div>
@@ -2150,12 +2170,45 @@ function shareRecipe(name){
 
 // ─── SECTIONS & MODES ────────────────────────────────────────────────────────
 function showSection(sec){
-  ['spin','history','favorites'].forEach(s=>{
+  ['spin','history','favorites','mealplans'].forEach(s=>{
     document.getElementById('section-'+s).classList.toggle('hidden',s!==sec);
     document.getElementById('stab-'+s).classList.toggle('act',s===sec);
   });
   if(sec==='history')loadHistory();
   if(sec==='favorites')loadFavorites();
+  if(sec==='mealplans')loadMealPlans();
+}
+
+async function loadMealPlans(){
+  const el = document.getElementById('mealplans-list');
+  try {
+    const resp = await fetch(API+'/mealplans', {headers:{'Authorization':'Bearer '+userToken}});
+    if (!resp.ok) { el.innerHTML = '<div class="empty-state">Could not load meal plans.</div>'; return; }
+    const plans = await resp.json();
+    if (!plans.length) {
+      el.innerHTML = '<div class="empty-state">Plan a week and tap "Save this week\'s plan" to see it here.</div>';
+      return;
+    }
+    el.innerHTML = plans.map(plan => {
+      const weekLabel = new Date(plan.week_start_date).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+      const days = plan.items || [];
+      return `
+        <div class="mealplan-card">
+          <div class="mealplan-header">📅 Week of ${weekLabel}</div>
+          <div class="mealplan-days">
+            ${days.map(d => `
+              <div class="mealplan-day">
+                <span class="mealplan-day-label">${d.day.charAt(0).toUpperCase()+d.day.slice(1)}</span>
+                <span class="mealplan-recipe">${d.emoji||'🍽️'} ${d.recipe_name}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    console.error('loadMealPlans error:', e);
+    el.innerHTML = '<div class="empty-state">Could not load meal plans.</div>';
+  }
 }
 
 function setMode(m){
