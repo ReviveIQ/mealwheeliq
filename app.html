@@ -1298,26 +1298,45 @@ function handleWelcomePhoto(event) {
   processPantryPhoto(event);
 }
 
+// Resize + compress image client-side before upload — phone photos can be 5-10MB raw
+function compressImage(file, maxDim = 1280, quality = 0.75) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e) => { img.src = e.target.result; };
+    reader.onerror = reject;
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > height && width > maxDim) {
+        height = Math.round(height * (maxDim / width));
+        width = maxDim;
+      } else if (height > maxDim) {
+        width = Math.round(width * (maxDim / height));
+        height = maxDim;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      resolve(dataUrl.split(',')[1]); // base64 without prefix
+    };
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 async function processPantryPhoto(event) {
   const file = event.target.files[0];
   if (!file) return;
 
-  // Show loading state on the button
-  const btnSelector = scanTargetMode === 'welcome' ? '#welcome-photo-input' : '#pantry-photo-input';
-  const btn = document.querySelector(btnSelector)?.previousElementSibling || document.querySelector(btnSelector)?.parentElement?.querySelector('.scan-photo-btn');
-
   showScanLoadingOverlay();
 
   try {
-    // Convert to base64
-    const base64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result.split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
-    const mediaType = file.type || 'image/jpeg';
+    // Compress before sending — keeps payload small and fast regardless of camera resolution
+    const base64 = await compressImage(file, 1280, 0.75);
+    const mediaType = 'image/jpeg'; // canvas re-encode is always JPEG
 
     const resp = await fetch(API + '/pantry/scan', {
       method: 'POST',
@@ -1325,10 +1344,17 @@ async function processPantryPhoto(event) {
       body: JSON.stringify({ image: base64, mediaType })
     });
 
-    const data = await resp.json();
+    let data;
+    try { data = await resp.json(); } catch(e) { data = {}; }
     hideScanLoadingOverlay();
 
-    if (!resp.ok || !data.items || !data.items.length) {
+    if (!resp.ok) {
+      console.error('Pantry scan failed:', resp.status, data);
+      alert('Photo scan failed (' + resp.status + '). ' + (data.error || 'Try a clearer, well-lit shot, or add items manually.'));
+      return;
+    }
+
+    if (!data.items || !data.items.length) {
       alert('Couldn\'t identify any items in that photo. Try a clearer, well-lit shot, or add items manually.');
       return;
     }
@@ -1337,7 +1363,7 @@ async function processPantryPhoto(event) {
   } catch (e) {
     hideScanLoadingOverlay();
     console.error('Pantry scan error:', e);
-    alert('Photo scan failed. Please try again or add items manually.');
+    alert('Photo scan failed: ' + e.message);
   } finally {
     event.target.value = ''; // reset file input
   }
