@@ -1499,58 +1499,79 @@ function getCravingText() {
   return document.getElementById('craving-input')?.value.trim() || '';
 }
 
+function resetMicUI() {
+  isListening = false;
+  recognition = null;
+  const micBtn = document.getElementById('mic-btn');
+  const listeningEl = document.getElementById('craving-listening');
+  if (micBtn) { micBtn.classList.remove('listening'); micBtn.textContent = '🎤'; }
+  if (listeningEl) listeningEl.classList.add('hidden');
+}
+
 function toggleVoiceCraving() {
   if (isListening) {
-    stopVoiceCraving();
+    try { if (recognition) recognition.stop(); } catch(e) {}
+    resetMicUI();
     return;
   }
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    alert('Voice input isn\'t supported on this browser. Try typing your craving instead, or use Safari/Chrome.');
+    alert('Voice input isn\'t supported on this browser. Try typing your craving instead.');
     return;
   }
 
-  recognition = new SpeechRecognition();
-  recognition.lang = 'en-US';
-  recognition.continuous = false;
-  recognition.interimResults = false;
+  try {
+    recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
 
-  const micBtn = document.getElementById('mic-btn');
-  const listeningEl = document.getElementById('craving-listening');
+    const micBtn = document.getElementById('mic-btn');
+    const listeningEl = document.getElementById('craving-listening');
 
-  recognition.onstart = () => {
-    isListening = true;
-    micBtn.classList.add('listening');
-    micBtn.textContent = '⏹️';
-    listeningEl.classList.remove('hidden');
-  };
+    recognition.onstart = () => {
+      isListening = true;
+      if (micBtn) { micBtn.classList.add('listening'); micBtn.textContent = '⏹️'; }
+      if (listeningEl) listeningEl.classList.remove('hidden');
+    };
 
-  recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    const input = document.getElementById('craving-input');
-    input.value = transcript;
-  };
+    recognition.onresult = (event) => {
+      try {
+        const transcript = event.results[0][0].transcript;
+        const input = document.getElementById('craving-input');
+        if (input) input.value = transcript;
+      } catch(e) { console.error('onresult error:', e); }
+    };
 
-  recognition.onerror = (event) => {
-    console.error('Voice recognition error:', event.error);
-    if (event.error === 'not-allowed' || event.error === 'permission-denied') {
-      alert('Microphone access was denied. Please allow microphone access to use voice input.');
-    }
-  };
+    recognition.onerror = (event) => {
+      console.error('Voice recognition error:', event.error);
+      resetMicUI(); // always reset on error — prevents freeze
+      if (event.error === 'not-allowed') {
+        alert('Microphone access was denied. Please allow mic access in your browser settings and try again.');
+      } else if (event.error === 'no-speech') {
+        // Silent — user just didn't say anything
+      } else if (event.error !== 'aborted') {
+        alert('Voice input stopped. Please try again or type your craving.');
+      }
+    };
 
-  recognition.onend = () => {
-    isListening = false;
-    micBtn.classList.remove('listening');
-    micBtn.textContent = '🎤';
-    listeningEl.classList.add('hidden');
-  };
+    recognition.onend = () => {
+      resetMicUI();
+    };
 
-  recognition.start();
+    recognition.start();
+  } catch(e) {
+    console.error('Failed to start voice recognition:', e);
+    resetMicUI();
+    alert('Could not start voice input. Try typing your craving instead.');
+  }
 }
 
 function stopVoiceCraving() {
-  if (recognition) recognition.stop();
+  try { if (recognition) recognition.stop(); } catch(e) {}
+  resetMicUI();
 }
 
 function signOut() {
