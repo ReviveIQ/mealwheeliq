@@ -496,6 +496,7 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
   /* ── Week mode grid ── */
   .wk-grid { grid-template-columns: repeat(5, 1fr); font-size: 10px; }
   .wk-day { padding: 4px; }
+.wnight-theme{font-size:9px;color:var(--ink3);margin-bottom:2px;font-weight:600}
 
   /* ── Grocery list ── */
   .gl-item { font-size: 14px; padding: .55rem 0; }
@@ -1878,11 +1879,11 @@ async function generateFullWeek() {
 
   // Assign a distinct cuisine/style direction to each day to force real variety
   const dayStyles = [
-    'bold American comfort food or BBQ-inspired (think smash burgers, ribs, loaded potatoes)',
-    'fresh Mediterranean or Italian (pasta, fish, antipasto-style)',
-    'bold Asian-inspired (stir fry, Thai, Korean BBQ, teriyaki, dumplings)',
-    'classic Mexican or Latin-American (tacos, enchiladas, rice bowls, fajitas)',
-    'easy weeknight crowd-pleaser — CREATIVE wildcard night, something unexpected and fun'
+    'bold American comfort food or BBQ-inspired (think smash burgers, ribs, loaded potatoes, mac & cheese)',
+    'fresh Mediterranean or Italian (pasta, baked fish, antipasto bowls, bruschetta)',
+    'LIGHT & FRESH night — a vibrant no-cook or minimal-cook meal: a big chopped salad, grain bowl, or fresh wrap. Build around easy grocery store finds like rotisserie chicken, canned tuna, hard-boiled eggs, or chickpeas. Include a simple homemade dressing with exact ratios (vinaigrette, tahini, lemon herb, etc). Suggest fresh produce easily found at any grocery store — cherry tomatoes, cucumber, avocado, mixed greens, feta, nuts, dried cranberries. Steps should be: chop, toss, dress, serve. No stove required.',
+    'bold Asian-inspired (stir fry, Thai peanut noodles, Korean BBQ, teriyaki, fried rice)',
+    'CREATIVE WILDCARD — something unexpected and fun that the family will talk about: tacos with a twist, a themed dinner night, a fusion dish, or an elevated comfort food nobody saw coming'
   ];
 
   const makeWeekPrompt = (dayIndex, avoidNames) => {
@@ -1905,7 +1906,8 @@ WEEK PLANNING RULES:
 - Each night MUST feel completely different — different protein, different cuisine, different cooking technique
 - Suggest 3-6 fresh ingredients to buy (buy:true) that make this recipe authentic to its style direction
 - Do NOT repeat proteins across nights — if Monday uses chicken, no other night can use chicken
-- Days 4 and 5 (Thursday/Friday) can be more creative and adventurous — these are the "wildcard" nights
+- For the LIGHT & FRESH night: ingredients should be things easily found at ANY grocery store — pre-washed salad bags, rotisserie chicken, canned proteins, fresh produce. Calories should be lighter (400-550 kcal/person). Dressing must include exact measurements.
+- For the CREATIVE WILDCARD night: be bold and unexpected — surprise the family with something they've never made before
 - ${avoidStr}
 - Flag organic:true for meats, eggs, leafy greens, thin-skin produce
 - Servings: ${s}. Target approximately ${g} kcal per serving. ${dietStr}
@@ -2190,9 +2192,16 @@ function showCalPanel(recipes){
 }
 
 function buildWkCal(){
-  const g=cg(),s=sv(),avg=Math.round(wk.reduce((a,r)=>a+(r.calories_per_serving||0),0)/5); // per person
-  const cards=wk.map((r,i)=>{const c=(r.calories_per_serving||0),p=Math.round(c/g*100),cls=p>100?'over':p>80?'ok':'under'; // per person
-    return `<div class="wcc ${cls}"><div class="wd">${DAYS[i]}</div><div class="wm">${r.name.split(' ').slice(0,3).join(' ')}</div><div class="wc2">${c} kcal</div><div style="font-size:9px;color:var(--ink3)">${p}%</div></div>`;
+  const g=cg(),s=sv(),avg=Math.round(wk.reduce((a,r)=>a+(r.calories_per_serving||0),0)/5);
+  const nightThemes=['🍖 American','🫙 Mediterranean','🥗 Light & Fresh','🥢 Asian','🎲 Wildcard'];
+  const cards=wk.map((r,i)=>{
+    const c=(r.calories_per_serving||0),p=Math.round(c/g*100),cls=p>130?'over':p>60?'ok':'under';
+    return `<div class="wcc ${cls}">
+      <div class="wd">${DAYS[i]}</div>
+      <div class="wnight-theme">${nightThemes[i]}</div>
+      <div class="wm">${r.name.split(' ').slice(0,4).join(' ')}</div>
+      <div class="wc2">${c} kcal</div>
+    </div>`;
   }).join('');
   document.getElementById('wcalsec').innerHTML=`<div class="wcs"><h4>📊 Week overview — avg ${avg} kcal/dinner · target ~${g} kcal/dinner</h4><div class="wcg">${cards}</div></div>`;
 }
