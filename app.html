@@ -102,6 +102,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .sel-tag{font-size:11px;padding:2px 8px;border-radius:12px;background:var(--green-pale);color:var(--green-dark);border:1px solid #b8e8d4;display:flex;align-items:center;gap:4px}
 .sel-tag .rm{cursor:pointer;font-size:14px;line-height:1;opacity:.7}.sel-tag .rm:hover{opacity:1}
 .diet-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.75rem}
+.diet-group-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin:.6rem 0 .25rem;width:100%;flex-basis:100%}
 .diet-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid var(--border2);border-radius:20px;font-size:11.5px;font-weight:500;cursor:pointer;background:var(--cream);color:var(--ink2);transition:all .15s;font-family:'DM Sans',sans-serif}
 .diet-btn:hover{border-color:var(--green);background:var(--green-pale)}
 .diet-btn.act{border-color:var(--green);background:var(--green-pale);color:var(--green-dark)}
@@ -806,12 +807,34 @@ button, a { touch-action: manipulation; }
     <div class="ing-panel">
       <div class="panel-title">Dietary preferences</div>
       <div class="diet-filters" id="diet-filters">
-        <button class="diet-btn" id="diet-vegetarian" onclick="toggleDiet('vegetarian')">🥦 Vegetarian</button>
+        <div class="diet-group-label">Dietary Restrictions</div>
         <button class="diet-btn" id="diet-vegan" onclick="toggleDiet('vegan')">🌱 Vegan</button>
+        <button class="diet-btn" id="diet-vegetarian" onclick="toggleDiet('vegetarian')">🥦 Vegetarian</button>
+        <button class="diet-btn" id="diet-pescatarian" onclick="toggleDiet('pescatarian')">🐟 Pescatarian</button>
+        <button class="diet-btn" id="diet-nopork" onclick="toggleDiet('nopork')">🚫 No Pork</button>
+        <button class="diet-btn" id="diet-noredmeat" onclick="toggleDiet('noredmeat')">🥩 No Red Meat</button>
+
+        <div class="diet-group-label">Allergens — Strict</div>
         <button class="diet-btn" id="diet-glutenfree" onclick="toggleDiet('glutenfree')">🌾 Gluten-Free</button>
         <button class="diet-btn" id="diet-dairyfree" onclick="toggleDiet('dairyfree')">🥛 Dairy-Free</button>
+        <button class="diet-btn" id="diet-nutfree" onclick="toggleDiet('nutfree')">🥜 Nut-Free</button>
+        <button class="diet-btn" id="diet-eggfree" onclick="toggleDiet('eggfree')">🥚 Egg-Free</button>
+        <button class="diet-btn" id="diet-shellfishfree" onclick="toggleDiet('shellfishfree')">🐚 Shellfish-Free</button>
+        <button class="diet-btn" id="diet-soyfree" onclick="toggleDiet('soyfree')">🌿 Soy-Free</button>
+
+        <div class="diet-group-label">Health Goals</div>
         <button class="diet-btn" id="diet-lowcarb" onclick="toggleDiet('lowcarb')">📉 Low-Carb</button>
+        <button class="diet-btn" id="diet-keto" onclick="toggleDiet('keto')">🥑 Keto</button>
         <button class="diet-btn" id="diet-highprotein" onclick="toggleDiet('highprotein')">💪 High-Protein</button>
+        <button class="diet-btn" id="diet-lowsodium" onclick="toggleDiet('lowsodium')">🧂 Low-Sodium</button>
+        <button class="diet-btn" id="diet-lowcalorie" onclick="toggleDiet('lowcalorie')">🔢 Low-Calorie</button>
+        <button class="diet-btn" id="diet-hearthealthy" onclick="toggleDiet('hearthealthy')">🫀 Heart-Healthy</button>
+        <button class="diet-btn" id="diet-antiinflammatory" onclick="toggleDiet('antiinflammatory')">🌿 Anti-Inflammatory</button>
+
+        <div class="diet-group-label">Lifestyle</div>
+        <button class="diet-btn" id="diet-paleo" onclick="toggleDiet('paleo')">🦴 Paleo</button>
+        <button class="diet-btn" id="diet-whole30" onclick="toggleDiet('whole30')">🌀 Whole30</button>
+        <button class="diet-btn" id="diet-mediterranean" onclick="toggleDiet('mediterranean')">🫙 Mediterranean Diet</button>
       </div>
     </div>
 
@@ -2670,16 +2693,43 @@ function toggleDiet(diet) {
 
 function getDietPromptText() {
   if (!activeDiets.size) return '';
-  const labels = {
-    vegetarian: 'vegetarian (no meat or fish)',
-    vegan: 'vegan (no animal products)',
-    glutenfree: 'gluten-free (no wheat, barley, or rye)',
-    dairyfree: 'dairy-free (no milk, cheese, or butter)',
-    lowcarb: 'low-carb (under 30g net carbs per serving)',
-    highprotein: 'high-protein (at least 40g protein per serving)'
+
+  // Strict requirements — hard rules the recipe MUST follow
+  const strict = {
+    vegan: 'STRICTLY vegan — absolutely no meat, fish, dairy, eggs, or honey',
+    vegetarian: 'STRICTLY vegetarian — no meat or fish of any kind',
+    pescatarian: 'pescatarian — no meat, but fish and seafood are allowed',
+    nopork: 'no pork or pork products of any kind (no bacon, ham, sausage)',
+    noredmeat: 'no red meat (no beef, pork, lamb, or game — chicken, turkey, and fish are fine)',
+    glutenfree: 'STRICTLY gluten-free — absolutely no wheat, barley, rye, or gluten-containing ingredients. Use gluten-free alternatives.',
+    dairyfree: 'STRICTLY dairy-free — no milk, cheese, butter, cream, yogurt, or any dairy. Use dairy-free alternatives.',
+    nutfree: 'STRICTLY nut-free — no peanuts, tree nuts, nut oils, or nut butters. Safe for nut allergies.',
+    eggfree: 'STRICTLY egg-free — no eggs or egg-based ingredients in any form',
+    shellfishfree: 'STRICTLY shellfish-free — no shrimp, crab, lobster, clams, oysters, or any shellfish',
+    soyfree: 'STRICTLY soy-free — no soy sauce, tofu, edamame, or soy-based products'
   };
-  const active = Array.from(activeDiets).map(d => labels[d]).filter(Boolean);
-  return active.length ? `DIETARY REQUIREMENTS — the recipe MUST be: ${active.join(', ')}.` : '';
+
+  // Health guidance — flexible goals, not allergen-level strict
+  const goals = {
+    lowcarb: 'low-carb (target under 30g net carbs per serving — minimize bread, pasta, rice, starchy vegetables)',
+    keto: 'ketogenic (under 20g net carbs, high fat, moderate protein — think meats, cheese, eggs, low-carb vegetables, avocado)',
+    highprotein: 'high-protein (at least 40g protein per serving — prioritize lean meats, eggs, legumes, Greek yogurt)',
+    lowsodium: 'low-sodium (under 600mg sodium per serving — avoid added salt, soy sauce, canned goods with salt, cured meats)',
+    lowcalorie: 'low-calorie (target under 500 kcal per serving — lean proteins, lots of vegetables, minimal added fats)',
+    hearthealthy: 'heart-healthy (minimize saturated fat and sodium, prioritize omega-3s, fiber, and healthy unsaturated fats)',
+    antiinflammatory: 'anti-inflammatory (prioritize fatty fish, leafy greens, berries, turmeric, ginger, olive oil — avoid refined grains and processed foods)',
+    paleo: 'paleo (meat, fish, eggs, vegetables, fruits, nuts, seeds — no grains, legumes, dairy, or processed foods)',
+    whole30: 'Whole30 compliant (no grains, dairy, legumes, added sugar, alcohol, or processed additives — whole foods only)',
+    mediterranean: 'Mediterranean diet (olive oil, fish, whole grains, vegetables, legumes, moderate dairy — minimal red meat)'
+  };
+
+  const strictActive = Array.from(activeDiets).filter(d => strict[d]).map(d => strict[d]);
+  const goalActive = Array.from(activeDiets).filter(d => goals[d]).map(d => goals[d]);
+
+  let result = '';
+  if (strictActive.length) result += `STRICT DIETARY REQUIREMENTS (non-negotiable — any violation is unacceptable): ${strictActive.join('; ')}. `;
+  if (goalActive.length) result += `HEALTH GOALS (follow as closely as possible): ${goalActive.join('; ')}.`;
+  return result.trim();
 }
 
 // ─── RECIPE SEARCH & FILTER ──────────────────────────────────────────────────
