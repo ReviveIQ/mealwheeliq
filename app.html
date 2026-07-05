@@ -254,6 +254,16 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 @keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,75,42,.4)}50%{box-shadow:0 0 0 8px rgba(201,75,42,0)}}
 .craving-listening{font-size:12px;color:var(--coral);font-weight:600;margin-top:.5rem;text-align:center}
 
+/* ── BLOG IN APP ── */
+.blog-posts-list{display:flex;flex-direction:column;gap:.65rem;margin-top:.5rem}
+.blog-post-card{display:flex;align-items:flex-start;gap:.75rem;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.85rem;text-decoration:none;transition:all .15s}
+.blog-post-card:hover{border-color:var(--coral);box-shadow:0 4px 16px rgba(0,0,0,.07);transform:translateY(-1px)}
+.bpc-emoji{font-size:28px;flex-shrink:0;width:40px;text-align:center;margin-top:2px}
+.bpc-body{flex:1;min-width:0}
+.bpc-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--coral);margin-bottom:3px}
+.bpc-title{font-size:14px;font-weight:600;color:var(--ink1);line-height:1.35;margin-bottom:3px}
+.bpc-desc{font-size:12px;color:var(--ink3);line-height:1.45}
+
 /* ── MEAL PLANS ── */
 .mealplan-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;margin-bottom:.75rem}
 .mealplan-header{font-size:14px;font-weight:700;color:var(--ink1);margin-bottom:.65rem}
@@ -586,6 +596,7 @@ button, a { touch-action: manipulation; }
   <div class="nav-right">
     <span class="nav-plan" id="nav-plan">Free</span>
     <span class="nav-user" id="nav-user"></span>
+    <a href="/blog/" class="nav-btn" target="_blank" style="text-decoration:none">📖 Blog</a>
     <button class="nav-btn upgrade hidden" id="upgrade-btn" onclick="upgradeAccount('trial')">Upgrade</button>
     <button class="nav-btn" onclick="signOut()">Sign Out</button>
   </div>
@@ -614,6 +625,7 @@ button, a { touch-action: manipulation; }
     <button class="stab" id="stab-history" onclick="showSection('history')">📖 History</button>
     <button class="stab" id="stab-favorites" onclick="showSection('favorites')">⭐ Favorites</button>
     <button class="stab" id="stab-mealplans" onclick="showSection('mealplans')">📅 Meal Plans</button>
+    <button class="stab" id="stab-blog" onclick="showSection('blog')">✍️ Blog</button>
   </div>
 
   <!-- SHARE MODAL -->
@@ -948,6 +960,98 @@ button, a { touch-action: manipulation; }
       <div class="panel-title">Your saved weekly plans</div>
       <div id="mealplans-list">
         <div class="empty-state">Plan a week and tap "Save this week's plan" to see it here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOG SECTION -->
+  <div id="section-blog" class="hidden">
+    <div class="history-panel">
+      <div class="panel-title-row">
+        <div class="panel-title">From the MealWheelIQ Blog</div>
+        <a href="/blog/" target="_blank" class="panel-action">See all posts →</a>
+      </div>
+      <div class="blog-posts-list" id="blog-posts-list">
+        <a href="/blog/what-to-make-for-dinner-tonight.html" target="_blank" class="blog-post-card">
+          <div class="bpc-emoji">🍽️</div>
+          <div class="bpc-body">
+            <div class="bpc-tag">Meal Planning</div>
+            <div class="bpc-title">What to Make for Dinner Tonight</div>
+            <div class="bpc-desc">Staring at the fridge? Here's how to decide dinner in 60 seconds.</div>
+          </div>
+        </a>
+        <a href="/blog/how-to-plan-a-week-of-family-dinners.html" target="_blank" class="blog-post-card">
+          <div class="bpc-emoji">📅</div>
+          <div class="bpc-body">
+            <div class="bpc-tag">Meal Planning</div>
+            <div class="bpc-title">How to Plan a Week of Family Dinners</div>
+            <div class="bpc-desc">A simple system that holds up from Sunday through Friday.</div>
+          </div>
+        </a>
+        <a href="/blog/easy-weeknight-dinners-under-30-minutes.html" target="_blank" class="blog-post-card">
+          <div class="bpc-emoji">⚡</div>
+          <div class="bpc-body">
+            <div class="bpc-tag">Quick Dinners</div>
+            <div class="bpc-title">5 Easy Weeknight Dinners Under 30 Minutes</div>
+            <div class="bpc-desc">Real recipes that taste like you spent longer than you did.</div>
+          </div>
+        </a>
+        <a href="/blog/organic-grocery-guide.html" target="_blank" class="blog-post-card">
+          <div class="bpc-emoji">🌿</div>
+          <div class="bpc-body">
+            <div class="bpc-tag">Healthy Eating</div>
+            <div class="bpc-title">The Organic Grocery Guide: What's Actually Worth It</div>
+            <div class="bpc-desc">Where the science says organic matters most — and where it doesn't.</div>
+          </div>
+        </a>
+        <a href="/blog/why-we-stopped-doing-takeout.html" target="_blank" class="blog-post-card">
+          <div class="bpc-emoji">🏠</div>
+          <div class="bpc-body">
+            <div class="bpc-tag">Family Life</div>
+            <div class="bpc-title">Why We Stopped Doing Takeout</div>
+            <div class="bpc-desc">It wasn't about saving money. It was about the dinner table.</div>
+          </div>
+        </a>
+        <a href="/blog/feeding-family-of-4-on-a-budget.html" target="_blank" class="blog-post-card">
+          <div class="bpc-emoji">💚</div>
+          <div class="bpc-body">
+            <div class="bpc-tag">Budget Cooking</div>
+            <div class="bpc-title">Feeding a Family of 4 on a Budget</div>
+            <div class="bpc-desc">Real strategies for eating well when grocery prices keep climbing.</div>
+          </div>
+        </a>
+        <a href="/blog/meal-planning-for-beginners.html" target="_blank" class="blog-post-card">
+          <div class="bpc-emoji">🌱</div>
+          <div class="bpc-body">
+            <div class="bpc-tag">Beginners</div>
+            <div class="bpc-title">Meal Planning for Beginners: Start Here</div>
+            <div class="bpc-desc">Never planned before? This is the one guide you need.</div>
+          </div>
+        </a>
+        <a href="/blog/how-to-reduce-food-waste.html" target="_blank" class="blog-post-card">
+          <div class="bpc-emoji">♻️</div>
+          <div class="bpc-body">
+            <div class="bpc-tag">Smart Kitchen</div>
+            <div class="bpc-title">How to Reduce Food Waste with Smarter Meal Planning</div>
+            <div class="bpc-desc">The average family throws away $1,500 in food every year.</div>
+          </div>
+        </a>
+        <a href="/blog/how-to-build-a-family-grocery-list.html" target="_blank" class="blog-post-card">
+          <div class="bpc-emoji">🛒</div>
+          <div class="bpc-body">
+            <div class="bpc-tag">Grocery & Shopping</div>
+            <div class="bpc-title">How to Build a Grocery List That Actually Works</div>
+            <div class="bpc-desc">Stop buying things you don't use and forgetting what you needed.</div>
+          </div>
+        </a>
+        <a href="/blog/best-meal-planning-apps-for-families-2026.html" target="_blank" class="blog-post-card">
+          <div class="bpc-emoji">📱</div>
+          <div class="bpc-body">
+            <div class="bpc-tag">App Reviews</div>
+            <div class="bpc-title">The Best Meal Planning Apps for Families in 2026</div>
+            <div class="bpc-desc">An honest look at what actually makes dinner easier.</div>
+          </div>
+        </a>
       </div>
     </div>
   </div>
@@ -2703,7 +2807,7 @@ function shareRecipe(name){
 
 // ─── SECTIONS & MODES ────────────────────────────────────────────────────────
 function showSection(sec){
-  ['spin','history','favorites','mealplans'].forEach(s=>{
+  ['spin','history','favorites','mealplans','blog'].forEach(s=>{
     document.getElementById('section-'+s).classList.toggle('hidden',s!==sec);
     document.getElementById('stab-'+s).classList.toggle('act',s===sec);
   });
