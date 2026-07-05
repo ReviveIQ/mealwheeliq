@@ -604,26 +604,24 @@ button, a { touch-action: manipulation; }
 
       <!-- Step 3: Stock kitchen -->
       <div class="welcome-step hidden" id="ws-3">
-        <div class="welcome-emoji" style="font-size:52px">🛒</div>
-        <h2 style="font-size:24px">What's in your kitchen?</h2>
-        <p style="font-size:14px">Tap everything you have in your fridge, freezer, and pantry. Don't worry about spices or oil — <strong id="chef-name-display">your chef</strong> assumes you have the basics!</p>
-        <div class="scan-photo-row">
+        <div class="welcome-emoji" style="font-size:52px">📸</div>
+        <h2 style="font-size:24px">Snap your fridge &amp; pantry</h2>
+        <p style="font-size:14px"><strong id="chef-name-display">Your chef</strong> will scan the photo and identify what you have. Oil, butter, salt, spices &amp; garlic are always assumed — no need to add those!</p>
+        <div class="scan-photo-row" style="margin-bottom:.75rem">
           <input type="file" id="welcome-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleWelcomePhoto(event)">
-          <button class="scan-photo-btn" onclick="document.getElementById('welcome-photo-input').click()">
-            📸 Snap a photo instead
+          <button class="scan-photo-btn" style="font-size:15px;padding:1rem" onclick="document.getElementById('welcome-photo-input').click()">
+            📸 Take a photo of your fridge or pantry
           </button>
         </div>
-        <div class="or-divider-pantry"><span>or add manually</span></div>
+        <div id="welcome-pantry-selected" style="display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0;min-height:28px"></div>
+        <div class="or-divider-pantry"><span>or type to add individual items</span></div>
         <div class="pantry-search-row">
-          <input type="text" id="welcome-pantry-search" placeholder="Search ingredients..." 
-            oninput="filterWelcomePantry()" autocomplete="off">
+          <input type="text" id="welcome-pantry-search" placeholder="e.g. chicken breast, potatoes..."
+            oninput="filterWelcomePantry()" autocomplete="off" style="font-size:16px">
           <button class="pantry-add-btn" onclick="addWelcomeCustomItem()">+ Add</button>
         </div>
         <div id="welcome-pantry-suggestions" class="pantry-suggestions hidden"></div>
-        <div class="staples-note">✅ <strong>Already assumed:</strong> oil, butter, salt, pepper, garlic, onion, all spices & condiments.</div>
-        <div class="welcome-pantry-cats" id="welcome-pantry-cats"></div>
-        <div class="welcome-pantry-selected" id="welcome-pantry-selected"></div>
-        <div class="welcome-nav">
+        <div class="welcome-nav" style="margin-top:1.25rem">
           <button class="btn-ghost" onclick="welcomeNext(2)">← Back</button>
           <button class="btn-primary" onclick="saveWelcomePantryAndSpin()" style="font-size:15px">
             Save & Let's Spin! 🎰
@@ -657,17 +655,16 @@ button, a { touch-action: manipulation; }
         <div class="scan-photo-row">
           <input type="file" id="pantry-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePantryPhoto(event)">
           <button class="scan-photo-btn" onclick="document.getElementById('pantry-photo-input').click()">
-            📸 Snap a photo of your fridge or pantry
+            📸 Snap a new photo to update your pantry
           </button>
         </div>
-        <div class="or-divider-pantry"><span>or add manually</span></div>
+        <div class="staples-note" style="margin:.6rem 0">✅ <strong>Already assumed:</strong> oil, butter, salt, pepper, garlic, onion, all spices & condiments.</div>
+        <div class="or-divider-pantry"><span>or type to add individual items</span></div>
         <div class="pantry-search-row">
-          <input type="text" id="pantry-search" placeholder="Search or type any ingredient..." oninput="filterPantryList()" autocomplete="off">
+          <input type="text" id="pantry-search" placeholder="e.g. chicken breast, broccoli..." oninput="filterPantryList()" autocomplete="off" style="font-size:16px">
           <button class="pantry-add-btn" onclick="addCustomPantryItem()">+ Add</button>
         </div>
         <div id="pantry-suggestions" class="pantry-suggestions hidden"></div>
-        <div class="staples-note">✅ <strong>Already assumed:</strong> oil, butter, salt, pepper, garlic, onion, all spices & condiments — no need to add these.</div>
-        <div class="pantry-categories" id="pantry-categories"></div>
         <div class="pantry-saved-list" id="pantry-saved-list"></div>
       </div>
       <div id="ptab-tonight" class="ptab-content hidden">
@@ -1000,18 +997,9 @@ function removePantryItem(item) {
 }
 
 function renderPantryCategories() {
-  const q = document.getElementById('pantry-search').value.trim().toLowerCase();
-  if (q) return;
-  const el = document.getElementById('pantry-categories');
-  el.innerHTML = Object.entries(PANTRY_CATEGORIES).map(([cat, items]) => `
-    <div class="pantry-cat-section">
-      <div class="pantry-cat-label">${cat}</div>
-      <div class="pantry-items-grid">
-        ${items.map(i => `<div class="pantry-chip ${pantryItems.has(i)?'in-pantry':''}" onclick="togglePantryItem('${i.replace(/'/g,"\'")}')">
-          ${pantryItems.has(i)?'✓ ':''}${i}
-        </div>`).join('')}
-      </div>
-    </div>`).join('');
+  // Category chip grid removed — photo scan is primary input
+  // Just ensure saved list is rendered
+  renderPantryTags();
 }
 
 function renderPantryTags() {
@@ -1207,18 +1195,7 @@ function addWelcomeCustomItem() {
 }
 
 function renderWelcomePantryCats() {
-  const el = document.getElementById('welcome-pantry-cats');
-  if (!el) return;
-  el.innerHTML = Object.entries(PANTRY_CATEGORIES).map(([cat, items]) => `
-    <div class="pantry-cat-section">
-      <div class="pantry-cat-label">${cat}</div>
-      <div class="pantry-items-grid">
-        ${items.map(i => `<div class="pantry-chip ${pantryItems.has(i)?'in-pantry':''}" 
-          onclick="toggleWelcomeItem('${i.replace(/'/g,"\'")}')">
-          ${pantryItems.has(i)?'✓ ':''}${i}
-        </div>`).join('')}
-      </div>
-    </div>`).join('');
+  // Category chip grid removed — photo scan is primary input
   renderWelcomePantrySelected();
 }
 
