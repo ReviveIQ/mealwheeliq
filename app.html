@@ -255,7 +255,7 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 
 /* ── WELCOME ONBOARDING ── */
 .welcome-box{max-width:500px;padding:0;width:100%}
-.welcome-step{padding:1.75rem 1.5rem}
+.welcome-step{padding:1.75rem 1.5rem;overflow-y:auto;max-height:calc(90vh - 2rem);display:flex;flex-direction:column}
 .welcome-emoji{font-size:48px;margin-bottom:.75rem;text-align:center}
 .welcome-box h2{font-size:22px;font-weight:700;text-align:center;margin-bottom:.5rem;color:var(--ink1)}
 .welcome-box p{font-size:14px;color:var(--ink2);text-align:center;line-height:1.6;margin-bottom:1.25rem}
@@ -299,6 +299,7 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .ws3-items {
   display: flex; flex-wrap: wrap; gap: .35rem;
   min-height: 28px; margin-bottom: .6rem;
+  max-height: 120px; overflow-y: auto;
 }
 .ws3-manual-row {
   display: flex; gap: .5rem; margin-bottom: .75rem;
@@ -324,6 +325,8 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
   margin-bottom: .6rem; min-height: 52px;
 }
 .ws3-spin-btn:active { opacity: .85; }
+.ws3-item-tag { cursor: pointer; }
+.ws3-item-tag:hover { background: var(--coral-pale,#FAF0EB); border-color: var(--coral); color: var(--coral); }
 .ws3-skip-btn {
   width: 100%; background: none; border: none;
   color: var(--ink3); font-size: 13px;
@@ -1232,15 +1235,22 @@ async function saveChefAndNext() {
 function filterWelcomePantry() {
   const q = document.getElementById('welcome-pantry-search').value.trim().toLowerCase();
   const sug = document.getElementById('welcome-pantry-suggestions');
-  if (!q) { sug.classList.add('hidden'); renderWelcomePantryCats(); return; }
-  const matches = ALL_INGREDIENTS.filter(i => i.toLowerCase().includes(q)).slice(0, 10);
+  if (!q) { sug.classList.add('hidden'); return; } // don't re-render anything on empty
+  const matches = ALL_INGREDIENTS.filter(i => i.toLowerCase().includes(q)).slice(0, 8);
   sug.innerHTML = matches.map(m =>
-    `<div class="pantry-sugg-item ${pantryItems.has(m)?'in-pantry':''}" 
-      onclick="togglePantryItem('${m.replace(/'/g,"\'")}');filterWelcomePantry()">
+    `<div class="pantry-sugg-item ${pantryItems.has(m)?'in-pantry':''}"
+      onclick="addWelcomeItemByName('${m.replace(/'/g,"\'")}')">
       ${pantryItems.has(m)?'✓ ':''} ${m}
     </div>`
   ).join('');
   sug.classList.toggle('hidden', !matches.length);
+}
+
+function addWelcomeItemByName(name) {
+  pantryItems.add(name);
+  document.getElementById('welcome-pantry-search').value = '';
+  document.getElementById('welcome-pantry-suggestions').classList.add('hidden');
+  renderWelcomePantrySelected();
 }
 
 function addWelcomeCustomItem() {
@@ -1249,7 +1259,6 @@ function addWelcomeCustomItem() {
   pantryItems.add(val);
   document.getElementById('welcome-pantry-search').value = '';
   document.getElementById('welcome-pantry-suggestions').classList.add('hidden');
-  renderWelcomePantryCats();
   renderWelcomePantrySelected();
 }
 
@@ -1279,13 +1288,21 @@ function toggleWelcomeItem(item) {
 function renderWelcomePantrySelected() {
   const el = document.getElementById('welcome-pantry-selected');
   if (!el) return;
+  // Removable tags so user can uncheck any item
   el.innerHTML = [...pantryItems].map(i =>
-    `<span class="ps-tag">${i}</span>`
+    `<span class="ps-tag ws3-item-tag" onclick="removeWelcomeItem('${i.replace(/'/g,"\'")}')">
+      ${i} ×
+    </span>`
   ).join('');
-  const btn = document.querySelector('#ws-3 .btn-primary');
+  const btn = document.querySelector('.ws3-spin-btn');
   if (btn) btn.textContent = pantryItems.size > 0
-    ? `Save ${pantryItems.size} items & Spin 🎰`
+    ? `Save ${pantryItems.size} items & Start Spinning 🎰`
     : 'Save & Start Spinning 🎰';
+}
+
+function removeWelcomeItem(item) {
+  pantryItems.delete(item);
+  renderWelcomePantrySelected();
 }
 
 async function saveWelcomePantryAndSpin() {
