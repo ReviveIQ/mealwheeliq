@@ -327,6 +327,8 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .ws3-spin-btn:active { opacity: .85; }
 .ws3-item-tag { cursor: pointer; }
 .ws3-item-tag:hover { background: var(--coral-pale,#FAF0EB); border-color: var(--coral); color: var(--coral); }
+.clear-pantry-btn{background:none;border:none;color:#C0392B;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;padding:2px 6px;border-radius:6px;transition:background .15s}
+.clear-pantry-btn:hover{background:#FDF0F0}
 .ws3-skip-btn {
   width: 100%; background: none; border: none;
   color: var(--ink3); font-size: 13px;
@@ -729,10 +731,13 @@ button, a { touch-action: manipulation; }
         <div id="tonight-list" class="tonight-list"></div>
       </div>
       <div class="modal-footer">
-        <div class="pantry-count-label" id="pantry-count-label">0 items in your pantry</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
+          <div class="pantry-count-label" id="pantry-count-label">0 items in your pantry</div>
+          <button class="clear-pantry-btn" onclick="clearPantry()">🗑 Clear all</button>
+        </div>
         <div class="modal-actions">
           <button class="btn-ghost" onclick="savePantryAndClose()">Done</button>
-          <button class="btn-primary" onclick="savePantryAndClose()">Save & Start Spinning 🎰</button>
+          <button class="btn-primary" onclick="savePantryAndClose()">Save & Spin 🎰</button>
         </div>
       </div>
     </div>
@@ -1648,6 +1653,17 @@ function toggleVoiceCraving() {
 function stopVoiceCraving() {
   try { if (recognition) recognition.stop(); } catch(e) {}
   resetMicUI();
+}
+
+function clearPantry() {
+  if (!confirm('Clear all ' + pantryItems.size + ' items from your pantry?')) return;
+  pantryItems.clear();
+  tonightItems.clear();
+  selectedIngs.clear();
+  renderPantryTags();
+  renderPantryCategories();
+  updatePantryCount();
+  renderPantrySummary();
 }
 
 function signOut() {
