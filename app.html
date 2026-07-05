@@ -294,6 +294,15 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .ostep.active{background:var(--green-pale);color:var(--green-dark);border-color:var(--green)}
 .ostep.done{background:var(--ink1);color:white;border-color:var(--ink1)}
 .ostep-arrow{font-size:11px;color:var(--ink3)}
+/* ── ALLERGY STEP ── */
+.allergy-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem}
+.allergy-btn{padding:.65rem .75rem;border:1.5px solid var(--border);border-radius:12px;background:white;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:left}
+.allergy-btn:hover{border-color:var(--coral);background:var(--coral-pale,#FAF0EB)}
+.allergy-btn.act{border-color:var(--coral);background:var(--coral-pale,#FAF0EB);color:var(--coral);font-weight:700}
+.allergy-none-row{margin-bottom:.5rem}
+.allergy-none-btn{width:100%;padding:.7rem;border:1.5px solid var(--green);border-radius:12px;background:var(--green-pale);color:var(--green-dark,#0A4A30);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.allergy-none-btn.act{background:var(--green);color:white}
+
 /* ── WELCOME STEP 3 — PHOTO PANTRY ── */
 .ws3-photo-btn {
   width: 100%; padding: 1.1rem;
@@ -631,7 +640,8 @@ button, a { touch-action: manipulation; }
         <p style="font-size:15px;margin-bottom:1.25rem">MealWheelIQ spins up real dinner recipes from whatever's already in your kitchen. Easy, fun, and done in seconds!</p>
         <div class="welcome-steps-preview">
           <div class="wsp"><span>👨‍🍳</span><div><strong style="font-size:14px">Name your personal chef</strong><small>Give them a fun, silly name!</small></div></div>
-          <div class="wsp"><span>🛒</span><div><strong style="font-size:14px">Stock your kitchen</strong><small>Just tap what you have</small></div></div>
+          <div class="wsp"><span>⚠️</span><div><strong style="font-size:14px">Any allergies?</strong><small>Keep your family safe</small></div></div>
+          <div class="wsp"><span>📸</span><div><strong style="font-size:14px">Snap your kitchen</strong><small>Photo scan your fridge & pantry</small></div></div>
           <div class="wsp"><span>🎰</span><div><strong style="font-size:14px">Spin the wheel</strong><small>Get 3 dinner ideas instantly</small></div></div>
           <div class="wsp"><span>🍳</span><div><strong style="font-size:14px">Cook & enjoy!</strong><small>Step-by-step, super easy</small></div></div>
         </div>
@@ -666,6 +676,37 @@ button, a { touch-action: manipulation; }
         <div class="welcome-nav">
           <button class="btn-ghost" onclick="welcomeNext(1)">← Back</button>
           <button class="btn-primary" onclick="saveChefAndNext()" style="font-size:15px">That's my chef! →</button>
+        </div>
+      </div>
+
+      <!-- Step 2b: Allergies -->
+      <div class="welcome-step hidden" id="ws-2b">
+        <div class="welcome-emoji" style="font-size:48px">⚠️</div>
+        <h2 style="font-size:22px;line-height:1.2">Any food allergies<br>or restrictions?</h2>
+        <p style="font-size:14px;margin-bottom:1.25rem">This keeps your family safe. <strong id="chef-name-allergy">Your chef</strong> will never include these in any recipe.</p>
+
+        <div class="allergy-grid">
+          <button class="allergy-btn" id="al-nutfree" onclick="toggleAllergy('nutfree')">🥜 Nut Allergy</button>
+          <button class="allergy-btn" id="al-shellfishfree" onclick="toggleAllergy('shellfishfree')">🐚 Shellfish Allergy</button>
+          <button class="allergy-btn" id="al-glutenfree" onclick="toggleAllergy('glutenfree')">🌾 Gluten-Free / Celiac</button>
+          <button class="allergy-btn" id="al-dairyfree" onclick="toggleAllergy('dairyfree')">🥛 Dairy Allergy</button>
+          <button class="allergy-btn" id="al-eggfree" onclick="toggleAllergy('eggfree')">🥚 Egg Allergy</button>
+          <button class="allergy-btn" id="al-soyfree" onclick="toggleAllergy('soyfree')">🌿 Soy Allergy</button>
+          <button class="allergy-btn" id="al-vegan" onclick="toggleAllergy('vegan')">🌱 Vegan</button>
+          <button class="allergy-btn" id="al-vegetarian" onclick="toggleAllergy('vegetarian')">🥦 Vegetarian</button>
+          <button class="allergy-btn" id="al-nopork" onclick="toggleAllergy('nopork')">🚫 No Pork</button>
+          <button class="allergy-btn" id="al-noredmeat" onclick="toggleAllergy('noredmeat')">🥩 No Red Meat</button>
+        </div>
+
+        <div class="allergy-none-row">
+          <button class="allergy-none-btn" id="al-none" onclick="selectNoAllergies()">✅ No allergies — we're all good!</button>
+        </div>
+
+        <div class="welcome-nav" style="margin-top:1rem">
+          <button class="btn-ghost" onclick="welcomeNext(2)">← Back</button>
+          <button class="btn-primary" onclick="saveAllergiesAndNext()" style="font-size:15px">
+            Looks good →
+          </button>
         </div>
       </div>
 
@@ -1242,7 +1283,8 @@ function hideWelcome() {
 
 function welcomeNext(step) {
   document.querySelectorAll('.welcome-step').forEach(s => s.classList.add('hidden'));
-  document.getElementById('ws-' + step).classList.remove('hidden');
+  const el = document.getElementById('ws-' + step);
+  if (el) el.classList.remove('hidden');
 }
 
 function updateChefPreview() {
@@ -1805,6 +1847,61 @@ Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️
     if (btn) { btn.textContent = '🔀'; btn.disabled = false; }
     alert('Mix up failed — please try again.');
   }
+}
+
+// ─── ONBOARDING ALLERGY STEP ────────────────────────────────────────────────
+const onboardingAllergies = new Set();
+
+function toggleAllergy(diet) {
+  const btn = document.getElementById('al-' + diet);
+  const noneBtn = document.getElementById('al-none');
+  if (onboardingAllergies.has(diet)) {
+    onboardingAllergies.delete(diet);
+    if (btn) btn.classList.remove('act');
+  } else {
+    onboardingAllergies.add(diet);
+    if (btn) btn.classList.add('act');
+    // Deselect "no allergies" if something is selected
+    if (noneBtn) noneBtn.classList.remove('act');
+  }
+}
+
+function selectNoAllergies() {
+  onboardingAllergies.clear();
+  document.querySelectorAll('.allergy-btn').forEach(b => b.classList.remove('act'));
+  const noneBtn = document.getElementById('al-none');
+  if (noneBtn) noneBtn.classList.add('act');
+}
+
+async function saveAllergiesAndNext() {
+  // Merge onboarding allergies into activeDiets
+  onboardingAllergies.forEach(d => activeDiets.add(d));
+  // Update diet buttons in the main UI so they reflect what was selected
+  activeDiets.forEach(d => {
+    const btn = document.getElementById('diet-' + d);
+    if (btn) btn.classList.add('act');
+  });
+  // Save to preferences
+  try {
+    const prefs = await fetch(API + '/preferences', {
+      headers: { 'Authorization': 'Bearer ' + userToken }
+    }).then(r => r.ok ? r.json() : {});
+    await fetch(API + '/preferences', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+      body: JSON.stringify({
+        daily_calorie_goal: prefs.daily_calorie_goal || 2000,
+        servings: prefs.servings || 2,
+        dietary_preferences: Array.from(activeDiets),
+        chef_name: chefName
+      })
+    });
+  } catch(e) { console.error('Allergy save failed:', e); }
+
+  // Update chef name display in pantry step
+  const display = document.getElementById('chef-name-display');
+  if (display) display.textContent = chefName;
+  welcomeNext(3);
 }
 
 function signOut() {
