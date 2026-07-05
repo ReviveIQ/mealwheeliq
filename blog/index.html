@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MealWheelIQ Blog — Dinner Ideas, Meal Planning & Family Recipes</title>
+  <meta name="description" content="Real stories, practical tips, and dinner inspiration for families. From meal planning to grocery lists — we help you spin dinner into something delicious.">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#C94B2A">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1C1714; --ink2: #4A3F38; --ink3: #8C7B72;
+      --bg: #FAF8F5; --card: #FFFFFF;
+      --coral: #C94B2A; --coral2: #E8603E; --coral-pale: #FAF0EB;
+      --green: #2A6B4A; --green-pale: #EAF3EE;
+      --border: #EAE5DF; --gold: #B8860B;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
+    a { touch-action: manipulation; }
+
+    /* NAV */
+    nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: .85rem 2rem; background: rgba(250,248,245,.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 700; color: var(--ink); text-decoration: none; }
+    .nav-logo span { color: var(--coral); }
+    .nav-right { display: flex; align-items: center; gap: 1.25rem; }
+    .nav-link { font-size: 13px; font-weight: 500; color: var(--ink2); text-decoration: none; }
+    .nav-link:hover { color: var(--coral); }
+    .nav-cta { background: var(--coral); color: white; border: none; border-radius: 22px; padding: .5rem 1.25rem; font-size: 13px; font-weight: 600; text-decoration: none; font-family: 'DM Sans', sans-serif; }
+
+    /* HERO */
+    .blog-hero { max-width: 720px; margin: 0 auto; padding: 4rem 2rem 2.5rem; text-align: center; }
+    .blog-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--coral); margin-bottom: .75rem; }
+    .blog-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 6vw, 3.5rem); font-weight: 700; line-height: 1.1; margin-bottom: 1rem; }
+    .blog-hero h1 em { color: var(--coral); font-style: italic; }
+    .blog-hero p { font-size: 1.05rem; color: var(--ink2); max-width: 520px; margin: 0 auto; }
+
+    /* FEATURED POST */
+    .featured-wrap { max-width: 900px; margin: 0 auto; padding: 0 2rem 3rem; }
+    .featured-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; text-decoration: none; transition: box-shadow .2s; }
+    .featured-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,.1); }
+    .featured-img { background: linear-gradient(135deg, #1a1a1a 0%, #2A6B4A 100%); display: flex; align-items: center; justify-content: center; font-size: 80px; min-height: 260px; }
+    .featured-body { padding: 2rem; display: flex; flex-direction: column; justify-content: center; }
+    .featured-tag { display: inline-block; background: var(--coral-pale); color: var(--coral); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: 3px 10px; border-radius: 10px; margin-bottom: .75rem; }
+    .featured-body h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 700; line-height: 1.2; margin-bottom: .6rem; color: var(--ink); }
+    .featured-body p { font-size: 14px; color: var(--ink2); line-height: 1.65; margin-bottom: 1rem; }
+    .featured-meta { font-size: 12px; color: var(--ink3); }
+    .read-more { color: var(--coral); font-weight: 600; font-size: 13px; }
+
+    /* POST GRID */
+    .posts-wrap { max-width: 900px; margin: 0 auto; padding: 0 2rem 4rem; }
+    .posts-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--ink3); margin-bottom: 1.25rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border); }
+    .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .post-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; text-decoration: none; transition: all .2s; display: flex; flex-direction: column; }
+    .post-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+    .post-card-img { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+    .post-card-body { padding: 1rem; flex: 1; display: flex; flex-direction: column; }
+    .post-card-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--coral); margin-bottom: .4rem; }
+    .post-card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700; line-height: 1.25; color: var(--ink); margin-bottom: .4rem; flex: 1; }
+    .post-card-excerpt { font-size: 12px; color: var(--ink2); line-height: 1.55; margin-bottom: .6rem; }
+    .post-card-meta { font-size: 11px; color: var(--ink3); }
+
+    /* CTA STRIP */
+    .blog-cta { background: var(--ink); padding: 4rem 2rem; text-align: center; }
+    .blog-cta h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: white; margin-bottom: .75rem; }
+    .blog-cta h2 em { color: var(--coral2); font-style: italic; }
+    .blog-cta p { color: rgba(255,255,255,.65); font-size: 15px; margin-bottom: 1.75rem; max-width: 480px; margin-left: auto; margin-right: auto; }
+    .blog-cta a { background: var(--coral); color: white; text-decoration: none; border-radius: 28px; padding: .85rem 2rem; font-size: 15px; font-weight: 700; font-family: 'DM Sans', sans-serif; }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--border); padding: 2rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; max-width: 900px; margin: 0 auto; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700; color: var(--ink); text-decoration: none; }
+    .footer-logo span { color: var(--coral); }
+    .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-links a { font-size: 13px; color: var(--ink3); text-decoration: none; }
+    .footer-copy { font-size: 12px; color: var(--ink3); }
+
+    @media (max-width: 768px) {
+      nav { padding: .75rem 1rem; }
+      .blog-hero { padding: 2.5rem 1.25rem 1.5rem; }
+      .featured-card { grid-template-columns: 1fr; }
+      .featured-img { min-height: 140px; }
+      .posts-grid { grid-template-columns: 1fr 1fr; }
+      footer { flex-direction: column; text-align: center; }
+      .footer-links { justify-content: center; }
+    }
+    @media (max-width: 480px) {
+      .posts-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">MealWheel<span>IQ</span></a>
+  <div class="nav-right">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/blog/" class="nav-link" style="color:var(--coral)">Blog</a>
+    <a href="/login.html" class="nav-cta">Try free</a>
+  </div>
+</nav>
+
+<div class="blog-hero">
+  <div class="blog-eyebrow">From our kitchen to yours</div>
+  <h1>Dinner stories,<br>meal plans &amp; <em>real talk.</em></h1>
+  <p>A resource for families, busy couples, and anyone who just wants tonight's dinner to be a little easier — and a lot more delicious.</p>
+</div>
+
+<!-- FEATURED POST -->
+<div class="featured-wrap">
+  <a href="/blog/what-to-make-for-dinner-tonight.html" class="featured-card">
+    <div class="featured-img">🍽️</div>
+    <div class="featured-body">
+      <span class="featured-tag">⭐ Start Here</span>
+      <h2>What to Make for Dinner Tonight</h2>
+      <p>It's 5pm. You're staring at the fridge. Sound familiar? Here's how to decide dinner in under 60 seconds — no recipe scrolling, no takeout guilt.</p>
+      <div class="featured-meta">5 min read · Meal Planning</div>
+      <br><span class="read-more">Read the story →</span>
+    </div>
+  </a>
+</div>
+
+<!-- POST GRID -->
+<div class="posts-wrap">
+  <div class="posts-label">All stories</div>
+  <div class="posts-grid">
+
+    <a href="/blog/how-to-plan-a-week-of-family-dinners.html" class="post-card">
+      <div class="post-card-img" style="background:linear-gradient(135deg,#EAF3EE,#2A6B4A22)">📅</div>
+      <div class="post-card-body">
+        <div class="post-card-tag">Meal Planning</div>
+        <div class="post-card-title">How to Plan a Week of Family Dinners</div>
+        <div class="post-card-excerpt">Sunday planning that actually holds up through Friday — a simple system any family can follow.</div>
+        <div class="post-card-meta">6 min read</div>
+      </div>
+    </a>
+
+    <a href="/blog/easy-weeknight-dinners-under-30-minutes.html" class="post-card">
+      <div class="post-card-img" style="background:linear-gradient(135deg,#FAF0EB,#C94B2A22)">⚡</div>
+      <div class="post-card-body">
+        <div class="post-card-tag">Quick Dinners</div>
+        <div class="post-card-title">5 Easy Weeknight Dinners Under 30 Minutes</div>
+        <div class="post-card-excerpt">Real recipes that go from pantry to table in half an hour — even on your most exhausted Tuesday.</div>
+        <div class="post-card-meta">5 min read</div>
+      </div>
+    </a>
+
+    <a href="/blog/how-to-build-a-family-grocery-list.html" class="post-card">
+      <div class="post-card-img" style="background:linear-gradient(135deg,#FFF8E6,#B8860B22)">🛒</div>
+      <div class="post-card-body">
+        <div class="post-card-tag">Grocery & Shopping</div>
+        <div class="post-card-title">How to Build a Family Grocery List That Actually Works</div>
+        <div class="post-card-excerpt">Stop buying things you don't use and forgetting what you needed. Here's a smarter approach.</div>
+        <div class="post-card-meta">5 min read</div>
+      </div>
+    </a>
+
+    <a href="/blog/best-meal-planning-apps-for-families-2026.html" class="post-card">
+      <div class="post-card-img" style="background:linear-gradient(135deg,#EEEDFE,#534AB722)">📱</div>
+      <div class="post-card-body">
+        <div class="post-card-tag">App Reviews</div>
+        <div class="post-card-title">The Best Meal Planning Apps for Families in 2026</div>
+        <div class="post-card-excerpt">An honest look at what's out there — and what actually makes dinner easier vs just more complicated.</div>
+        <div class="post-card-meta">7 min read</div>
+      </div>
+    </a>
+
+    <a href="/blog/why-we-stopped-doing-takeout.html" class="post-card">
+      <div class="post-card-img" style="background:linear-gradient(135deg,#FDF0F0,#8B1A1A22)">🏠</div>
+      <div class="post-card-body">
+        <div class="post-card-tag">Family Life</div>
+        <div class="post-card-title">Why We Stopped Doing Takeout (And What We Do Instead)</div>
+        <div class="post-card-excerpt">It wasn't about saving money. It was about reclaiming the dinner table — and it surprised us.</div>
+        <div class="post-card-meta">6 min read</div>
+      </div>
+    </a>
+
+    <a href="/blog/organic-grocery-guide.html" class="post-card">
+      <div class="post-card-img" style="background:linear-gradient(135deg,#EAF3EE,#2A6B4A22)">🌿</div>
+      <div class="post-card-body">
+        <div class="post-card-tag">Healthy Eating</div>
+        <div class="post-card-title">The Organic Grocery Guide: What's Actually Worth It</div>
+        <div class="post-card-excerpt">You don't have to buy everything organic. Here's where the science says it matters most.</div>
+        <div class="post-card-meta">6 min read</div>
+      </div>
+    </a>
+
+    <a href="/blog/meal-planning-for-beginners.html" class="post-card">
+      <div class="post-card-img" style="background:linear-gradient(135deg,#FAF0EB,#C94B2A22)">🌱</div>
+      <div class="post-card-body">
+        <div class="post-card-tag">Beginners</div>
+        <div class="post-card-title">Meal Planning for Beginners: Start Here</div>
+        <div class="post-card-excerpt">Never meal planned before? This is the one guide you need. Simple, realistic, and actually doable.</div>
+        <div class="post-card-meta">5 min read</div>
+      </div>
+    </a>
+
+    <a href="/blog/how-to-reduce-food-waste.html" class="post-card">
+      <div class="post-card-img" style="background:linear-gradient(135deg,#EAF3EE,#2A6B4A22)">♻️</div>
+      <div class="post-card-body">
+        <div class="post-card-tag">Smart Kitchen</div>
+        <div class="post-card-title">How to Reduce Food Waste with Smarter Meal Planning</div>
+        <div class="post-card-excerpt">The average family throws away $1,500 in food every year. Here's how to stop — one dinner at a time.</div>
+        <div class="post-card-meta">5 min read</div>
+      </div>
+    </a>
+
+    <a href="/blog/feeding-family-of-4-on-a-budget.html" class="post-card">
+      <div class="post-card-img" style="background:linear-gradient(135deg,#FFF8E6,#B8860B22)">💚</div>
+      <div class="post-card-body">
+        <div class="post-card-tag">Budget Cooking</div>
+        <div class="post-card-title">Feeding a Family of 4 on a Budget: Real Strategies That Work</div>
+        <div class="post-card-excerpt">Grocery prices aren't going down. But your weekly bill can — without sacrificing good food.</div>
+        <div class="post-card-meta">7 min read</div>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<div class="blog-cta">
+  <h2>Ready to spin your <em>first recipe?</em></h2>
+  <p>Your personal AI chef builds real dinners from what's already in your kitchen. Free to try — no credit card needed.</p>
+  <a href="/login.html">Start spinning — it's free 🎰</a>
+</div>
+
+<div style="border-top:1px solid var(--border)">
+  <footer>
+    <a href="/" class="footer-logo">MealWheel<span>IQ</span></a>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/blog/">Blog</a>
+      <a href="/login.html">Sign in</a>
+      <a href="mailto:hello@mealwheeliq.com">Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 MealWheelIQ · Spin it. Cook it. Love it.</div>
+  </footer>
+</div>
+
+</body>
+</html>
