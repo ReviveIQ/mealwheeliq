@@ -1187,10 +1187,12 @@ async function loadPantryFromDB() {
 
 
 // ─── WELCOME ONBOARDING ──────────────────────────────────────────────────────
+let sessionPantryItems = new Set(); // items added during THIS onboarding session only
+
 function showWelcome() {
+  sessionPantryItems = new Set(); // reset session items each time welcome opens
   document.getElementById('welcome-overlay').classList.remove('hidden');
   welcomeNext(1);
-  renderWelcomePantryCats();
 }
 
 function hideWelcome() {
@@ -1248,6 +1250,7 @@ function filterWelcomePantry() {
 
 function addWelcomeItemByName(name) {
   pantryItems.add(name);
+  sessionPantryItems.add(name);
   document.getElementById('welcome-pantry-search').value = '';
   document.getElementById('welcome-pantry-suggestions').classList.add('hidden');
   renderWelcomePantrySelected();
@@ -1257,6 +1260,7 @@ function addWelcomeCustomItem() {
   const val = document.getElementById('welcome-pantry-search').value.trim();
   if (!val) return;
   pantryItems.add(val);
+  sessionPantryItems.add(val);
   document.getElementById('welcome-pantry-search').value = '';
   document.getElementById('welcome-pantry-suggestions').classList.add('hidden');
   renderWelcomePantrySelected();
@@ -1288,19 +1292,24 @@ function toggleWelcomeItem(item) {
 function renderWelcomePantrySelected() {
   const el = document.getElementById('welcome-pantry-selected');
   if (!el) return;
-  // Removable tags so user can uncheck any item
-  el.innerHTML = [...pantryItems].map(i =>
+  // Only show items added in this session — not the full existing pantry
+  el.innerHTML = [...sessionPantryItems].map(i =>
     `<span class="ps-tag ws3-item-tag" onclick="removeWelcomeItem('${i.replace(/'/g,"\'")}')">
       ${i} ×
     </span>`
   ).join('');
+  const total = pantryItems.size; // full pantry including existing items
+  const added = sessionPantryItems.size;
   const btn = document.querySelector('.ws3-spin-btn');
-  if (btn) btn.textContent = pantryItems.size > 0
-    ? `Save ${pantryItems.size} items & Start Spinning 🎰`
-    : 'Save & Start Spinning 🎰';
+  if (btn) btn.textContent = added > 0
+    ? `Save ${added} new item${added>1?'s':''} & Start Spinning 🎰`
+    : total > 0
+      ? `Keep my pantry & Start Spinning 🎰`
+      : 'Save & Start Spinning 🎰';
 }
 
 function removeWelcomeItem(item) {
+  sessionPantryItems.delete(item);
   pantryItems.delete(item);
   renderWelcomePantrySelected();
 }
@@ -1542,12 +1551,15 @@ function closeScanConfirm() {
 
 function confirmScanItems() {
   const itemsToAdd = Array.from(scanConfirmedItems);
-  itemsToAdd.forEach(item => pantryItems.add(item));
+  itemsToAdd.forEach(item => {
+    pantryItems.add(item);
+    if (scanTargetMode === 'welcome') sessionPantryItems.add(item);
+  });
 
   closeScanConfirm();
 
   if (scanTargetMode === 'welcome') {
-    renderWelcomePantryCats();
+    renderWelcomePantrySelected();
   } else {
     renderPantryTags();
     renderPantryCategories();
