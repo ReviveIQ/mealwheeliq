@@ -180,7 +180,16 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .glp{background:var(--card);border:2px solid var(--green);border-radius:var(--radius);padding:.9rem 1.1rem;margin-bottom:.8rem;animation:fadeUp .4s .5s ease forwards;opacity:0}
 .glh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
 .glh h3{font-family:'Cormorant Garamond',serif;font-size:.95rem;color:var(--green-dark)}
-.glcats{display:flex;flex-direction:column;gap:7px}
+.glcats{display:flex;flex-direction:column;gap:10px}
+.gl-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.gl-buy-by{font-size:13px;background:var(--green-pale);color:var(--green-dark,#0A4A30);border-radius:8px;padding:.5rem .75rem;margin-bottom:.75rem;line-height:1.5}
+.gl-cat-block{margin-bottom:.25rem}
+.gl-items{display:flex;flex-direction:column;gap:2px;margin-top:.35rem}
+.glit-row{display:flex;align-items:center;justify-content:space-between;padding:.45rem .6rem;border-radius:8px;cursor:pointer;transition:background .1s}
+.glit-row:hover{background:var(--border)}
+.glit-row.ck{opacity:.4;text-decoration:line-through}
+.glit-name{font-size:13px;color:var(--ink1)}
+.glit-day{font-size:11px;color:var(--ink3);background:var(--bg);padding:2px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;margin-left:.5rem}
 .glcn{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--green-dark);margin-bottom:3px}
 .glit{font-size:11.5px;padding:3px 8px;border-radius:10px;background:var(--green-pale);color:var(--green-dark);border:1px solid #b8e8d4;cursor:pointer;display:inline-block;margin:2px;transition:all .15s}
 .glit.ck{background:var(--cream);color:var(--ink3);border-color:var(--border);text-decoration:line-through}
@@ -1867,11 +1876,23 @@ async function generateFullWeek() {
     ? `\nThe user wants this week to lean toward: "${weekCravingText}". Use this as the guiding theme across all 5 nights, while still keeping each night distinct.`
     : '';
 
-  const makeWeekPrompt = (dayIndex, avoidNames) => {
-    const avoidStr = avoidNames.length ? `Do NOT repeat any of: ${avoidNames.join(', ')}.` : '';
-    return `You are ${chefName}, a professional chef with expertise in bold flavors, live-fire cooking, and fresh ingredients. Generate 1 dinner recipe for ${dayNames[dayIndex]} — make it distinctly different in style and protein from other nights this week.${cravingLine}
+  // Assign a distinct cuisine/style direction to each day to force real variety
+  const dayStyles = [
+    'bold American comfort food or BBQ-inspired (think smash burgers, ribs, loaded potatoes)',
+    'fresh Mediterranean or Italian (pasta, fish, antipasto-style)',
+    'bold Asian-inspired (stir fry, Thai, Korean BBQ, teriyaki, dumplings)',
+    'classic Mexican or Latin-American (tacos, enchiladas, rice bowls, fajitas)',
+    'easy weeknight crowd-pleaser — CREATIVE wildcard night, something unexpected and fun'
+  ];
 
-User's available ingredients: ${ingList}
+  const makeWeekPrompt = (dayIndex, avoidNames) => {
+    const avoidStr = avoidNames.length ? `Do NOT repeat any of these recipes from earlier in the week: ${avoidNames.join(', ')}.` : '';
+    const dayStyle = dayStyles[dayIndex];
+    return `You are ${chefName}, a professional chef with expertise in bold flavors, live-fire cooking, and fresh ingredients. Generate 1 dinner recipe for ${dayNames[dayIndex]}.${cravingLine}
+
+TONIGHT'S STYLE: ${dayStyle}. This is non-negotiable — the recipe MUST fit this style direction even if it stretches beyond the pantry ingredients.
+
+User's available ingredients (use as many as naturally fit the style): ${ingList}
 
 ASSUMED KITCHEN STAPLES (always available — never mark these buy:true):
 Fats: olive oil, vegetable oil, butter
@@ -1880,8 +1901,14 @@ Condiments: soy sauce, Worcestershire sauce, hot sauce, Dijon mustard, ketchup, 
 Pantry: flour, sugar, cornstarch, chicken broth, beef broth
 Aromatics: garlic, onion (assume always on hand)
 
-WEEK PLANNING MODE: This is a full week of dinners, not a single pantry-clearing meal. Each night should feel like a real, varied dinner — don't force every night to reuse the same 2-3 proteins from the pantry. Actively suggest fresh proteins, vegetables, and pantry items to buy (mark buy:true) so the week feels balanced and exciting, not repetitive. Aim for at least 3-5 ingredients per recipe that are fresh additions to buy, especially proteins and vegetables, unless the user's pantry is already well-stocked for that night. Flag organic:true for meats, eggs, leafy greens, thin-skin produce.
-Servings: ${s}. Target approximately ${g} kcal per serving for dinner. ${avoidStr} ${dietStr}
+WEEK PLANNING RULES:
+- Each night MUST feel completely different — different protein, different cuisine, different cooking technique
+- Suggest 3-6 fresh ingredients to buy (buy:true) that make this recipe authentic to its style direction
+- Do NOT repeat proteins across nights — if Monday uses chicken, no other night can use chicken
+- Days 4 and 5 (Thursday/Friday) can be more creative and adventurous — these are the "wildcard" nights
+- ${avoidStr}
+- Flag organic:true for meats, eggs, leafy greens, thin-skin produce
+- Servings: ${s}. Target approximately ${g} kcal per serving. ${dietStr}
 
 Recipe steps MUST follow professional cookbook standards (America's Test Kitchen / Bon Appétit style):
 - Lead every step with an action verb: Heat, Sear, Brown, Stir, Whisk, Fold, Simmer, Roast, Toss, Season, Garnish
@@ -2171,35 +2198,92 @@ function buildWkCal(){
 }
 
 function buildGL(){
-  const cats={'Proteins — choose organic':[],'Produce — organic priority':[],'Pantry & dry goods':[],'Dairy & refrigerated':[],'Spices & sauces':[]};
+  const cats={'Proteins — choose organic':[],'Produce — fresh & organic priority':[],'Pantry & dry goods':[],'Dairy & refrigerated':[],'Other':[]};
   const PROT=['beef','chicken','pork','salmon','shrimp','sausage','bacon','egg','rib','fish','tuna','cod','turkey','duck','lamb','steak','ground','tilapia','crab','lobster','scallop','tofu','tempeh','chorizo','ham','prosciutto','salami','pepperoni','meatball'];
   const PROD=['potato','sweet potato','carrot','squash','zucchini','pepper','spinach','broccoli','onion','garlic','lemon','lime','asparagus','cabbage','avocado','tomato','mushroom','kale','eggplant','corn','cucumber','celery','lettuce','arugula','radish','beet','turnip','leek','scallion','shallot','herb','cilantro','parsley','basil','dill','mint','chive','ginger','jalapeno','jalapeño','chili pepper','green bean','pea','okra','fennel','brussels'];
   const DAIRY=['cheese','cheddar','parmesan','butter','cream','milk','sour cream','yogurt','mozzarella','ricotta','feta','goat','cottage cheese','provolone','swiss','gouda','brie'];
   const PANT=['pasta','noodle','rice','bread','bun','roll','tortilla','bean','broth','tomato sauce','oil','vinegar','sauce','maple','peanut','pancake','breadcrumb','caper','wine','naan','flour','quinoa','couscous','oats','cereal','cracker','chip','stock','soup','salsa','pesto','mustard','ketchup','mayo','jam','jelly','honey','sugar','spice','seasoning'];
-  const seen=new Set();
-  wk.flatMap(r=>(r.ingredients||[]).filter(i=>i.buy)).forEach(ing=>{
-    const k=ing.name.toLowerCase();if(seen.has(k))return;seen.add(k);
-    const e={l:ing.name,o:ing.organic};
-    if(PROT.some(p=>k.includes(p)))cats['Proteins — choose organic'].push(e);
-    else if(PROD.some(p=>k.includes(p)))cats['Produce — organic priority'].push(e);
-    else if(DAIRY.some(p=>k.includes(p)))cats['Dairy & refrigerated'].push(e);
-    else if(PANT.some(p=>k.includes(p)))cats['Pantry & dry goods'].push(e);
-    else cats['Spices & sauces'].push(e);
+  const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+
+  // Build ingredient map with which days need each item
+  const ingMap = {}; // key: ingredient name lowercase → {name, organic, days:[]}
+  wk.forEach((r, dayIdx) => {
+    (r.ingredients||[]).filter(i=>i.buy).forEach(ing => {
+      const k = ing.name.toLowerCase();
+      if (!ingMap[k]) ingMap[k] = {name: ing.name, organic: ing.organic, days: []};
+      if (!ingMap[k].days.includes(dayIdx)) ingMap[k].days.push(dayIdx);
+    });
   });
-  let html='<div class="glp"><div class="glh"><h3>🛒 Weekly Grocery List</h3><button class="cpb" onclick="copyGL()">Copy list</button></div><div class="glcats">';
-  Object.entries(cats).forEach(([cat,items])=>{
-    if(!items.length)return;
-    html+=`<div><div class="glcn">${cat}</div><div>`;
-    items.forEach(item=>{html+=`<span class="glit" onclick="this.classList.toggle('ck')">${item.o?'🌿 ':''}${item.l}</span>`;});
-    html+='</div></div>';
+
+  // Sort into categories
+  Object.values(ingMap).forEach(ing => {
+    const k = ing.name.toLowerCase();
+    if(PROT.some(p=>k.includes(p))) cats['Proteins — choose organic'].push(ing);
+    else if(PROD.some(p=>k.includes(p))) cats['Produce — fresh & organic priority'].push(ing);
+    else if(DAIRY.some(p=>k.includes(p))) cats['Dairy & refrigerated'].push(ing);
+    else if(PANT.some(p=>k.includes(p))) cats['Pantry & dry goods'].push(ing);
+    else cats['Other'].push(ing);
   });
-  document.getElementById('glsec').innerHTML=html+'</div></div>';
+
+  // "Buy by" date — Sunday before the week starts (assume plan starts Monday)
+  const today = new Date();
+  const daysUntilSunday = (7 - today.getDay()) % 7 || 7;
+  const buyBy = new Date(today);
+  buyBy.setDate(today.getDate() + daysUntilSunday - 7); // last Sunday
+  // If today is already past Sunday, aim for this coming Sunday
+  const buyByFinal = buyBy < today ? new Date(today.getTime() + daysUntilSunday * 86400000) : buyBy;
+  const buyByStr = buyByFinal.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'});
+
+  const totalItems = Object.keys(ingMap).length;
+
+  let html = `<div class="glp">
+    <div class="gl-header-row">
+      <h3>🛒 Weekly Grocery List</h3>
+      <button class="cpb" onclick="copyGL()">📋 Copy list</button>
+    </div>
+    <div class="gl-buy-by">📅 Buy by <strong>${buyByStr}</strong> — ${totalItems} item${totalItems!==1?'s':''} needed for the week</div>
+    <div class="glcats">`;
+
+  Object.entries(cats).forEach(([cat, items]) => {
+    if (!items.length) return;
+    html += `<div class="gl-cat-block"><div class="glcn">${cat}</div><div class="gl-items">`;
+    items.forEach(item => {
+      const dayLabels = item.days.map(d => dayNames[d].slice(0,3)).join(', ');
+      html += `<div class="glit-row" onclick="this.classList.toggle('ck')">
+        <span class="glit-name">${item.organic?'🌿 ':''}${item.name}</span>
+        <span class="glit-day">${dayLabels}</span>
+      </div>`;
+    });
+    html += '</div></div>';
+  });
+
+  document.getElementById('glsec').innerHTML = html + '</div></div>';
 }
 
 function copyGL(){
-  const txt=Array.from(document.querySelectorAll('.glit:not(.ck)')).map(i=>i.textContent.trim()).join('\n');
-  navigator.clipboard.writeText('Weekly Dinner Grocery List\n\n'+txt).then(()=>{
-    const b=document.querySelector('.cpb');b.textContent='Copied!';setTimeout(()=>b.textContent='Copy list',2000);
+  const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  const today = new Date();
+  const daysUntilSunday = (7 - today.getDay()) % 7 || 7;
+  const buyByFinal = new Date(today.getTime() + daysUntilSunday * 86400000);
+  const buyByStr = buyByFinal.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'});
+
+  let txt = '🛒 MealWheelIQ — Weekly Grocery List\n';
+  txt += `📅 Buy by ${buyByStr}\n\n`;
+  document.querySelectorAll('.gl-cat-block').forEach(cat => {
+    const catName = cat.querySelector('.glcn')?.textContent;
+    const items = Array.from(cat.querySelectorAll('.glit-row:not(.ck)'));
+    if (!items.length) return;
+    txt += `${catName}:\n`;
+    items.forEach(row => {
+      const name = row.querySelector('.glit-name')?.textContent.trim();
+      const day = row.querySelector('.glit-day')?.textContent.trim();
+      txt += `  • ${name} (${day})\n`;
+    });
+    txt += '\n';
+  });
+  txt += '\nSpun on MealWheelIQ — mealwheeliq.com';
+  navigator.clipboard.writeText(txt).then(()=>{
+    const b=document.querySelector('.cpb');b.textContent='✅ Copied!';setTimeout(()=>b.textContent='📋 Copy list',2000);
   });
 }
 
