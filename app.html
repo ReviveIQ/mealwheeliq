@@ -497,6 +497,9 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
   .wk-grid { grid-template-columns: repeat(5, 1fr); font-size: 10px; }
   .wk-day { padding: 4px; }
 .wnight-theme{font-size:9px;color:var(--ink3);margin-bottom:2px;font-weight:600}
+.mixup-btn{background:none;border:1px solid var(--border);border-radius:8px;font-size:11px;padding:2px 6px;cursor:pointer;margin-top:4px;transition:all .15s;width:100%}
+.mixup-btn:hover{background:var(--green-pale);border-color:var(--green)}
+.mixup-btn.mixup-used{opacity:.4;cursor:not-allowed}
 
   /* ── Grocery list ── */
   .gl-item { font-size: 14px; padding: .55rem 0; }
@@ -1676,6 +1679,111 @@ function clearPantry() {
   renderPantrySummary();
 }
 
+// ─── MIX UP — swap a day's style, once per 24 hours ────────────────────────
+const ALL_DAY_STYLES = [
+  { label: '🍖 American', prompt: 'bold American comfort food or BBQ-inspired (smash burgers, ribs, mac & cheese, loaded potatoes)' },
+  { label: '🫙 Mediterranean', prompt: 'fresh Mediterranean or Italian (pasta, baked fish, antipasto bowls, bruschetta, shakshuka)' },
+  { label: '🥗 Light & Fresh', prompt: 'LIGHT & FRESH — a vibrant no-cook or minimal-cook meal: big chopped salad, grain bowl, or fresh wrap. Build around easy grocery store finds (rotisserie chicken, canned tuna, hard-boiled eggs, chickpeas). Include a homemade dressing with exact measurements. Steps: chop, toss, dress, serve. No stove required. Target 400-550 kcal/person.' },
+  { label: '🥢 Asian', prompt: 'bold Asian-inspired (stir fry, Thai peanut noodles, Korean BBQ, teriyaki bowls, fried rice, dumplings)' },
+  { label: '🌮 Mexican/Latin', prompt: 'classic Mexican or Latin-American (tacos, enchiladas, burrito bowls, fajitas, quesadillas, ceviche)' },
+  { label: '🎲 Creative Wildcard', prompt: 'CREATIVE WILDCARD — something unexpected and fun: fusion dish, elevated comfort food, a themed dinner night, or something the family has never made before' },
+  { label: '🍱 Japanese', prompt: 'Japanese-inspired (teriyaki, ramen, sushi bowls, katsu, miso-glazed, gyoza)' },
+  { label: '🥘 Slow & Cozy', prompt: 'slow-cooked or braised comfort food (pot roast, chili, soup, stew, pulled pork, cassoulet)' },
+  { label: '🌿 Plant-Based', prompt: 'vibrant plant-based dinner — no meat, lots of vegetables, legumes, grains. Must be satisfying and filling, not just a side dish.' },
+  { label: '🦞 Seafood Night', prompt: 'a fresh seafood dinner — shrimp, salmon, cod, scallops, or crab. Simple preparations that let the seafood shine.' },
+  { label: '🥩 Steakhouse', prompt: 'an upscale steakhouse-style dinner at home — quality protein, a classic side, a simple pan sauce or compound butter' },
+  { label: '🍕 Fun Family', prompt: 'a fun interactive family dinner — homemade pizza, build-your-own tacos, slider bar, or DIY bowls where everyone customizes their plate' }
+];
+
+// Track which day style index is currently assigned (starts with defaults 0-4)
+let currentDayStyleIndexes = [0, 1, 2, 3, 5]; // Mon=American, Tue=Mediterranean, Wed=Light, Thu=Asian, Fri=Wildcard
+
+function getMixUpKey(dayIndex) {
+  return `mwiq_mixup_day${dayIndex}_${userInfo?.id||'anon'}`;
+}
+
+function canMixUp(dayIndex) {
+  const last = localStorage.getItem(getMixUpKey(dayIndex));
+  if (!last) return true;
+  return (Date.now() - parseInt(last)) > 24 * 60 * 60 * 1000;
+}
+
+async function mixUpDay(dayIndex) {
+  if (!canMixUp(dayIndex)) {
+    alert('You already mixed up ' + DAYS[dayIndex] + ' today! Come back tomorrow for another mix up.');
+    return;
+  }
+
+  // Pick a random style that's different from current and not used by other days
+  const currentIdx = currentDayStyleIndexes[dayIndex];
+  const usedIndexes = new Set(currentDayStyleIndexes);
+  const available = ALL_DAY_STYLES
+    .map((_, i) => i)
+    .filter(i => i !== currentIdx && !usedIndexes.has(i));
+  const newIdx = available[Math.floor(Math.random() * available.length)];
+  const newStyle = ALL_DAY_STYLES[newIdx];
+
+  // Update the button to show loading
+  const btn = document.getElementById('mixup-' + dayIndex);
+  const wnt = document.getElementById('wnt-' + dayIndex);
+  const wm = document.getElementById('wm-' + dayIndex);
+  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+  if (wnt) wnt.textContent = newStyle.label + ' ✨';
+
+  try {
+    const ingList = Array.from(selectedIngs).join(', ');
+    const s = parseInt(document.getElementById('servings').value) || 2;
+    const dailyGoal = parseInt(document.getElementById('calgoal').value) || 2000;
+    const g = Math.round(dailyGoal * 0.35);
+    const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+    const avoidNames = wk.filter((_,i)=>i!==dayIndex).map(r=>r.name);
+    const avoidStr = avoidNames.length ? `Do NOT repeat any of these: ${avoidNames.join(', ')}.` : '';
+
+    const prompt = `You are ${chefName}, a professional chef. Generate 1 dinner recipe for ${dayNames[dayIndex]}.
+
+TONIGHT'S STYLE: ${newStyle.prompt}
+
+User's available ingredients: ${ingList}
+
+ASSUMED KITCHEN STAPLES (never mark buy:true): olive oil, vegetable oil, butter, salt, black pepper, garlic powder, onion powder, all common spices, soy sauce, Worcestershire, hot sauce, mustard, ketchup, mayo, honey, vinegar, flour, sugar, chicken broth, garlic, onion.
+
+Suggest 3-5 fresh ingredients to buy (buy:true) that fit this style. Flag organic:true for meats, eggs, leafy greens.
+Servings: ${s}. Target approximately ${g} kcal per serving. ${avoidStr}
+
+Recipe steps: Lead with action verbs, 5-7 steps, timing and visual cues, final step seasons and serves.
+Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️","time":"30 min","difficulty":"Easy","style":"American","calories_per_serving":520,"protein_g":38,"carbs_g":45,"fat_g":18,"ingredients":[{"name":"ingredient","organic":false,"buy":false}],"steps":["Step 1."]}]}`;
+
+    const resp = await fetch(API + '/generate', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+userToken},
+      body: JSON.stringify({prompt})
+    });
+    const data = await resp.json();
+    const raw = data.content?.map(b=>b.text||'').join('') || '';
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    const newRecipe = parsed.recipes?.[0];
+    if (!newRecipe) throw new Error('No recipe returned');
+
+    // Replace in wk array
+    wk[dayIndex] = newRecipe;
+    currentDayStyleIndexes[dayIndex] = newIdx;
+
+    // Record mix up timestamp
+    localStorage.setItem(getMixUpKey(dayIndex), Date.now().toString());
+
+    // Rebuild the full week display
+    buildWkCal();
+    buildGL();
+    showWeekResults();
+
+  } catch(e) {
+    console.error('Mix up failed:', e);
+    if (wnt) wnt.textContent = ALL_DAY_STYLES[currentIdx].label;
+    if (btn) { btn.textContent = '🔀'; btn.disabled = false; }
+    alert('Mix up failed — please try again.');
+  }
+}
+
 function signOut() {
   localStorage.removeItem('mw_token');
   localStorage.removeItem('mw_user');
@@ -2196,11 +2304,16 @@ function buildWkCal(){
   const nightThemes=['🍖 American','🫙 Mediterranean','🥗 Light & Fresh','🥢 Asian','🎲 Wildcard'];
   const cards=wk.map((r,i)=>{
     const c=(r.calories_per_serving||0),p=Math.round(c/g*100),cls=p>130?'over':p>60?'ok':'under';
-    return `<div class="wcc ${cls}">
+    const canMix = canMixUp(i);
+    return `<div class="wcc ${cls}" id="wcc-${i}">
       <div class="wd">${DAYS[i]}</div>
-      <div class="wnight-theme">${nightThemes[i]}</div>
-      <div class="wm">${r.name.split(' ').slice(0,4).join(' ')}</div>
+      <div class="wnight-theme" id="wnt-${i}">${nightThemes[i]}</div>
+      <div class="wm" id="wm-${i}">${r.name.split(' ').slice(0,4).join(' ')}</div>
       <div class="wc2">${c} kcal</div>
+      <button class="mixup-btn ${canMix?'':'mixup-used'}" id="mixup-${i}"
+        onclick="mixUpDay(${i})" title="${canMix?'Swap this night to a different style':'Mix up used — try again tomorrow'}">
+        ${canMix?'🔀':'⏳'}
+      </button>
     </div>`;
   }).join('');
   document.getElementById('wcalsec').innerHTML=`<div class="wcs"><h4>📊 Week overview — avg ${avg} kcal/dinner · target ~${g} kcal/dinner</h4><div class="wcg">${cards}</div></div>`;
