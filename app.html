@@ -254,8 +254,8 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .mealplan-recipe{font-size:13px;color:var(--ink2)}
 
 /* ── WELCOME ONBOARDING ── */
-.welcome-box{max-width:500px;padding:0}
-.welcome-step{padding:2rem 1.75rem}
+.welcome-box{max-width:500px;padding:0;width:100%}
+.welcome-step{padding:1.75rem 1.5rem}
 .welcome-emoji{font-size:48px;margin-bottom:.75rem;text-align:center}
 .welcome-box h2{font-size:22px;font-weight:700;text-align:center;margin-bottom:.5rem;color:var(--ink1)}
 .welcome-box p{font-size:14px;color:var(--ink2);text-align:center;line-height:1.6;margin-bottom:1.25rem}
@@ -284,6 +284,54 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .ostep.active{background:var(--green-pale);color:var(--green-dark);border-color:var(--green)}
 .ostep.done{background:var(--ink1);color:white;border-color:var(--ink1)}
 .ostep-arrow{font-size:11px;color:var(--ink3)}
+/* ── WELCOME STEP 3 — PHOTO PANTRY ── */
+.ws3-photo-btn {
+  width: 100%; padding: 1.1rem;
+  background: var(--coral); color: white;
+  border: none; border-radius: 14px;
+  font-size: 17px; font-weight: 700;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  letter-spacing: .01em; margin-bottom: .75rem;
+  box-shadow: 0 4px 16px rgba(201,75,42,.3);
+  min-height: 56px;
+}
+.ws3-photo-btn:active { opacity: .85; transform: scale(.98); }
+.ws3-items {
+  display: flex; flex-wrap: wrap; gap: .35rem;
+  min-height: 28px; margin-bottom: .6rem;
+}
+.ws3-manual-row {
+  display: flex; gap: .5rem; margin-bottom: .75rem;
+}
+.ws3-search {
+  flex: 1; padding: .65rem .85rem;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 16px; font-family: 'DM Sans', sans-serif;
+  background: var(--bg); color: var(--ink1);
+}
+.ws3-search:focus { outline: none; border-color: var(--coral); }
+.ws3-add-btn {
+  width: 44px; height: 44px; border-radius: 10px;
+  border: 1.5px solid var(--border); background: white;
+  font-size: 20px; cursor: pointer; flex-shrink: 0;
+}
+.ws3-spin-btn {
+  width: 100%; padding: .9rem;
+  background: var(--green); color: white;
+  border: none; border-radius: 14px;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  margin-bottom: .6rem; min-height: 52px;
+}
+.ws3-spin-btn:active { opacity: .85; }
+.ws3-skip-btn {
+  width: 100%; background: none; border: none;
+  color: var(--ink3); font-size: 13px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  padding: .5rem; text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 /* ── PHOTO SCAN ── */
 .scan-photo-row{margin-bottom:.6rem}
 .scan-photo-btn{width:100%;background:linear-gradient(135deg,#C94B2A,#E8603E);color:white;border:none;border-radius:12px;padding:.85rem 1rem;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s}
@@ -292,8 +340,8 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .or-divider-pantry{display:flex;align-items:center;text-align:center;margin:.75rem 0;color:var(--ink3);font-size:11px}
 .or-divider-pantry::before,.or-divider-pantry::after{content:'';flex:1;border-bottom:1px solid var(--border)}
 .or-divider-pantry span{padding:0 .6rem}
-.scan-confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1100;display:flex;align-items:center;justify-content:center;padding:1rem}
-.scan-confirm-box{background:var(--card);border-radius:16px;max-width:440px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+.scan-confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1100;display:flex;align-items:flex-end;justify-content:center;padding:0}
+.scan-confirm-box{background:var(--card);border-radius:20px 20px 0 0;max-width:500px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
 .scan-confirm-header{padding:1.1rem 1.3rem .8rem;border-bottom:1px solid var(--border)}
 .scan-confirm-header h3{font-size:16px;font-weight:700;margin-bottom:.3rem}
 .scan-confirm-header p{font-size:13px;color:var(--ink2)}
@@ -604,30 +652,31 @@ button, a { touch-action: manipulation; }
 
       <!-- Step 3: Stock kitchen -->
       <div class="welcome-step hidden" id="ws-3">
-        <div class="welcome-emoji" style="font-size:52px">📸</div>
-        <h2 style="font-size:24px">Snap your fridge &amp; pantry</h2>
-        <p style="font-size:14px"><strong id="chef-name-display">Your chef</strong> will scan the photo and identify what you have. Oil, butter, salt, spices &amp; garlic are always assumed — no need to add those!</p>
-        <div class="scan-photo-row" style="margin-bottom:.75rem">
-          <input type="file" id="welcome-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleWelcomePhoto(event)">
-          <button class="scan-photo-btn" style="font-size:15px;padding:1rem" onclick="document.getElementById('welcome-photo-input').click()">
-            📸 Take a photo of your fridge or pantry
-          </button>
-        </div>
-        <div id="welcome-pantry-selected" style="display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0;min-height:28px"></div>
-        <div class="or-divider-pantry"><span>or type to add individual items</span></div>
-        <div class="pantry-search-row">
-          <input type="text" id="welcome-pantry-search" placeholder="e.g. chicken breast, potatoes..."
-            oninput="filterWelcomePantry()" autocomplete="off" style="font-size:16px">
-          <button class="pantry-add-btn" onclick="addWelcomeCustomItem()">+ Add</button>
+        <div class="welcome-emoji" style="font-size:48px">📸</div>
+        <h2 style="font-size:22px;line-height:1.2">Snap your fridge<br>&amp; pantry</h2>
+        <p style="font-size:14px;margin-bottom:1.25rem"><strong id="chef-name-display">Your chef</strong> will scan the photo and identify everything. Oil, butter, salt, garlic &amp; spices are always assumed — no need to add those!</p>
+
+        <input type="file" id="welcome-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleWelcomePhoto(event)">
+        <button class="ws3-photo-btn" onclick="document.getElementById('welcome-photo-input').click()">
+          📸 Take a photo
+        </button>
+
+        <div id="welcome-pantry-selected" class="ws3-items"></div>
+
+        <div class="ws3-manual-row">
+          <input type="text" id="welcome-pantry-search" class="ws3-search"
+            placeholder="Or type to add items..."
+            oninput="filterWelcomePantry()" autocomplete="off">
+          <button class="ws3-add-btn" onclick="addWelcomeCustomItem()">+</button>
         </div>
         <div id="welcome-pantry-suggestions" class="pantry-suggestions hidden"></div>
-        <div class="welcome-nav" style="margin-top:1.25rem">
-          <button class="btn-ghost" onclick="welcomeNext(2)">← Back</button>
-          <button class="btn-primary" onclick="saveWelcomePantryAndSpin()" style="font-size:15px">
-            Save & Let's Spin! 🎰
-          </button>
-        </div>
-        <button class="skip-link" onclick="skipPantrySetup()">⏭️ Skip for now, I'll add these later</button>
+
+        <button class="ws3-spin-btn" onclick="saveWelcomePantryAndSpin()">
+          Save &amp; Start Spinning 🎰
+        </button>
+        <button class="ws3-skip-btn" onclick="skipPantrySetup()">
+          I'll do this later →
+        </button>
       </div>
 
     </div>
@@ -655,16 +704,17 @@ button, a { touch-action: manipulation; }
         <div class="scan-photo-row">
           <input type="file" id="pantry-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePantryPhoto(event)">
           <button class="scan-photo-btn" onclick="document.getElementById('pantry-photo-input').click()">
-            📸 Snap a new photo to update your pantry
+            📸 Snap a photo of your fridge or pantry
           </button>
         </div>
-        <div class="staples-note" style="margin:.6rem 0">✅ <strong>Already assumed:</strong> oil, butter, salt, pepper, garlic, onion, all spices & condiments.</div>
-        <div class="or-divider-pantry"><span>or type to add individual items</span></div>
+        <div class="or-divider-pantry"><span>or add manually</span></div>
         <div class="pantry-search-row">
-          <input type="text" id="pantry-search" placeholder="e.g. chicken breast, broccoli..." oninput="filterPantryList()" autocomplete="off" style="font-size:16px">
+          <input type="text" id="pantry-search" placeholder="Search or type any ingredient..." oninput="filterPantryList()" autocomplete="off">
           <button class="pantry-add-btn" onclick="addCustomPantryItem()">+ Add</button>
         </div>
         <div id="pantry-suggestions" class="pantry-suggestions hidden"></div>
+        <div class="staples-note">✅ <strong>Already assumed:</strong> oil, butter, salt, pepper, garlic, onion, all spices & condiments — no need to add these.</div>
+        <div class="pantry-categories" id="pantry-categories"></div>
         <div class="pantry-saved-list" id="pantry-saved-list"></div>
       </div>
       <div id="ptab-tonight" class="ptab-content hidden">
@@ -997,9 +1047,18 @@ function removePantryItem(item) {
 }
 
 function renderPantryCategories() {
-  // Category chip grid removed — photo scan is primary input
-  // Just ensure saved list is rendered
-  renderPantryTags();
+  const q = document.getElementById('pantry-search').value.trim().toLowerCase();
+  if (q) return;
+  const el = document.getElementById('pantry-categories');
+  el.innerHTML = Object.entries(PANTRY_CATEGORIES).map(([cat, items]) => `
+    <div class="pantry-cat-section">
+      <div class="pantry-cat-label">${cat}</div>
+      <div class="pantry-items-grid">
+        ${items.map(i => `<div class="pantry-chip ${pantryItems.has(i)?'in-pantry':''}" onclick="togglePantryItem('${i.replace(/'/g,"\'")}')">
+          ${pantryItems.has(i)?'✓ ':''}${i}
+        </div>`).join('')}
+      </div>
+    </div>`).join('');
 }
 
 function renderPantryTags() {
@@ -1195,7 +1254,18 @@ function addWelcomeCustomItem() {
 }
 
 function renderWelcomePantryCats() {
-  // Category chip grid removed — photo scan is primary input
+  const el = document.getElementById('welcome-pantry-cats');
+  if (!el) return;
+  el.innerHTML = Object.entries(PANTRY_CATEGORIES).map(([cat, items]) => `
+    <div class="pantry-cat-section">
+      <div class="pantry-cat-label">${cat}</div>
+      <div class="pantry-items-grid">
+        ${items.map(i => `<div class="pantry-chip ${pantryItems.has(i)?'in-pantry':''}" 
+          onclick="toggleWelcomeItem('${i.replace(/'/g,"\'")}')">
+          ${pantryItems.has(i)?'✓ ':''}${i}
+        </div>`).join('')}
+      </div>
+    </div>`).join('');
   renderWelcomePantrySelected();
 }
 
