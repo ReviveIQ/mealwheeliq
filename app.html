@@ -2293,7 +2293,7 @@ function displaySoupRecipe(recipe, servings) {
   document.getElementById('rcards').innerHTML = cardHTML(recipe, 0, null) +
     `<div class="soup-batch-toggle" id="soup-batch-wrap">
       <button class="soup-batch-btn ${soupBigBatch?'act':''}" onclick="toggleSoupBatch()">
-        ${soupBigBatch ? '✅ Big batch mode (×3 servings)' : '🍲 Make it a big batch? (serves ${s*3})'}
+        ${soupBigBatch ? `✅ Big batch mode (×3 servings — feeds ${s*3})` : `🍲 Make it a big batch? (serves ${s*3})`}
       </button>
       <div class="soup-batch-note">Scale all ingredients to feed a crowd or meal prep for the week</div>
     </div>`;
