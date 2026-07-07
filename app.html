@@ -2290,7 +2290,7 @@ function displaySoupRecipe(recipe, servings) {
 
   // Render the soup card
   document.getElementById('rh').textContent = `${chefName} made you a bowl 🍲`;
-  document.getElementById('rcards').innerHTML = buildRecipeCardHTML(recipe, 0, false) +
+  document.getElementById('rcards').innerHTML = cardHTML(recipe, 0, null) +
     `<div class="soup-batch-toggle" id="soup-batch-wrap">
       <button class="soup-batch-btn ${soupBigBatch?'act':''}" onclick="toggleSoupBatch()">
         ${soupBigBatch ? '✅ Big batch mode (×3 servings)' : '🍲 Make it a big batch? (serves ${s*3})'}
@@ -3069,7 +3069,7 @@ function showSavedRecipe(d) {
         <button onclick="document.getElementById('saved-recipe-modal').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink3)">×</button>
       </div>
       <div style="padding:1rem">
-        ${buildRecipeCardHTML(recipe, 0, false)}
+        ${cardHTML(recipe, 0, null)}
       </div>
     </div>`;
   modal.onclick = e => { if (e.target === modal) modal.remove(); };
