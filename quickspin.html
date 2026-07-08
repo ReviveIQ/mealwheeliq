@@ -8,6 +8,8 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
   <link rel="apple-touch-icon" href="/icons/icon-180.png">
   <meta name="theme-color" content="#C94B2A">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -35,10 +37,10 @@
 
     /* MODE PICKER — single column on mobile, feels like big tap targets */
     .mode-grid{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.25rem}
-    .mode-card{border:2px solid var(--border);border-radius:16px;padding:1.1rem 1.25rem;cursor:pointer;transition:all .15s;background:white;display:flex;align-items:center;gap:1rem;-webkit-tap-highlight-color:transparent}
+    .mode-card{border:2px solid var(--border);border-radius:16px;padding:1.1rem 1.25rem;cursor:pointer;transition:all .15s;background:white;display:flex;align-items:center;gap:1rem;-webkit-tap-highlight-color:transparent;position:relative;z-index:1;user-select:none;-webkit-user-select:none}
     .mode-card.selected{border-color:var(--coral);background:var(--coral-pale)}
-    .mode-emoji{font-size:36px;flex-shrink:0;line-height:1}
-    .mode-text{flex:1}
+    .mode-emoji{font-size:36px;flex-shrink:0;line-height:1;pointer-events:none}
+    .mode-text{flex:1;pointer-events:none}
     .mode-name{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:.2rem}
     .mode-desc{font-size:12px;color:var(--ink3);line-height:1.4}
     .mode-price{display:inline-block;font-size:12px;font-weight:700;color:var(--coral);background:var(--coral-pale);padding:2px 10px;border-radius:12px;margin-top:.35rem}
@@ -137,7 +139,7 @@
       <p class="step-sub">Your AI chef builds a real recipe from what you have — delivered straight to your email or phone.</p>
       <div class="price-tag">💳 $2.49 · one-time · no subscription</div>
       <div class="mode-grid">
-        <div class="mode-card selected" id="mode-tonight" onclick="selectMode('tonight')">
+        <div class="mode-card selected" id="mode-tonight" data-mode="tonight">
           <span class="mode-emoji">🧊</span>
           <div class="mode-text">
             <div class="mode-name">Tonight's Dinner</div>
@@ -145,7 +147,7 @@
             <span class="mode-price">$2.49 one-time</span>
           </div>
         </div>
-        <div class="mode-card" id="mode-week" onclick="selectMode('week')">
+        <div class="mode-card" id="mode-week" data-mode="week">
           <span class="mode-emoji">📅</span>
           <div class="mode-text">
             <div class="mode-name">Plan My Week</div>
@@ -154,7 +156,7 @@
           </div>
         </div>
       </div>
-      <button class="btn-primary" onclick="goToStep(2)">Continue →</button>
+      <button class="btn-primary" id="btn-continue-1">Continue →</button>
     </div>
   </div>
 
@@ -657,6 +659,27 @@ function shareGrocery() {
     alert('Copied to clipboard!');
   }
 }
+
+// ── Attach all click handlers via JS (more reliable on iOS than onclick attrs) ─
+document.addEventListener('DOMContentLoaded', function() {
+  // Mode selection
+  document.querySelectorAll('.mode-card[data-mode]').forEach(card => {
+    card.addEventListener('click', function() {
+      selectMode(this.getAttribute('data-mode'));
+    });
+    card.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      selectMode(this.getAttribute('data-mode'));
+    }, { passive: false });
+  });
+
+  // Continue button step 1
+  const cont1 = document.getElementById('btn-continue-1');
+  if (cont1) {
+    cont1.addEventListener('click', () => goToStep(2));
+    cont1.addEventListener('touchend', e => { e.preventDefault(); goToStep(2); }, { passive: false });
+  }
+});
 
 // ── Check URL params on load ──────────────────────────────────────────────
 (async function init() {
