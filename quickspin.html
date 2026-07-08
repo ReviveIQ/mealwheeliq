@@ -16,108 +16,108 @@
       --ink:#1C1714;--ink2:#4A3F38;--ink3:#8C7B72;
       --bg:#FAF8F5;--card:#FFFFFF;--border:#EAE5DF;
     }
-    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
-    .wrap{max-width:520px;margin:0 auto;padding:2rem 1.25rem 4rem}
+    html{-webkit-text-size-adjust:100%}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
+    .wrap{max-width:480px;margin:0 auto;padding:1.25rem 1rem calc(5rem + env(safe-area-inset-bottom))}
 
     /* NAV */
-    nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:white;position:sticky;top:0;z-index:10}
-    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--ink);text-decoration:none}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:1px solid var(--border);background:white;position:sticky;top:0;z-index:10}
+    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--ink);text-decoration:none}
     .nav-logo span{color:var(--coral)}
-    .nav-signin{font-size:12px;color:var(--ink3);text-decoration:none}
+    .nav-signin{font-size:12px;color:var(--coral);text-decoration:none;font-weight:600;white-space:nowrap}
 
     /* STEP SYSTEM */
     .step{display:none}
     .step.active{display:block}
-    .step-badge{display:inline-block;background:var(--coral);color:white;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:20px;margin-bottom:1rem}
-    .step-title{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;line-height:1.1;margin-bottom:.5rem}
-    .step-sub{font-size:14px;color:var(--ink2);margin-bottom:1.5rem;line-height:1.6}
+    .step-badge{display:inline-block;background:var(--coral);color:white;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:20px;margin-bottom:.75rem}
+    .step-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;line-height:1.1;margin-bottom:.5rem}
+    .step-sub{font-size:14px;color:var(--ink2);margin-bottom:1.25rem;line-height:1.6}
 
-    /* MODE PICKER */
-    .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem}
-    .mode-card{border:2px solid var(--border);border-radius:16px;padding:1.25rem;cursor:pointer;transition:all .15s;background:white;text-align:left}
-    .mode-card:hover{border-color:var(--coral);background:var(--coral-pale)}
+    /* MODE PICKER — single column on mobile, feels like big tap targets */
+    .mode-grid{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.25rem}
+    .mode-card{border:2px solid var(--border);border-radius:16px;padding:1.1rem 1.25rem;cursor:pointer;transition:all .15s;background:white;display:flex;align-items:center;gap:1rem;-webkit-tap-highlight-color:transparent}
     .mode-card.selected{border-color:var(--coral);background:var(--coral-pale)}
-    .mode-emoji{font-size:32px;margin-bottom:.5rem;display:block}
-    .mode-name{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+    .mode-emoji{font-size:36px;flex-shrink:0;line-height:1}
+    .mode-text{flex:1}
+    .mode-name{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:.2rem}
     .mode-desc{font-size:12px;color:var(--ink3);line-height:1.4}
-    .mode-price{font-size:11px;font-weight:700;color:var(--coral);margin-top:.4rem}
+    .mode-price{display:inline-block;font-size:12px;font-weight:700;color:var(--coral);background:var(--coral-pale);padding:2px 10px;border-radius:12px;margin-top:.35rem}
 
     /* INPUTS */
     .field-label{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:.4rem;display:block}
     .field-opt{font-size:11px;color:var(--ink3);font-weight:400}
-    .inp{width:100%;padding:.7rem .9rem;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'DM Sans',sans-serif;background:white;color:var(--ink);margin-bottom:1rem}
+    .inp{width:100%;padding:.8rem 1rem;border:1.5px solid var(--border);border-radius:12px;font-size:16px;font-family:'DM Sans',sans-serif;background:white;color:var(--ink);margin-bottom:1rem;-webkit-appearance:none}
     .inp:focus{outline:none;border-color:var(--coral)}
-    textarea.inp{resize:vertical;min-height:80px}
+    textarea.inp{resize:none;min-height:90px}
 
     /* CONTACT TOGGLE */
     .contact-toggle{display:flex;gap:.5rem;margin-bottom:.75rem}
-    .ct-btn{flex:1;padding:.6rem;border:1.5px solid var(--border);border-radius:10px;background:white;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;color:var(--ink2)}
+    .ct-btn{flex:1;padding:.7rem;border:1.5px solid var(--border);border-radius:12px;background:white;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;color:var(--ink2);-webkit-tap-highlight-color:transparent}
     .ct-btn.active{border-color:var(--coral);background:var(--coral-pale);color:var(--coral)}
 
-    /* BUTTONS */
-    .btn-primary{width:100%;padding:1rem;background:var(--coral);color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;margin-top:.5rem}
-    .btn-primary:hover{background:#B8421F}
+    /* BUTTONS — 56px min touch target */
+    .btn-primary{width:100%;padding:1rem;background:var(--coral);color:white;border:none;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;margin-top:.75rem;min-height:56px;-webkit-tap-highlight-color:transparent;letter-spacing:.01em}
+    .btn-primary:active{opacity:.85;transform:scale(.98)}
     .btn-primary:disabled{opacity:.5;cursor:not-allowed}
-    .btn-ghost{width:100%;padding:.75rem;background:none;border:1.5px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2);margin-top:.5rem}
-    .btn-ghost:hover{border-color:var(--coral);color:var(--coral)}
+    .btn-ghost{width:100%;padding:.85rem;background:none;border:1.5px solid var(--border);border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2);margin-top:.5rem;min-height:48px;-webkit-tap-highlight-color:transparent}
 
     /* PRICE TAG */
-    .price-tag{display:inline-flex;align-items:center;gap:.4rem;background:var(--green-pale);color:var(--green);border-radius:20px;padding:.4rem 1rem;font-size:14px;font-weight:700;margin-bottom:1.25rem}
+    .price-tag{display:inline-flex;align-items:center;gap:.4rem;background:var(--green-pale);color:var(--green);border-radius:20px;padding:.45rem 1rem;font-size:14px;font-weight:700;margin-bottom:1.1rem}
 
     /* LOADING */
     .loading-screen{text-align:center;padding:3rem 1rem}
-    .loading-emoji{font-size:48px;animation:pulse 1.5s ease-in-out infinite;display:block;margin-bottom:1rem}
-    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+    .loading-emoji{font-size:52px;animation:pulse 1.5s ease-in-out infinite;display:block;margin-bottom:1rem}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
     .loading-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;margin-bottom:.5rem}
     .loading-sub{font-size:14px;color:var(--ink3)}
     .loading-steps{margin-top:1.5rem;text-align:left}
-    .loading-step{font-size:13px;color:var(--ink3);padding:.4rem 0;display:flex;gap:.5rem}
+    .loading-step{font-size:13px;color:var(--ink3);padding:.45rem 0;display:flex;gap:.5rem;border-bottom:1px solid var(--border)}
     .loading-step.done{color:var(--green)}
 
     /* RECIPE CARD */
-    .recipe-card{background:white;border:1px solid var(--border);border-radius:16px;padding:1.25rem;margin-bottom:1rem}
-    .recipe-header{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:1rem}
-    .recipe-emoji{font-size:36px;flex-shrink:0}
-    .recipe-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;line-height:1.2;color:var(--ink)}
-    .recipe-meta{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1rem}
-    .recipe-badge{font-size:11px;padding:3px 10px;border-radius:12px;background:var(--bg);border:1px solid var(--border);color:var(--ink2)}
+    .recipe-card{background:white;border:1px solid var(--border);border-radius:16px;padding:1.1rem;margin-bottom:1rem}
+    .recipe-header{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:.85rem}
+    .recipe-emoji{font-size:40px;flex-shrink:0;line-height:1}
+    .recipe-title{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;line-height:1.2;color:var(--ink)}
+    .recipe-meta{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.85rem}
+    .recipe-badge{font-size:11px;padding:3px 9px;border-radius:12px;background:var(--bg);border:1px solid var(--border);color:var(--ink2)}
     .recipe-badge.green{background:var(--green-pale);color:var(--green);border-color:transparent}
     .recipe-section{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin:.75rem 0 .4rem}
     .ing-list{list-style:none}
-    .ing-list li{font-size:13px;color:var(--ink2);padding:.3rem 0;border-bottom:1px solid var(--bg);display:flex;justify-content:space-between;align-items:center}
-    .buy-badge{font-size:10px;color:var(--coral);background:var(--coral-pale);padding:1px 7px;border-radius:8px}
+    .ing-list li{font-size:14px;color:var(--ink2);padding:.4rem 0;border-bottom:1px solid var(--bg);display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+    .buy-badge{font-size:10px;color:var(--coral);background:var(--coral-pale);padding:2px 8px;border-radius:8px;flex-shrink:0}
     .organic-dot{color:var(--green);font-size:12px}
     .steps-list{padding-left:1.2rem}
-    .steps-list li{font-size:13px;color:var(--ink2);margin-bottom:.5rem;line-height:1.6}
+    .steps-list li{font-size:14px;color:var(--ink2);margin-bottom:.6rem;line-height:1.65}
 
-    /* WEEK GRID */
-    .week-grid{display:flex;gap:.5rem;margin-bottom:1rem;overflow-x:auto;padding-bottom:4px}
-    .week-day{flex-shrink:0;width:88px;border:1.5px solid var(--border);border-radius:12px;padding:.6rem;text-align:center;cursor:pointer;transition:all .15s;background:white}
+    /* WEEK DAY TABS — full width scroll, bigger touch targets */
+    .week-grid{display:flex;gap:.4rem;margin-bottom:1rem;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory}
+    .week-day{flex-shrink:0;min-width:72px;border:1.5px solid var(--border);border-radius:12px;padding:.55rem .4rem;text-align:center;cursor:pointer;transition:all .15s;background:white;scroll-snap-align:start;-webkit-tap-highlight-color:transparent}
     .week-day.active{border-color:var(--coral);background:var(--coral-pale)}
-    .week-day-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);margin-bottom:3px}
-    .week-day-emoji{font-size:20px;margin-bottom:3px}
-    .week-day-name{font-size:10px;font-weight:600;color:var(--ink);line-height:1.2}
+    .week-day-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);margin-bottom:2px}
+    .week-day-emoji{font-size:22px;margin-bottom:2px;line-height:1}
+    .week-day-name{font-size:9px;font-weight:600;color:var(--ink);line-height:1.2}
 
     /* MIXUP */
-    .mixup-btn{width:100%;padding:.75rem;background:none;border:2px dashed var(--coral);border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--coral);margin-bottom:1rem;transition:all .15s}
-    .mixup-btn:hover{background:var(--coral-pale)}
+    .mixup-btn{width:100%;padding:.85rem;background:none;border:2px dashed var(--coral);border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--coral);margin-bottom:.75rem;transition:all .15s;min-height:52px;-webkit-tap-highlight-color:transparent}
+    .mixup-btn:active{background:var(--coral-pale)}
     .mixup-btn:disabled{opacity:.4;cursor:not-allowed;border-style:solid}
-    .mixup-used-note{font-size:12px;color:var(--ink3);text-align:center;margin-bottom:1rem}
+    .mixup-used-note{font-size:12px;color:var(--ink3);text-align:center;margin-bottom:1rem;padding:0 .5rem}
 
-    /* GROCERY LIST */
-    .grocery-card{background:white;border:1px solid var(--border);border-radius:16px;padding:1.25rem;margin-bottom:1rem}
+    /* GROCERY */
+    .grocery-card{background:white;border:1px solid var(--border);border-radius:16px;padding:1.1rem;margin-bottom:1rem}
     .grocery-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin:.75rem 0 .4rem}
-    .grocery-item{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--bg);font-size:13px;color:var(--ink2)}
-    .grocery-day{font-size:11px;color:var(--ink3);background:var(--bg);padding:2px 8px;border-radius:10px}
+    .grocery-item{display:flex;justify-content:space-between;align-items:center;padding:.45rem 0;border-bottom:1px solid var(--bg);font-size:14px;color:var(--ink2);gap:.5rem}
+    .grocery-day{font-size:11px;color:var(--ink3);background:var(--bg);padding:2px 8px;border-radius:10px;flex-shrink:0}
 
     /* UPSELL */
-    .upsell-card{background:var(--ink);border-radius:16px;padding:1.75rem;text-align:center;margin-top:1.5rem}
-    .upsell-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:white;margin-bottom:.4rem}
-    .upsell-sub{font-size:13px;color:rgba(255,255,255,.65);margin-bottom:1.25rem;line-height:1.5}
-    .upsell-btn{background:var(--coral);color:white;text-decoration:none;border-radius:24px;padding:.75rem 1.75rem;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;display:inline-block}
+    .upsell-card{background:var(--ink);border-radius:16px;padding:1.5rem 1.25rem;text-align:center;margin-top:1.5rem}
+    .upsell-title{font-family:'Cormorant Garamond',serif;font-size:1.35rem;color:white;margin-bottom:.4rem}
+    .upsell-sub{font-size:13px;color:rgba(255,255,255,.65);margin-bottom:1.25rem;line-height:1.55}
+    .upsell-btn{background:var(--coral);color:white;text-decoration:none;border-radius:24px;padding:.8rem 1.5rem;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;display:inline-block}
 
     /* SENT */
-    .sent-box{background:var(--green-pale);border:1px solid var(--green);border-radius:12px;padding:1rem;text-align:center;font-size:14px;color:var(--green);font-weight:600;margin-bottom:1rem}
+    .sent-box{background:var(--green-pale);border:1px solid var(--green);border-radius:12px;padding:.85rem 1rem;text-align:center;font-size:14px;color:var(--green);font-weight:600;margin-bottom:1rem}
   </style>
 </head>
 <body>
@@ -131,23 +131,27 @@
 
   <!-- ── STEP 1: MODE PICKER ─────────────────────────────────────────── -->
   <div class="step active" id="step-1">
-    <div style="margin-top:1.5rem">
-      <div class="step-badge">QuickSpin</div>
-      <h1 class="step-title">Dinner decided.<br>No account needed.</h1>
-      <p class="step-sub">One spin. Real recipe from a real AI chef. Delivered to your phone or email.</p>
-      <div class="price-tag">💳 $2.49 one-time · no subscription</div>
+    <div style="margin-top:1rem">
+      <div class="step-badge">QuickSpin — No account needed</div>
+      <h1 class="step-title">Dinner decided<br>in one spin.</h1>
+      <p class="step-sub">Your AI chef builds a real recipe from what you have — delivered straight to your email or phone.</p>
+      <div class="price-tag">💳 $2.49 · one-time · no subscription</div>
       <div class="mode-grid">
         <div class="mode-card selected" id="mode-tonight" onclick="selectMode('tonight')">
           <span class="mode-emoji">🧊</span>
-          <div class="mode-name">Tonight's Dinner</div>
-          <div class="mode-desc">1 recipe + mix-up option · full ingredients & steps</div>
-          <div class="mode-price">$2.49</div>
+          <div class="mode-text">
+            <div class="mode-name">Tonight's Dinner</div>
+            <div class="mode-desc">1 recipe · full ingredients & steps · 1 mix-up to try a different dish</div>
+            <span class="mode-price">$2.49 one-time</span>
+          </div>
         </div>
         <div class="mode-card" id="mode-week" onclick="selectMode('week')">
           <span class="mode-emoji">📅</span>
-          <div class="mode-name">Plan My Week</div>
-          <div class="mode-desc">5 dinners + grocery list · 1 mix-up included</div>
-          <div class="mode-price">$2.49</div>
+          <div class="mode-text">
+            <div class="mode-name">Plan My Week</div>
+            <div class="mode-desc">5 dinners · full recipes & steps · grocery list · 1 mix-up on any night</div>
+            <span class="mode-price">$2.49 one-time</span>
+          </div>
         </div>
       </div>
       <button class="btn-primary" onclick="goToStep(2)">Continue →</button>
@@ -157,7 +161,7 @@
   <!-- ── STEP 2: OPTIONAL INPUTS ────────────────────────────────────── -->
   <div class="step" id="step-2">
     <div style="margin-top:1.5rem">
-      <div class="step-badge">QuickSpin · Step 2 of 3</div>
+      <div class="step-badge">Step 2 of 3 — What you have</div>
       <h2 class="step-title">Tell your chef what you have.</h2>
       <p class="step-sub">Both are optional — skip to checkout if you'd like a surprise!</p>
 
@@ -179,9 +183,9 @@
   <!-- ── STEP 3: CONTACT + CHECKOUT ────────────────────────────────── -->
   <div class="step" id="step-3">
     <div style="margin-top:1.5rem">
-      <div class="step-badge">QuickSpin · Step 3 of 3</div>
+      <div class="step-badge">Step 3 of 3 — Where to send it</div>
       <h2 class="step-title">Where should we send your results?</h2>
-      <p class="step-sub">After you pay, your recipe and grocery list will be delivered here.</p>
+      <p class="step-sub">Recipe, instructions, and grocery list delivered instantly after payment.</p>
 
       <label class="field-label">Delivery method</label>
       <div class="contact-toggle">
