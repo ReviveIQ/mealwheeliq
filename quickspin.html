@@ -116,6 +116,21 @@
     .grocery-item{display:flex;justify-content:space-between;align-items:center;padding:.45rem 0;border-bottom:1px solid var(--bg);font-size:14px;color:var(--ink2);gap:.5rem}
     .grocery-day{font-size:11px;color:var(--ink3);background:var(--bg);padding:2px 8px;border-radius:10px;flex-shrink:0}
 
+    /* TEASER */
+    .teaser-card{background:white;border:1px solid var(--border);border-radius:16px;padding:1.1rem;margin-bottom:.75rem;position:relative;overflow:hidden}
+    .teaser-day-row{display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--bg)}
+    .teaser-day-row:last-child{border-bottom:none}
+    .teaser-day-label{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--ink3);width:28px;flex-shrink:0}
+    .teaser-emoji{font-size:22px;flex-shrink:0}
+    .teaser-name{flex:1;font-size:14px;font-weight:600;color:var(--ink)}
+    .teaser-kcal{font-size:12px;color:var(--green);font-weight:600;flex-shrink:0}
+    .blur-block{display:inline-block;background:var(--border);border-radius:4px;color:transparent;user-select:none;-webkit-user-select:none}
+    .teaser-lock-overlay{background:linear-gradient(to bottom,rgba(250,248,245,0) 0%,rgba(250,248,245,.97) 60%,rgba(250,248,245,1) 100%);position:absolute;bottom:0;left:0;right:0;height:60px;border-radius:0 0 16px 16px}
+    .teaser-ingredients{margin-top:.5rem}
+    .teaser-ing-row{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--bg);font-size:13px;color:var(--ink2)}
+    .teaser-step{font-size:13px;color:var(--ink2);padding:.3rem 0;border-bottom:1px solid var(--bg);line-height:1.5}
+    .teaser-grocery-row{display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--bg);font-size:13px;color:var(--ink2)}
+
     /* UPSELL */
     .upsell-card{background:var(--ink);border-radius:16px;padding:1.5rem 1.25rem;text-align:center;margin-top:1.5rem}
     .upsell-title{font-family:'Cormorant Garamond',serif;font-size:1.35rem;color:white;margin-bottom:.4rem}
@@ -199,33 +214,44 @@
     </div>
   </div>
 
-  <!-- ── STEP 3: CONTACT + CHECKOUT ────────────────────────────────── -->
+  <!-- ── STEP 3: GENERATE PREVIEW (FREE) ─────────────────────────── -->
   <div class="step" id="step-3">
-    <div style="margin-top:1.5rem">
-      <div class="step-badge">Step 3 of 3 — Where to send it</div>
-      <h2 class="step-title">Where should we send your results?</h2>
-      <p class="step-sub">Recipe, instructions, and grocery list delivered instantly after payment.</p>
+    <div style="text-align:center;padding:2.5rem 0">
+      <span class="loading-emoji" id="preview-emoji">🍽️</span>
+      <div class="loading-title" id="preview-title">Your chef is cooking...</div>
+      <div class="loading-sub" id="preview-sub">Generating your personalized plan</div>
+      <div class="loading-steps" id="preview-steps" style="margin-top:1.25rem"></div>
+    </div>
+  </div>
 
-      <label class="field-label">Delivery method</label>
-      <div class="contact-toggle">
-        <button class="ct-btn active" id="ct-email" onclick="setContactType('email')">📧 Email</button>
-        <button class="ct-btn" id="ct-phone" onclick="setContactType('phone')">📱 Text (SMS)</button>
-      </div>
-      <input class="inp" id="contact-input" type="email" placeholder="your@email.com">
-      <p style="font-size:11px;color:var(--ink3);margin-top:-.5rem;margin-bottom:1rem">We'll only use this to send your recipe. No spam, ever.</p>
+  <!-- ── STEP 4: TEASER + UNLOCK ───────────────────────────────────── -->
+  <div class="step" id="step-4">
+    <div style="margin-top:.75rem">
+      <div class="step-badge" id="teaser-badge">Your plan is ready!</div>
+      <h2 class="step-title" id="teaser-title">Unlock your full plan</h2>
+      <p class="step-sub" id="teaser-sub">Your AI chef built something delicious. Unlock the full recipes, ingredients, and grocery list.</p>
 
-      <div style="background:var(--bg);border-radius:12px;padding:.85rem 1rem;margin-bottom:1rem;font-size:13px;color:var(--ink2)">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-          <span id="summary-mode">Tonight's Dinner</span>
-          <span style="font-weight:700">$2.49</span>
+      <!-- TEASER CONTENT injected here -->
+      <div id="teaser-content"></div>
+
+      <!-- CONTACT + PAY -->
+      <div style="background:var(--ink);border-radius:16px;padding:1.25rem;margin-top:1rem">
+        <div style="font-size:14px;font-weight:700;color:white;margin-bottom:.75rem;text-align:center">
+          🔓 Unlock everything for $2.49
         </div>
-        <div style="font-size:11px;color:var(--ink3)" id="summary-desc">1 recipe · 1 mix-up · email delivery</div>
+        <label class="field-label" style="color:rgba(255,255,255,.7);font-size:12px">Where should we send your results?</label>
+        <div class="contact-toggle" style="margin-bottom:.6rem">
+          <button class="ct-btn active" id="ct-email" onclick="setContactType('email')">📧 Email</button>
+          <button class="ct-btn" id="ct-phone" onclick="setContactType('phone')">📱 Text</button>
+        </div>
+        <input class="inp" id="contact-input" type="email" placeholder="your@email.com" style="margin-bottom:.4rem">
+        <p style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:.85rem">Recipe + grocery list sent here instantly after payment.</p>
+        <button class="btn-primary" id="checkout-btn" onclick="startCheckout()" style="font-size:17px;background:var(--coral)">
+          🔓 Unlock full plan — $2.49
+        </button>
+        <p style="font-size:11px;color:rgba(255,255,255,.35);text-align:center;margin-top:.6rem">Secured by Stripe · One-time charge · No subscription</p>
       </div>
-
-      <button class="btn-primary" id="checkout-btn" onclick="startCheckout()">Pay $2.49 & Spin 🎰</button>
-      <button class="btn-ghost" onclick="goToStep(2)">← Back</button>
-
-      <p style="font-size:11px;color:var(--ink3);text-align:center;margin-top:.75rem">Secured by Stripe · Cancel anytime</p>
+      <button class="btn-ghost" onclick="goToStep(2)" style="margin-top:.5rem">← Change my inputs</button>
     </div>
   </div>
 
@@ -287,17 +313,7 @@ function setContactType(t) {
   inp.placeholder = t === 'email' ? 'your@email.com' : '+1 (555) 000-0000';
 }
 
-function goToStep(n) {
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-  document.getElementById('step-' + n).classList.add('active');
-  if (n === 3) {
-    document.getElementById('summary-mode').textContent = selectedMode === 'tonight' ? "Tonight's Dinner" : 'Plan My Week';
-    document.getElementById('summary-desc').textContent = selectedMode === 'tonight'
-      ? '1 recipe · 1 mix-up · email delivery'
-      : '5 dinners + grocery list · 1 mix-up · email delivery';
-  }
-  window.scrollTo(0, 0);
-}
+// goToStep defined above in generatePreview section
 
 // ─── QUICKSPIN PHOTO SCAN ────────────────────────────────────────────────────
 function compressQSImage(file, maxDim = 1280, quality = 0.75) {
@@ -401,6 +417,169 @@ function stopMic() {
   document.getElementById('mic-listening').style.display = 'none';
 }
 
+// ── Step 2 → 3: generate preview first, then show teaser ─────────────────────
+let previewData = null; // holds the generated preview before payment
+
+function goToStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n)?.classList.add('active');
+  window.scrollTo(0, 0);
+  // When going to step 3, kick off free preview generation
+  if (n === 3) generatePreview();
+}
+
+async function generatePreview() {
+  const ingredients = document.getElementById('ingredients-input').value.trim().split(',').map(s => s.trim()).filter(Boolean);
+  const craving = document.getElementById('craving-input').value.trim();
+  const mode = selectedMode;
+
+  // Store for later use
+  sessionStorage.setItem('qs_ingredients', JSON.stringify(ingredients));
+  sessionStorage.setItem('qs_craving', craving);
+  sessionStorage.setItem('qs_mode', mode);
+
+  const isWeek = mode === 'week';
+  document.getElementById('preview-emoji').textContent = isWeek ? '📅' : '🍽️';
+  document.getElementById('preview-title').textContent = isWeek ? 'Planning your week...' : "Building your recipe...";
+  document.getElementById('preview-sub').textContent = isWeek ? 'Picking 5 different cuisines for your week' : 'Finding the perfect dish for tonight';
+
+  const stepsEl = document.getElementById('preview-steps');
+  stepsEl.innerHTML = '';
+  const msgs = isWeek
+    ? ["Assigning cuisine styles to each night...", "Building Monday's dinner...", "Planning Tuesday through Friday...", "Almost ready — finishing your plan..."]
+    : ["Picking tonight's cuisine style...", "Building your recipe...", "Finalizing ingredients..."];
+
+  let msgIdx = 0;
+  const interval = setInterval(() => {
+    if (msgIdx < msgs.length) {
+      stepsEl.innerHTML += `<div class="loading-step done">✓ ${msgs[msgIdx]}</div>`;
+      msgIdx++;
+    }
+  }, isWeek ? 3500 : 2500);
+
+  try {
+    const resp = await fetch(API + '/quickspin/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode, ingredients, craving })
+    });
+    clearInterval(interval);
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Preview failed');
+    previewData = data;
+    renderTeaser(data);
+  } catch(e) {
+    clearInterval(interval);
+    console.error('Preview error:', e);
+    // Fallback — skip to teaser with generic content
+    renderFallbackTeaser();
+  }
+}
+
+function blurText(text, keepChars = 0) {
+  const visible = text.slice(0, keepChars);
+  const hidden = text.slice(keepChars).replace(/./g, '█');
+  return visible + `<span class="blur-block">${hidden}</span>`;
+}
+
+function renderTeaser(data) {
+  const isWeek = data.mode === 'week';
+  const recipes = data.recipes || [];
+  let html = '';
+
+  if (isWeek) {
+    document.getElementById('teaser-title').textContent = 'Your week is ready to unlock!';
+    document.getElementById('teaser-sub').textContent = 'Your AI chef planned all 5 nights. Unlock to see full recipes, ingredients, and your grocery list.';
+    document.getElementById('teaser-badge').textContent = '🎉 5-night plan generated!';
+
+    // Week overview teaser — show names + emojis + kcal, blur ingredients/steps
+    html += `<div class="teaser-card">
+      <div style="font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Your 5-night plan</div>
+      ${recipes.map((r, i) => `
+        <div class="teaser-day-row">
+          <span class="teaser-day-label">${['Mon','Tue','Wed','Thu','Fri'][i]}</span>
+          <span class="teaser-emoji">${r.emoji || '🍽️'}</span>
+          <span class="teaser-name">${r.name}</span>
+          <span class="teaser-kcal">${r.calories_per_serving} kcal</span>
+        </div>`).join('')}
+    </div>`;
+
+    // Teased grocery list
+    const buyItems = [...new Set(recipes.flatMap(r => (r.ingredients||[]).filter(i=>i.buy).map(i=>i.name)))];
+    html += `<div class="teaser-card" style="position:relative;overflow:hidden">
+      <div style="font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">🛒 ${buyItems.length} ingredients to buy</div>
+      ${buyItems.slice(0,5).map(n => `<div class="teaser-grocery-row"><span>${n}</span><span class="blur-block" style="width:60px;height:14px;display:inline-block">&nbsp;</span></div>`).join('')}
+      ${buyItems.length > 5 ? `<div class="teaser-grocery-row" style="color:var(--ink3)">+${buyItems.length-5} more items...</div>` : ''}
+      <div style="font-size:13px;color:var(--ink3);padding:.5rem 0">🔒 Full grocery list with buy-by dates unlocks after payment</div>
+    </div>`;
+
+  } else {
+    const r = recipes[0];
+    if (!r) { renderFallbackTeaser(); return; }
+    document.getElementById('teaser-title').textContent = 'Your recipe is ready to unlock!';
+    document.getElementById('teaser-sub').textContent = 'Your chef built something delicious. Unlock to see the full recipe, ingredients, and steps.';
+    document.getElementById('teaser-badge').textContent = '🍽️ Recipe generated!';
+
+    // Recipe teaser — show name, emoji, meta, blur ingredients + steps
+    html += `<div class="teaser-card">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem">
+        <span style="font-size:40px">${r.emoji || '🍽️'}</span>
+        <div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--ink)">${r.name}</div>
+          <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.3rem">
+            <span class="recipe-badge">⏱ ${r.time}</span>
+            <span class="recipe-badge">${r.difficulty}</span>
+            <span class="recipe-badge green">🔥 ${r.calories_per_serving} kcal</span>
+            <span class="recipe-badge green">💪 ${r.protein_g}g protein</span>
+          </div>
+        </div>
+      </div>
+      <div class="recipe-section">Ingredients</div>
+      <div class="teaser-ingredients" style="position:relative">
+        ${(r.ingredients||[]).slice(0,3).map(i => `
+          <div class="teaser-ing-row">
+            <span>${i.name}</span>
+            ${i.buy ? '<span class="buy-badge">buy</span>' : ''}
+          </div>`).join('')}
+        <div class="teaser-ing-row" style="filter:blur(4px);pointer-events:none;user-select:none">
+          <span>████████████</span><span class="buy-badge">buy</span>
+        </div>
+        <div class="teaser-ing-row" style="filter:blur(4px);pointer-events:none;user-select:none">
+          <span>███████████████</span>
+        </div>
+        <div style="font-size:12px;color:var(--ink3);padding:.4rem 0">🔒 +${Math.max(0,(r.ingredients||[]).length-3)} more ingredients unlock after payment</div>
+      </div>
+      <div class="recipe-section">Instructions</div>
+      <div style="position:relative">
+        <div class="teaser-step">${(r.steps||[''])[0]}</div>
+        <div class="teaser-step" style="filter:blur(4px);pointer-events:none;user-select:none">████████████████████████████████████████</div>
+        <div class="teaser-step" style="filter:blur(4px);pointer-events:none;user-select:none">████████████████████████</div>
+        <div style="font-size:12px;color:var(--ink3);padding:.35rem 0">🔒 ${Math.max(0,(r.steps||[]).length-1)} more steps unlock after payment</div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('teaser-content').innerHTML = html;
+  goToStep(4);
+}
+
+function renderFallbackTeaser() {
+  // If preview API fails, show generic teaser and still let them pay
+  const isWeek = selectedMode === 'week';
+  document.getElementById('teaser-title').textContent = isWeek ? 'Your week plan is almost ready!' : 'Your recipe is almost ready!';
+  document.getElementById('teaser-sub').textContent = 'Pay to unlock your full personalized plan — built from what you have.';
+  document.getElementById('teaser-badge').textContent = isWeek ? '📅 5-night plan ready!' : '🍽️ Recipe ready!';
+  document.getElementById('teaser-content').innerHTML = `
+    <div class="teaser-card" style="text-align:center;padding:2rem">
+      <div style="font-size:48px;margin-bottom:.75rem">${isWeek ? '📅' : '🍽️'}</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.5rem">
+        ${isWeek ? 'Your 5-night dinner plan is ready' : 'Your recipe is ready'}
+      </div>
+      <div style="font-size:13px;color:var(--ink3)">Unlock to see the full ${isWeek ? 'plan, all recipes, and your grocery list' : 'recipe, ingredients, and step-by-step instructions'}.</div>
+    </div>`;
+  goToStep(4);
+}
+
 async function startCheckout() {
   const contact = document.getElementById('contact-input').value.trim();
   if (!contact) { alert('Please enter your email or phone number to receive your results.'); return; }
@@ -409,15 +588,9 @@ async function startCheckout() {
   btn.disabled = true;
   btn.textContent = 'Redirecting to payment...';
 
-  const ingredients = document.getElementById('ingredients-input').value.trim().split(',').map(s => s.trim()).filter(Boolean);
-  const craving = document.getElementById('craving-input').value.trim();
-
-  // Store in sessionStorage so we can retrieve after payment redirect
-  sessionStorage.setItem('qs_ingredients', JSON.stringify(ingredients));
-  sessionStorage.setItem('qs_craving', craving);
-  sessionStorage.setItem('qs_mode', selectedMode);
   sessionStorage.setItem('qs_contact', contact);
   sessionStorage.setItem('qs_contactType', contactType);
+  if (previewData) sessionStorage.setItem('qs_preview', JSON.stringify(previewData));
 
   try {
     const resp = await fetch(API + '/quickspin/checkout', {
@@ -429,15 +602,13 @@ async function startCheckout() {
     if (data.url) {
       window.location.href = data.url;
     } else {
-      alert('Checkout failed. Please try again.');
-      btn.disabled = false;
-      btn.textContent = 'Pay $2.49 & Spin 🎰';
+      throw new Error(data.error || 'Checkout failed');
     }
   } catch(e) {
     console.error(e);
-    alert('Network error. Please try again.');
+    alert('Checkout failed. Please try again.');
     btn.disabled = false;
-    btn.textContent = 'Pay $2.49 & Spin 🎰';
+    btn.textContent = '🔓 Unlock full plan — $2.49';
   }
 }
 
@@ -464,10 +635,12 @@ async function generateResults(token) {
   }, mode === 'week' ? 4000 : 3000);
 
   try {
+    const previewRaw = sessionStorage.getItem('qs_preview');
+    const previewToken = previewRaw ? (JSON.parse(previewRaw).previewToken || '') : '';
     const resp = await fetch(API + '/quickspin/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, ingredients, craving })
+      body: JSON.stringify({ token, ingredients, craving, previewToken })
     });
     clearInterval(interval);
     const data = await resp.json();
