@@ -357,7 +357,7 @@ async function generateResults(token) {
   const stepsEl = document.getElementById('loading-steps');
   const msgs = mode === 'week'
     ? ["Picking 5 different cuisine styles...","Building Monday's dinner...","Planning Tuesday through Friday...","Generating your grocery list...","Almost ready..."]
-    : ['Picking tonight's cuisine style...','Building your recipe...','Calculating ingredients to buy...'];
+    : ["Picking tonight's cuisine style...","Building your recipe...","Calculating ingredients to buy..."];
 
   let msgIdx = 0;
   const interval = setInterval(() => {
@@ -717,14 +717,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
         document.getElementById('step-loading').classList.add('active');
         document.getElementById('loading-title').textContent = 'Confirming payment...';
-        document.getElementById('loading-sub').textContent = 'Just a moment...';
+        document.getElementById('loading-sub').textContent = "Just a moment...";
         let retries = 0;
         const check = setInterval(async () => {
           retries++;
           const r2 = await fetch(API + '/quickspin/session/' + token);
           const s2 = await r2.json();
           if (s2.paid) { clearInterval(check); generateResults(token); }
-          if (retries > 10) { clearInterval(check); alert('Payment confirmation is taking longer than expected. Please contact support.'); }
+          if (retries > 10) { clearInterval(check); alert("Payment confirmation is taking longer than expected. Please contact support."); }
         }, 2000);
       }
     } catch(e) {
