@@ -453,7 +453,7 @@ async function generateResults(token) {
   const stepsEl = document.getElementById('loading-steps');
   const msgs = mode === 'week'
     ? ["Picking 5 different cuisine styles...","Building Monday's dinner...","Planning Tuesday through Friday...","Generating your grocery list...","Almost ready..."]
-    : ['Picking tonight's cuisine style...',"Building your recipe...","Calculating ingredients to buy..."];
+    : ["Picking tonight's cuisine style...","Building your recipe...","Calculating ingredients to buy..."];
 
   let msgIdx = 0;
   const interval = setInterval(() => {
