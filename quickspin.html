@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickSpin — Dinner in 10 seconds · MealWheelIQ</title>
+  <meta name="description" content="One spin. Real recipe. $2.49. No account needed.">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <meta name="theme-color" content="#C94B2A">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --coral:#C94B2A;--coral-pale:#FAF0EB;--green:#2A6B4A;--green-pale:#EAF3EE;
+      --ink:#1C1714;--ink2:#4A3F38;--ink3:#8C7B72;
+      --bg:#FAF8F5;--card:#FFFFFF;--border:#EAE5DF;
+    }
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+    .wrap{max-width:520px;margin:0 auto;padding:2rem 1.25rem 4rem}
+
+    /* NAV */
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:white;position:sticky;top:0;z-index:10}
+    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--ink);text-decoration:none}
+    .nav-logo span{color:var(--coral)}
+    .nav-signin{font-size:12px;color:var(--ink3);text-decoration:none}
+
+    /* STEP SYSTEM */
+    .step{display:none}
+    .step.active{display:block}
+    .step-badge{display:inline-block;background:var(--coral);color:white;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:20px;margin-bottom:1rem}
+    .step-title{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;line-height:1.1;margin-bottom:.5rem}
+    .step-sub{font-size:14px;color:var(--ink2);margin-bottom:1.5rem;line-height:1.6}
+
+    /* MODE PICKER */
+    .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem}
+    .mode-card{border:2px solid var(--border);border-radius:16px;padding:1.25rem;cursor:pointer;transition:all .15s;background:white;text-align:left}
+    .mode-card:hover{border-color:var(--coral);background:var(--coral-pale)}
+    .mode-card.selected{border-color:var(--coral);background:var(--coral-pale)}
+    .mode-emoji{font-size:32px;margin-bottom:.5rem;display:block}
+    .mode-name{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+    .mode-desc{font-size:12px;color:var(--ink3);line-height:1.4}
+    .mode-price{font-size:11px;font-weight:700;color:var(--coral);margin-top:.4rem}
+
+    /* INPUTS */
+    .field-label{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:.4rem;display:block}
+    .field-opt{font-size:11px;color:var(--ink3);font-weight:400}
+    .inp{width:100%;padding:.7rem .9rem;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:'DM Sans',sans-serif;background:white;color:var(--ink);margin-bottom:1rem}
+    .inp:focus{outline:none;border-color:var(--coral)}
+    textarea.inp{resize:vertical;min-height:80px}
+
+    /* CONTACT TOGGLE */
+    .contact-toggle{display:flex;gap:.5rem;margin-bottom:.75rem}
+    .ct-btn{flex:1;padding:.6rem;border:1.5px solid var(--border);border-radius:10px;background:white;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;color:var(--ink2)}
+    .ct-btn.active{border-color:var(--coral);background:var(--coral-pale);color:var(--coral)}
+
+    /* BUTTONS */
+    .btn-primary{width:100%;padding:1rem;background:var(--coral);color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;margin-top:.5rem}
+    .btn-primary:hover{background:#B8421F}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed}
+    .btn-ghost{width:100%;padding:.75rem;background:none;border:1.5px solid var(--border);border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2);margin-top:.5rem}
+    .btn-ghost:hover{border-color:var(--coral);color:var(--coral)}
+
+    /* PRICE TAG */
+    .price-tag{display:inline-flex;align-items:center;gap:.4rem;background:var(--green-pale);color:var(--green);border-radius:20px;padding:.4rem 1rem;font-size:14px;font-weight:700;margin-bottom:1.25rem}
+
+    /* LOADING */
+    .loading-screen{text-align:center;padding:3rem 1rem}
+    .loading-emoji{font-size:48px;animation:pulse 1.5s ease-in-out infinite;display:block;margin-bottom:1rem}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+    .loading-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;margin-bottom:.5rem}
+    .loading-sub{font-size:14px;color:var(--ink3)}
+    .loading-steps{margin-top:1.5rem;text-align:left}
+    .loading-step{font-size:13px;color:var(--ink3);padding:.4rem 0;display:flex;gap:.5rem}
+    .loading-step.done{color:var(--green)}
+
+    /* RECIPE CARD */
+    .recipe-card{background:white;border:1px solid var(--border);border-radius:16px;padding:1.25rem;margin-bottom:1rem}
+    .recipe-header{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:1rem}
+    .recipe-emoji{font-size:36px;flex-shrink:0}
+    .recipe-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;line-height:1.2;color:var(--ink)}
+    .recipe-meta{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1rem}
+    .recipe-badge{font-size:11px;padding:3px 10px;border-radius:12px;background:var(--bg);border:1px solid var(--border);color:var(--ink2)}
+    .recipe-badge.green{background:var(--green-pale);color:var(--green);border-color:transparent}
+    .recipe-section{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin:.75rem 0 .4rem}
+    .ing-list{list-style:none}
+    .ing-list li{font-size:13px;color:var(--ink2);padding:.3rem 0;border-bottom:1px solid var(--bg);display:flex;justify-content:space-between;align-items:center}
+    .buy-badge{font-size:10px;color:var(--coral);background:var(--coral-pale);padding:1px 7px;border-radius:8px}
+    .organic-dot{color:var(--green);font-size:12px}
+    .steps-list{padding-left:1.2rem}
+    .steps-list li{font-size:13px;color:var(--ink2);margin-bottom:.5rem;line-height:1.6}
+
+    /* WEEK GRID */
+    .week-grid{display:flex;gap:.5rem;margin-bottom:1rem;overflow-x:auto;padding-bottom:4px}
+    .week-day{flex-shrink:0;width:88px;border:1.5px solid var(--border);border-radius:12px;padding:.6rem;text-align:center;cursor:pointer;transition:all .15s;background:white}
+    .week-day.active{border-color:var(--coral);background:var(--coral-pale)}
+    .week-day-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);margin-bottom:3px}
+    .week-day-emoji{font-size:20px;margin-bottom:3px}
+    .week-day-name{font-size:10px;font-weight:600;color:var(--ink);line-height:1.2}
+
+    /* MIXUP */
+    .mixup-btn{width:100%;padding:.75rem;background:none;border:2px dashed var(--coral);border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--coral);margin-bottom:1rem;transition:all .15s}
+    .mixup-btn:hover{background:var(--coral-pale)}
+    .mixup-btn:disabled{opacity:.4;cursor:not-allowed;border-style:solid}
+    .mixup-used-note{font-size:12px;color:var(--ink3);text-align:center;margin-bottom:1rem}
+
+    /* GROCERY LIST */
+    .grocery-card{background:white;border:1px solid var(--border);border-radius:16px;padding:1.25rem;margin-bottom:1rem}
+    .grocery-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin:.75rem 0 .4rem}
+    .grocery-item{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--bg);font-size:13px;color:var(--ink2)}
+    .grocery-day{font-size:11px;color:var(--ink3);background:var(--bg);padding:2px 8px;border-radius:10px}
+
+    /* UPSELL */
+    .upsell-card{background:var(--ink);border-radius:16px;padding:1.75rem;text-align:center;margin-top:1.5rem}
+    .upsell-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:white;margin-bottom:.4rem}
+    .upsell-sub{font-size:13px;color:rgba(255,255,255,.65);margin-bottom:1.25rem;line-height:1.5}
+    .upsell-btn{background:var(--coral);color:white;text-decoration:none;border-radius:24px;padding:.75rem 1.75rem;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;display:inline-block}
+
+    /* SENT */
+    .sent-box{background:var(--green-pale);border:1px solid var(--green);border-radius:12px;padding:1rem;text-align:center;font-size:14px;color:var(--green);font-weight:600;margin-bottom:1rem}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">MealWheel<span>IQ</span></a>
+  <a href="/login.html" class="nav-signin">Have an account? Sign in →</a>
+</nav>
+
+<div class="wrap">
+
+  <!-- ── STEP 1: MODE PICKER ─────────────────────────────────────────── -->
+  <div class="step active" id="step-1">
+    <div style="margin-top:1.5rem">
+      <div class="step-badge">QuickSpin</div>
+      <h1 class="step-title">Dinner decided.<br>No account needed.</h1>
+      <p class="step-sub">One spin. Real recipe from a real AI chef. Delivered to your phone or email.</p>
+      <div class="price-tag">💳 $2.49 one-time · no subscription</div>
+      <div class="mode-grid">
+        <div class="mode-card selected" id="mode-tonight" onclick="selectMode('tonight')">
+          <span class="mode-emoji">🧊</span>
+          <div class="mode-name">Tonight's Dinner</div>
+          <div class="mode-desc">1 recipe + mix-up option · full ingredients & steps</div>
+          <div class="mode-price">$2.49</div>
+        </div>
+        <div class="mode-card" id="mode-week" onclick="selectMode('week')">
+          <span class="mode-emoji">📅</span>
+          <div class="mode-name">Plan My Week</div>
+          <div class="mode-desc">5 dinners + grocery list · 1 mix-up included</div>
+          <div class="mode-price">$2.49</div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="goToStep(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: OPTIONAL INPUTS ────────────────────────────────────── -->
+  <div class="step" id="step-2">
+    <div style="margin-top:1.5rem">
+      <div class="step-badge">QuickSpin · Step 2 of 3</div>
+      <h2 class="step-title">Tell your chef what you have.</h2>
+      <p class="step-sub">Both are optional — skip to checkout if you'd like a surprise!</p>
+
+      <label class="field-label">What's in your fridge or pantry? <span class="field-opt">(optional)</span></label>
+      <textarea class="inp" id="ingredients-input" placeholder="e.g. chicken breast, broccoli, rice, eggs, sweet potatoes..."></textarea>
+
+      <label class="field-label">What are you craving? <span class="field-opt">(optional)</span></label>
+      <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+        <input class="inp" id="craving-input" placeholder='e.g. "something spicy" or "light, healthy"' style="margin-bottom:0;flex:1">
+        <button onclick="toggleMic()" id="mic-btn" style="width:44px;height:44px;border:1.5px solid var(--border);border-radius:10px;background:white;font-size:18px;cursor:pointer;flex-shrink:0" title="Voice input">🎤</button>
+      </div>
+      <div id="mic-listening" style="font-size:12px;color:var(--coral);font-weight:600;margin-bottom:.75rem;display:none">🎙️ Listening... speak now</div>
+
+      <button class="btn-primary" onclick="goToStep(3)">Continue to checkout →</button>
+      <button class="btn-ghost" onclick="goToStep(1)">← Back</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: CONTACT + CHECKOUT ────────────────────────────────── -->
+  <div class="step" id="step-3">
+    <div style="margin-top:1.5rem">
+      <div class="step-badge">QuickSpin · Step 3 of 3</div>
+      <h2 class="step-title">Where should we send your results?</h2>
+      <p class="step-sub">After you pay, your recipe and grocery list will be delivered here.</p>
+
+      <label class="field-label">Delivery method</label>
+      <div class="contact-toggle">
+        <button class="ct-btn active" id="ct-email" onclick="setContactType('email')">📧 Email</button>
+        <button class="ct-btn" id="ct-phone" onclick="setContactType('phone')">📱 Text (SMS)</button>
+      </div>
+      <input class="inp" id="contact-input" type="email" placeholder="your@email.com">
+      <p style="font-size:11px;color:var(--ink3);margin-top:-.5rem;margin-bottom:1rem">We'll only use this to send your recipe. No spam, ever.</p>
+
+      <div style="background:var(--bg);border-radius:12px;padding:.85rem 1rem;margin-bottom:1rem;font-size:13px;color:var(--ink2)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span id="summary-mode">Tonight's Dinner</span>
+          <span style="font-weight:700">$2.49</span>
+        </div>
+        <div style="font-size:11px;color:var(--ink3)" id="summary-desc">1 recipe · 1 mix-up · email delivery</div>
+      </div>
+
+      <button class="btn-primary" id="checkout-btn" onclick="startCheckout()">Pay $2.49 & Spin 🎰</button>
+      <button class="btn-ghost" onclick="goToStep(2)">← Back</button>
+
+      <p style="font-size:11px;color:var(--ink3);text-align:center;margin-top:.75rem">Secured by Stripe · Cancel anytime</p>
+    </div>
+  </div>
+
+  <!-- ── LOADING ─────────────────────────────────────────────────────── -->
+  <div class="step" id="step-loading">
+    <div class="loading-screen">
+      <span class="loading-emoji">🍽️</span>
+      <div class="loading-title" id="loading-title">Your chef is cooking...</div>
+      <div class="loading-sub" id="loading-sub">This takes about 30 seconds</div>
+      <div class="loading-steps" id="loading-steps"></div>
+    </div>
+  </div>
+
+  <!-- ── RESULTS ─────────────────────────────────────────────────────── -->
+  <div class="step" id="step-results">
+    <div style="margin-top:1.5rem">
+      <div id="results-header"></div>
+      <div id="results-body"></div>
+      <div class="upsell-card">
+        <div class="upsell-title">Love your results?</div>
+        <div class="upsell-sub">Get unlimited spins, week planning, the Soup Creator, pantry photo scanning, and favorites — for less than one takeout order a month.</div>
+        <a href="/login.html" class="upsell-btn">Get unlimited spins — $4.99/mo →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CANCELLED ──────────────────────────────────────────────────── -->
+  <div class="step" id="step-cancelled">
+    <div style="margin-top:2rem;text-align:center">
+      <div style="font-size:48px;margin-bottom:1rem">😕</div>
+      <h2 class="step-title">Payment cancelled</h2>
+      <p class="step-sub">No charge was made. Want to try again?</p>
+      <button class="btn-primary" onclick="goToStep(1)">Try again →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = 'https://api.mealwheeliq.com';
+let selectedMode = 'tonight';
+let contactType = 'email';
+let sessionToken = null;
+let micRecognition = null;
+let isListening = false;
+
+function selectMode(m) {
+  selectedMode = m;
+  document.getElementById('mode-tonight').classList.toggle('selected', m === 'tonight');
+  document.getElementById('mode-week').classList.toggle('selected', m === 'week');
+}
+
+function setContactType(t) {
+  contactType = t;
+  document.getElementById('ct-email').classList.toggle('active', t === 'email');
+  document.getElementById('ct-phone').classList.toggle('active', t === 'phone');
+  const inp = document.getElementById('contact-input');
+  inp.type = t === 'email' ? 'email' : 'tel';
+  inp.placeholder = t === 'email' ? 'your@email.com' : '+1 (555) 000-0000';
+}
+
+function goToStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  if (n === 3) {
+    document.getElementById('summary-mode').textContent = selectedMode === 'tonight' ? "Tonight's Dinner" : 'Plan My Week';
+    document.getElementById('summary-desc').textContent = selectedMode === 'tonight'
+      ? '1 recipe · 1 mix-up · email delivery'
+      : '5 dinners + grocery list · 1 mix-up · email delivery';
+  }
+  window.scrollTo(0, 0);
+}
+
+function toggleMic() {
+  if (isListening) { stopMic(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Voice input not supported on this browser. Try typing instead.'); return; }
+  try {
+    micRecognition = new SR();
+    micRecognition.lang = 'en-US';
+    micRecognition.continuous = false;
+    micRecognition.interimResults = false;
+    micRecognition.onstart = () => { isListening = true; document.getElementById('mic-btn').textContent = '⏹️'; document.getElementById('mic-listening').style.display = 'block'; };
+    micRecognition.onresult = e => { document.getElementById('craving-input').value = e.results[0][0].transcript; };
+    micRecognition.onerror = () => { stopMic(); };
+    micRecognition.onend = () => { stopMic(); };
+    micRecognition.start();
+  } catch(e) { stopMic(); }
+}
+function stopMic() {
+  isListening = false;
+  try { if (micRecognition) micRecognition.stop(); } catch(e) {}
+  document.getElementById('mic-btn').textContent = '🎤';
+  document.getElementById('mic-listening').style.display = 'none';
+}
+
+async function startCheckout() {
+  const contact = document.getElementById('contact-input').value.trim();
+  if (!contact) { alert('Please enter your email or phone number to receive your results.'); return; }
+
+  const btn = document.getElementById('checkout-btn');
+  btn.disabled = true;
+  btn.textContent = 'Redirecting to payment...';
+
+  const ingredients = document.getElementById('ingredients-input').value.trim().split(',').map(s => s.trim()).filter(Boolean);
+  const craving = document.getElementById('craving-input').value.trim();
+
+  // Store in sessionStorage so we can retrieve after payment redirect
+  sessionStorage.setItem('qs_ingredients', JSON.stringify(ingredients));
+  sessionStorage.setItem('qs_craving', craving);
+  sessionStorage.setItem('qs_mode', selectedMode);
+  sessionStorage.setItem('qs_contact', contact);
+  sessionStorage.setItem('qs_contactType', contactType);
+
+  try {
+    const resp = await fetch(API + '/quickspin/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: selectedMode, contact, contactType })
+    });
+    const data = await resp.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Checkout failed. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Pay $2.49 & Spin 🎰';
+    }
+  } catch(e) {
+    console.error(e);
+    alert('Network error. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Pay $2.49 & Spin 🎰';
+  }
+}
+
+async function generateResults(token) {
+  sessionToken = token;
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-loading').classList.add('active');
+
+  const ingredients = JSON.parse(sessionStorage.getItem('qs_ingredients') || '[]');
+  const craving = sessionStorage.getItem('qs_craving') || '';
+  const mode = sessionStorage.getItem('qs_mode') || selectedMode;
+
+  const stepsEl = document.getElementById('loading-steps');
+  const msgs = mode === 'week'
+    ? ['Picking 5 different cuisine styles...','Building Monday's dinner...','Planning Tuesday through Friday...','Generating your grocery list...','Almost ready...']
+    : ['Picking tonight's cuisine style...','Building your recipe...','Calculating ingredients to buy...'];
+
+  let msgIdx = 0;
+  const interval = setInterval(() => {
+    if (msgIdx < msgs.length) {
+      stepsEl.innerHTML += `<div class="loading-step done">✓ ${msgs[msgIdx]}</div>`;
+      msgIdx++;
+    }
+  }, mode === 'week' ? 4000 : 3000);
+
+  try {
+    const resp = await fetch(API + '/quickspin/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, ingredients, craving })
+    });
+    clearInterval(interval);
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Generation failed');
+    renderResults(data, token);
+
+    // Auto-send email
+    const contact = sessionStorage.getItem('qs_contact');
+    const contactType = sessionStorage.getItem('qs_contactType');
+    if (contact && contactType === 'email') {
+      fetch(API + '/quickspin/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      }).catch(e => console.error('Email send failed:', e));
+    }
+  } catch(e) {
+    clearInterval(interval);
+    console.error(e);
+    document.getElementById('step-loading').innerHTML = `
+      <div style="text-align:center;padding:3rem 1rem">
+        <div style="font-size:48px;margin-bottom:1rem">😕</div>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:.5rem">Something went wrong</h2>
+        <p style="font-size:14px;color:#8C7B72;margin-bottom:1.5rem">${e.message}</p>
+        <button class="btn-primary" onclick="generateResults('${token}')">Try again</button>
+      </div>`;
+  }
+}
+
+function buildGroceryList(recipes, isWeek) {
+  const ingMap = {};
+  const PROT = ['beef','chicken','pork','salmon','shrimp','sausage','bacon','egg','fish','turkey','lamb','steak','ground','tofu'];
+  const PROD = ['potato','carrot','squash','pepper','spinach','broccoli','lemon','lime','avocado','tomato','mushroom','kale','cucumber','herb','cilantro','basil','ginger','onion'];
+  const DAIRY = ['cheese','butter','cream','milk','yogurt','mozzarella','feta'];
+
+  recipes.forEach((r, di) => {
+    (r.ingredients || []).filter(i => i.buy).forEach(ing => {
+      const k = ing.name.toLowerCase();
+      if (!ingMap[k]) ingMap[k] = { name: ing.name, organic: ing.organic, days: [] };
+      if (isWeek) ingMap[k].days.push(r.day || `Night ${di+1}`);
+    });
+  });
+
+  const cats = { '🥩 Proteins': [], '🥦 Produce': [], '🧀 Dairy': [], '🥫 Pantry & Other': [] };
+  Object.values(ingMap).forEach(ing => {
+    const k = ing.name.toLowerCase();
+    if (PROT.some(p => k.includes(p))) cats['🥩 Proteins'].push(ing);
+    else if (PROD.some(p => k.includes(p))) cats['🥦 Produce'].push(ing);
+    else if (DAIRY.some(p => k.includes(p))) cats['🧀 Dairy'].push(ing);
+    else cats['🥫 Pantry & Other'].push(ing);
+  });
+
+  const today = new Date();
+  const daysUntilSun = (7 - today.getDay()) % 7 || 7;
+  const buyBy = new Date(today.getTime() + daysUntilSun * 86400000);
+  const buyByStr = buyBy.toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' });
+
+  let html = `<div class="grocery-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+      <h3 style="font-size:15px;font-weight:700;color:var(--ink)">🛒 Grocery List</h3>
+      <button onclick="copyGrocery()" style="font-size:12px;color:var(--coral);background:none;border:1px solid var(--coral);border-radius:20px;padding:3px 10px;cursor:pointer;font-family:'DM Sans',sans-serif">📋 Copy</button>
+    </div>
+    <div style="background:var(--green-pale);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--green);margin-bottom:.75rem">
+      📅 Buy by <strong>${buyByStr}</strong>
+    </div>`;
+
+  Object.entries(cats).forEach(([cat, items]) => {
+    if (!items.length) return;
+    html += `<div class="grocery-cat">${cat}</div>`;
+    items.forEach(item => {
+      html += `<div class="grocery-item">
+        <span>${item.organic ? '🌿 ' : ''}${item.name}</span>
+        ${isWeek && item.days.length ? `<span class="grocery-day">${item.days.join(', ')}</span>` : ''}
+      </div>`;
+    });
+  });
+
+  html += `<button onclick="shareGrocery()" style="width:100%;margin-top:1rem;padding:.65rem;background:var(--green);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📤 Share list with shopper</button>`;
+  html += `</div>`;
+  return html;
+}
+
+function renderRecipeCard(r, idx, isWeek, isAlternate) {
+  const ing = (r.ingredients || []).map(i =>
+    `<li class="ing-list li">
+      <span>${i.organic ? '<span class="organic-dot">🌿</span> ' : ''}${i.name}</span>
+      ${i.buy ? '<span class="buy-badge">buy</span>' : ''}
+    </li>`).join('');
+
+  const steps = (r.steps || []).map(s => `<li>${s}</li>`).join('');
+
+  return `<div class="recipe-card" id="recipe-card-${idx}">
+    ${isWeek ? `<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--coral);margin-bottom:.4rem">${r.day || ''}</div>` : ''}
+    ${isAlternate ? `<div style="font-size:10px;font-weight:700;color:var(--green);margin-bottom:.4rem">✨ Alternative option</div>` : ''}
+    <div class="recipe-header">
+      <span class="recipe-emoji">${r.emoji || '🍽️'}</span>
+      <div>
+        <div class="recipe-title">${r.name}</div>
+      </div>
+    </div>
+    <div class="recipe-meta">
+      <span class="recipe-badge">⏱ ${r.time}</span>
+      <span class="recipe-badge">${r.difficulty}</span>
+      <span class="recipe-badge green">🔥 ${r.calories_per_serving} kcal</span>
+      <span class="recipe-badge green">💪 ${r.protein_g}g protein</span>
+    </div>
+    <div class="recipe-section">Ingredients</div>
+    <ul class="ing-list">${ing}</ul>
+    <div class="recipe-section">Instructions</div>
+    <ol class="steps-list">${steps}</ol>
+  </div>`;
+}
+
+let mixupUsed = false;
+let currentResults = null;
+let activeWeekDay = 0;
+
+function renderResults(data, token) {
+  currentResults = data;
+  const isWeek = data.mode === 'week';
+  const recipes = data.recipes || [];
+  const contact = sessionStorage.getItem('qs_contact');
+
+  let html = '';
+
+  // Header
+  document.getElementById('results-header').innerHTML = `
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:48px;margin-bottom:.5rem">${isWeek ? '🎉' : '🍽️'}</div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--ink);margin-bottom:.25rem">
+        ${isWeek ? 'Your week is planned!' : "Tonight's dinner is ready!"}
+      </h2>
+      <p style="font-size:13px;color:var(--ink3)">
+        ${contact ? `Results sent to ${contact}` : ''}
+      </p>
+    </div>
+    ${contact ? '<div class="sent-box">✅ Recipe and grocery list sent to ' + contact + '</div>' : ''}`;
+
+  if (isWeek) {
+    // Week mode
+    html += `<div class="week-grid" id="week-grid">`;
+    recipes.forEach((r, i) => {
+      html += `<div class="week-day ${i===0?'active':''}" id="wday-${i}" onclick="showWeekDay(${i})">
+        <div class="week-day-label">${r.day?.slice(0,3) || 'Day '+(i+1)}</div>
+        <div class="week-day-emoji">${r.emoji || '🍽️'}</div>
+        <div class="week-day-name">${r.name.split(' ').slice(0,3).join(' ')}</div>
+      </div>`;
+    });
+    html += `</div>`;
+
+    // Mix up button (1 use only)
+    html += `<button class="mixup-btn" id="mixup-btn" onclick="doMixup(token)">🔀 Mix Up one night — swap to a different cuisine</button>
+    <p style="font-size:11px;color:var(--ink3);text-align:center;margin-top:-.5rem;margin-bottom:1rem">Home Chef subscribers can mix up every night, any time</p>`;
+
+    // Recipe cards
+    recipes.forEach((r, i) => {
+      html += `<div id="week-recipe-${i}" style="${i===0?'':'display:none'}">`;
+      html += renderRecipeCard(r, i, true, false);
+      html += `</div>`;
+    });
+
+    html += buildGroceryList(recipes, true);
+
+  } else {
+    // Tonight mode — show recipe + mix up for alternative
+    html += renderRecipeCard(recipes[0], 0, false, false);
+    html += `<button class="mixup-btn" id="mixup-btn" onclick="doMixup('${token}')">🔀 Try a different recipe tonight</button>
+    <p style="font-size:11px;color:var(--ink3);text-align:center;margin-top:-.5rem;margin-bottom:1rem">One mix-up included with your purchase</p>`;
+    if (recipes[1]) {
+      html += `<div id="alt-recipe" style="display:none">${renderRecipeCard(recipes[1], 1, false, true)}</div>`;
+    }
+    html += buildGroceryList(recipes, false);
+  }
+
+  document.getElementById('results-body').innerHTML = html;
+
+  // Store token in button for week mix-up
+  const mixBtn = document.getElementById('mixup-btn');
+  if (mixBtn) mixBtn.setAttribute('data-token', token);
+
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-results').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showWeekDay(idx) {
+  activeWeekDay = idx;
+  document.querySelectorAll('.week-day').forEach((d, i) => d.classList.toggle('active', i === idx));
+  document.querySelectorAll('[id^="week-recipe-"]').forEach((el, i) => {
+    el.style.display = i === idx ? 'block' : 'none';
+  });
+}
+
+async function doMixup(token) {
+  if (mixupUsed) return;
+  const btn = document.getElementById('mixup-btn');
+  btn.disabled = true;
+  btn.textContent = '🔀 Mixing it up...';
+
+  const ingredients = JSON.parse(sessionStorage.getItem('qs_ingredients') || '[]');
+  const craving = sessionStorage.getItem('qs_craving') || '';
+  const isWeek = currentResults?.mode === 'week';
+  const dayIndex = isWeek ? activeWeekDay : 0;
+
+  try {
+    const resp = await fetch(API + '/quickspin/mixup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, dayIndex, ingredients, craving })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error);
+
+    mixupUsed = true;
+    btn.textContent = '✅ Mix Up used';
+
+    if (isWeek) {
+      // Update the current week day
+      currentResults.recipes[dayIndex] = { ...data.recipe, day: currentResults.recipes[dayIndex]?.day };
+      const container = document.getElementById(`week-recipe-${dayIndex}`);
+      if (container) container.innerHTML = renderRecipeCard(currentResults.recipes[dayIndex], dayIndex, true, false);
+      // Update day card
+      const dayCard = document.getElementById(`wday-${dayIndex}`);
+      if (dayCard) {
+        dayCard.querySelector('.week-day-emoji').textContent = data.recipe.emoji || '🍽️';
+        dayCard.querySelector('.week-day-name').textContent = data.recipe.name.split(' ').slice(0,3).join(' ');
+      }
+      document.querySelector('.mixup-used-note') || btn.insertAdjacentHTML('afterend', '<p class="mixup-used-note">Want to mix up all 5 nights? Upgrade to Home Chef →</p>');
+    } else {
+      // Show alternative recipe for tonight
+      currentResults.recipes.push(data.recipe);
+      const altEl = document.getElementById('alt-recipe');
+      if (altEl) {
+        altEl.innerHTML = renderRecipeCard(data.recipe, 1, false, true);
+        altEl.style.display = 'block';
+      } else {
+        const newEl = document.createElement('div');
+        newEl.id = 'alt-recipe';
+        newEl.innerHTML = renderRecipeCard(data.recipe, 1, false, true);
+        btn.parentNode.insertBefore(newEl, btn.nextSibling);
+      }
+      btn.insertAdjacentHTML('afterend', '<p class="mixup-used-note">Pick your favorite! Unlimited mix-ups with Home Chef →</p>');
+    }
+
+    // Re-send email with updated results
+    const contactType = sessionStorage.getItem('qs_contactType');
+    if (contactType === 'email') {
+      fetch(API + '/quickspin/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      }).catch(() => {});
+    }
+
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '🔀 Mix Up one night — swap to a different cuisine';
+    alert('Mix up failed: ' + e.message);
+  }
+}
+
+function copyGrocery() {
+  const items = Array.from(document.querySelectorAll('.grocery-item')).map(el => {
+    const name = el.querySelector('span')?.textContent?.trim();
+    const day = el.querySelector('.grocery-day')?.textContent?.trim();
+    return day ? `• ${name} (${day})` : `• ${name}`;
+  }).join('\n');
+  navigator.clipboard.writeText('🛒 MealWheelIQ Grocery List\n\n' + items + '\n\nmealwheeliq.com');
+  const btn = event.target;
+  btn.textContent = '✅ Copied!';
+  setTimeout(() => btn.textContent = '📋 Copy', 2000);
+}
+
+function shareGrocery() {
+  const items = Array.from(document.querySelectorAll('.grocery-item')).map(el => {
+    const name = el.querySelector('span')?.textContent?.trim();
+    const day = el.querySelector('.grocery-day')?.textContent?.trim();
+    return day ? `• ${name} (${day})` : `• ${name}`;
+  }).join('\n');
+  const text = '🛒 MealWheelIQ Grocery List\n\n' + items + '\n\nPlanned with MealWheelIQ — mealwheeliq.com';
+  if (navigator.share) {
+    navigator.share({ title: 'Weekly Grocery List', text });
+  } else {
+    navigator.clipboard.writeText(text);
+    alert('Copied to clipboard!');
+  }
+}
+
+// ── Check URL params on load ──────────────────────────────────────────────
+(async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const success = params.get('success');
+  const cancelled = params.get('cancelled');
+
+  if (cancelled) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-cancelled').classList.add('active');
+    return;
+  }
+
+  if (token && success) {
+    // Payment successful — verify and generate
+    try {
+      const resp = await fetch(API + '/quickspin/session/' + token);
+      const session = await resp.json();
+      if (session.paid) {
+        if (session.generated) {
+          // Already generated — re-fetch results
+          const genResp = await fetch(API + '/quickspin/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, ingredients: [], craving: '' })
+          });
+          const data = await genResp.json();
+          renderResults(data, token);
+        } else {
+          generateResults(token);
+        }
+      } else {
+        // Payment not yet confirmed — wait and retry
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step-loading').classList.add('active');
+        document.getElementById('loading-title').textContent = 'Confirming payment...';
+        document.getElementById('loading-sub').textContent = 'Just a moment...';
+        let retries = 0;
+        const check = setInterval(async () => {
+          retries++;
+          const r2 = await fetch(API + '/quickspin/session/' + token);
+          const s2 = await r2.json();
+          if (s2.paid) { clearInterval(check); generateResults(token); }
+          if (retries > 10) { clearInterval(check); alert('Payment confirmation is taking longer than expected. Please contact support.'); }
+        }, 2000);
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  }
+})();
+</script>
+</body>
+</html>
