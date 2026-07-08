@@ -8,8 +8,6 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
   <link rel="apple-touch-icon" href="/icons/icon-180.png">
   <meta name="theme-color" content="#C94B2A">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -37,10 +35,10 @@
 
     /* MODE PICKER — single column on mobile, feels like big tap targets */
     .mode-grid{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.25rem}
-    .mode-card{border:2px solid var(--border);border-radius:16px;padding:1.1rem 1.25rem;cursor:pointer;transition:all .15s;background:white;display:flex;align-items:center;gap:1rem;-webkit-tap-highlight-color:transparent;position:relative;z-index:1;user-select:none;-webkit-user-select:none}
+    .mode-card{border:2px solid var(--border);border-radius:16px;padding:1.1rem 1.25rem;cursor:pointer;transition:all .15s;background:white;display:flex;align-items:center;gap:1rem;-webkit-tap-highlight-color:transparent}
     .mode-card.selected{border-color:var(--coral);background:var(--coral-pale)}
-    .mode-emoji{font-size:36px;flex-shrink:0;line-height:1;pointer-events:none}
-    .mode-text{flex:1;pointer-events:none}
+    .mode-emoji{font-size:36px;flex-shrink:0;line-height:1}
+    .mode-text{flex:1}
     .mode-name{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:.2rem}
     .mode-desc{font-size:12px;color:var(--ink3);line-height:1.4}
     .mode-price{display:inline-block;font-size:12px;font-weight:700;color:var(--coral);background:var(--coral-pale);padding:2px 10px;border-radius:12px;margin-top:.35rem}
@@ -62,6 +60,12 @@
     .btn-primary:active{opacity:.85;transform:scale(.98)}
     .btn-primary:disabled{opacity:.5;cursor:not-allowed}
     .btn-ghost{width:100%;padding:.85rem;background:none;border:1.5px solid var(--border);border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2);margin-top:.5rem;min-height:48px;-webkit-tap-highlight-color:transparent}
+
+    /* PHOTO SCAN */
+    .qs-photo-btn{width:100%;padding:1rem;background:white;border:2px dashed var(--coral);border-radius:14px;font-size:15px;font-weight:700;color:var(--coral);cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:.75rem;min-height:56px;transition:all .15s;-webkit-tap-highlight-color:transparent}
+    .qs-photo-btn:active{background:var(--coral-pale)}
+    .qs-photo-btn.scanning{opacity:.6;pointer-events:none}
+    .qs-photo-btn.done{border-style:solid;background:var(--green-pale);color:var(--green);border-color:var(--green)}
 
     /* PRICE TAG */
     .price-tag{display:inline-flex;align-items:center;gap:.4rem;background:var(--green-pale);color:var(--green);border-radius:20px;padding:.45rem 1rem;font-size:14px;font-weight:700;margin-bottom:1.1rem}
@@ -139,7 +143,7 @@
       <p class="step-sub">Your AI chef builds a real recipe from what you have — delivered straight to your email or phone.</p>
       <div class="price-tag">💳 $2.49 · one-time · no subscription</div>
       <div class="mode-grid">
-        <div class="mode-card selected" id="mode-tonight" data-mode="tonight">
+        <div class="mode-card selected" id="mode-tonight" onclick="selectMode('tonight')">
           <span class="mode-emoji">🧊</span>
           <div class="mode-text">
             <div class="mode-name">Tonight's Dinner</div>
@@ -147,7 +151,7 @@
             <span class="mode-price">$2.49 one-time</span>
           </div>
         </div>
-        <div class="mode-card" id="mode-week" data-mode="week">
+        <div class="mode-card" id="mode-week" onclick="selectMode('week')">
           <span class="mode-emoji">📅</span>
           <div class="mode-text">
             <div class="mode-name">Plan My Week</div>
@@ -156,24 +160,37 @@
           </div>
         </div>
       </div>
-      <button class="btn-primary" id="btn-continue-1">Continue →</button>
+      <button class="btn-primary" onclick="goToStep(2)">Continue →</button>
     </div>
   </div>
 
   <!-- ── STEP 2: OPTIONAL INPUTS ────────────────────────────────────── -->
   <div class="step" id="step-2">
-    <div style="margin-top:1.5rem">
+    <div style="margin-top:1rem">
       <div class="step-badge">Step 2 of 3 — What you have</div>
       <h2 class="step-title">Tell your chef what you have.</h2>
-      <p class="step-sub">Both are optional — skip to checkout if you'd like a surprise!</p>
+      <p class="step-sub">All optional — skip ahead for a surprise spin!</p>
 
-      <label class="field-label">What's in your fridge or pantry? <span class="field-opt">(optional)</span></label>
-      <textarea class="inp" id="ingredients-input" placeholder="e.g. chicken breast, broccoli, rice, eggs, sweet potatoes..."></textarea>
+      <!-- PHOTO SCAN -->
+      <label class="field-label">📸 Snap your fridge or pantry <span class="field-opt">(optional)</span></label>
+      <input type="file" id="qs-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleQSPhoto(event)">
+      <button class="qs-photo-btn" id="qs-photo-btn" onclick="document.getElementById('qs-photo-input').click()">
+        📸 Take a photo of your fridge or pantry
+      </button>
+      <div id="qs-scan-status" style="display:none;font-size:12px;color:var(--coral);font-weight:600;text-align:center;padding:.5rem 0;margin-bottom:.5rem">
+        🔍 Scanning your photo...
+      </div>
+      <div id="qs-scan-result" style="display:none;background:var(--green-pale);border:1px solid var(--green);border-radius:10px;padding:.6rem .85rem;font-size:12px;color:var(--green);margin-bottom:.75rem;font-weight:600"></div>
 
+      <!-- MANUAL INGREDIENTS -->
+      <label class="field-label">Or type what you have <span class="field-opt">(optional)</span></label>
+      <textarea class="inp" id="ingredients-input" placeholder="e.g. chicken breast, broccoli, rice, eggs, sweet potatoes..." style="min-height:72px"></textarea>
+
+      <!-- CRAVING -->
       <label class="field-label">What are you craving? <span class="field-opt">(optional)</span></label>
-      <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+      <div style="display:flex;gap:.5rem;margin-bottom:.5rem">
         <input class="inp" id="craving-input" placeholder='e.g. "something spicy" or "light, healthy"' style="margin-bottom:0;flex:1">
-        <button onclick="toggleMic()" id="mic-btn" style="width:44px;height:44px;border:1.5px solid var(--border);border-radius:10px;background:white;font-size:18px;cursor:pointer;flex-shrink:0" title="Voice input">🎤</button>
+        <button id="mic-btn" style="width:48px;height:48px;border:1.5px solid var(--border);border-radius:12px;background:white;font-size:20px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent">🎤</button>
       </div>
       <div id="mic-listening" style="font-size:12px;color:var(--coral);font-weight:600;margin-bottom:.75rem;display:none">🎙️ Listening... speak now</div>
 
@@ -282,6 +299,85 @@ function goToStep(n) {
   window.scrollTo(0, 0);
 }
 
+// ─── QUICKSPIN PHOTO SCAN ────────────────────────────────────────────────────
+function compressQSImage(file, maxDim = 1280, quality = 0.75) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; };
+    reader.onerror = reject;
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > height && width > maxDim) { height = Math.round(height * maxDim / width); width = maxDim; }
+      else if (height > maxDim) { width = Math.round(width * maxDim / height); height = maxDim; }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality).split(',')[1]);
+    };
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleQSPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const btn = document.getElementById('qs-photo-btn');
+  const status = document.getElementById('qs-scan-status');
+  const result = document.getElementById('qs-scan-result');
+  const ingInput = document.getElementById('ingredients-input');
+
+  btn.classList.add('scanning');
+  btn.textContent = '🔍 Scanning your photo...';
+  status.style.display = 'block';
+  result.style.display = 'none';
+
+  try {
+    const base64 = await compressQSImage(file, 1280, 0.75);
+    // Use the main app's pantry scan endpoint (no auth needed for quickspin)
+    // Use quickspin token from sessionStorage if available, otherwise use guest scan
+    const qsToken = sessionStorage.getItem('qs_pending_token') || '';
+    const resp = await fetch(API + '/quickspin/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64, mediaType: 'image/jpeg' })
+    });
+    const data = await resp.json();
+
+    if (!resp.ok || !data.items || !data.items.length) {
+      throw new Error(data.error || 'Could not identify items');
+    }
+
+    // Pre-fill ingredients textarea with scanned items
+    const currentVal = ingInput.value.trim();
+    const newItems = data.items.join(', ');
+    ingInput.value = currentVal ? currentVal + ', ' + newItems : newItems;
+
+    // Update UI
+    btn.classList.remove('scanning');
+    btn.classList.add('done');
+    btn.textContent = '✅ Photo scanned — ' + data.items.length + ' items found';
+    status.style.display = 'none';
+    result.style.display = 'block';
+    result.textContent = '✅ Found: ' + data.items.slice(0, 8).join(', ') + (data.items.length > 8 ? ' +' + (data.items.length - 8) + ' more' : '');
+
+  } catch(e) {
+    console.error('QS photo scan error:', e);
+    btn.classList.remove('scanning');
+    btn.textContent = '📸 Take a photo of your fridge or pantry';
+    status.style.display = 'none';
+    result.style.display = 'block';
+    result.style.background = '#FDF0F0';
+    result.style.borderColor = '#C0392B';
+    result.style.color = '#C0392B';
+    result.textContent = 'Could not scan photo — please type your ingredients instead.';
+  }
+
+  event.target.value = ''; // reset file input
+}
+
 function toggleMic() {
   if (isListening) { stopMic(); return; }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -356,8 +452,8 @@ async function generateResults(token) {
 
   const stepsEl = document.getElementById('loading-steps');
   const msgs = mode === 'week'
-    ? ["Picking 5 different cuisine styles...","Building Monday's dinner...","Planning Tuesday through Friday...","Generating your grocery list...","Almost ready..."]
-    : ["Picking tonight's cuisine style...","Building your recipe...","Calculating ingredients to buy..."];
+    ? ['Picking 5 different cuisine styles...','Building Monday's dinner...','Planning Tuesday through Friday...','Generating your grocery list...','Almost ready...']
+    : ['Picking tonight's cuisine style...','Building your recipe...','Calculating ingredients to buy...'];
 
   let msgIdx = 0;
   const interval = setInterval(() => {
@@ -660,27 +756,6 @@ function shareGrocery() {
   }
 }
 
-// ── Attach all click handlers via JS (more reliable on iOS than onclick attrs) ─
-document.addEventListener('DOMContentLoaded', function() {
-  // Mode selection
-  document.querySelectorAll('.mode-card[data-mode]').forEach(card => {
-    card.addEventListener('click', function() {
-      selectMode(this.getAttribute('data-mode'));
-    });
-    card.addEventListener('touchend', function(e) {
-      e.preventDefault();
-      selectMode(this.getAttribute('data-mode'));
-    }, { passive: false });
-  });
-
-  // Continue button step 1
-  const cont1 = document.getElementById('btn-continue-1');
-  if (cont1) {
-    cont1.addEventListener('click', () => goToStep(2));
-    cont1.addEventListener('touchend', e => { e.preventDefault(); goToStep(2); }, { passive: false });
-  }
-});
-
 // ── Check URL params on load ──────────────────────────────────────────────
 (async function init() {
   const params = new URLSearchParams(window.location.search);
@@ -717,14 +792,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
         document.getElementById('step-loading').classList.add('active');
         document.getElementById('loading-title').textContent = 'Confirming payment...';
-        document.getElementById('loading-sub').textContent = "Just a moment...";
+        document.getElementById('loading-sub').textContent = 'Just a moment...';
         let retries = 0;
         const check = setInterval(async () => {
           retries++;
           const r2 = await fetch(API + '/quickspin/session/' + token);
           const s2 = await r2.json();
           if (s2.paid) { clearInterval(check); generateResults(token); }
-          if (retries > 10) { clearInterval(check); alert("Payment confirmation is taking longer than expected. Please contact support."); }
+          if (retries > 10) { clearInterval(check); alert('Payment confirmation is taking longer than expected. Please contact support.'); }
         }, 2000);
       }
     } catch(e) {
