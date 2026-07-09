@@ -3284,40 +3284,20 @@ function renderHistory(recipes) {
 let shareRecipeName = '';
 
 async function shareToFacebook(recipeId, recipeName) {
-  const btn = event?.currentTarget || document.querySelector(`.fb-share-btn`);
+  const btn = event?.currentTarget || document.querySelector('.fb-share-btn');
   const origText = btn ? btn.textContent : '';
   if (btn) { btn.textContent = '⏳ Preparing share...'; btn.disabled = true; }
 
   try {
-    // Step 1: Generate food image (cached after first use)
-    const imgResp = await fetch(`${API}/recipe/${recipeId}/generate-image`, {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + userToken }
-    });
-    const imgData = await imgResp.json();
-    const imageUrl = imgData.imageUrl || '';
-
-    // Step 2: Fetch full recipe data
-    const recipeResp = await fetch(`${API}/recipe/${recipeId}`, {
-      headers: { 'Authorization': 'Bearer ' + userToken }
-    });
-    const recipe = await recipeResp.json();
-
-    // Step 3: Build OG page and push to GitHub Pages via our API
+    // Build OG page on GitHub Pages with recipe meta tags
     const ogResp = await fetch(`${API}/recipe/${recipeId}/og-page`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
-      body: JSON.stringify({ imageUrl })
+      body: JSON.stringify({ imageUrl: null })
     });
     const ogData = await ogResp.json();
     const shareUrl = ogData.pageUrl || `https://mealwheeliq.com/recipe.html?id=${recipeId}`;
-
-    // Step 4: Show preview then open Facebook share
-    if (imageUrl) {
-      showImagePreview(imageUrl, recipeId, recipeName, shareUrl);
-    } else {
-      openFBShare(shareUrl);
-    }
+    openFBShare(shareUrl);
   } catch(e) {
     console.error('Share error:', e);
     openFBShare(`https://mealwheeliq.com/recipe.html?id=${recipeId}`);
