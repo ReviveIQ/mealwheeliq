@@ -241,6 +241,8 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .fav-action-btn.remove{color:#C0392B;border-color:rgba(192,57,43,.2)}
 .fav-action-btn.remove:hover{background:#FDF0F0}
 @media(max-width:600px){.fav-action-btn{flex:1;text-align:center;min-height:40px}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
 /* ── SOUP CREATOR ── */
 .soup-batch-toggle{margin-top:1rem;text-align:center}
 .soup-batch-btn{background:var(--card);border:2px dashed var(--coral);border-radius:14px;padding:.85rem 1.5rem;font-size:15px;font-weight:600;color:var(--coral);cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;transition:all .2s}
@@ -3281,12 +3283,63 @@ function renderHistory(recipes) {
 // ─── SHARE ────────────────────────────────────────────────────────────────────
 let shareRecipeName = '';
 
-function shareToFacebook(recipeId, recipeName) {
-  // Facebook crawler needs the API URL which serves pre-rendered OG meta tags
-  // Real users who click the shared post are redirected to the recipe page
+async function shareToFacebook(recipeId, recipeName) {
+  // Show loading state on the button
+  const btn = document.querySelector(`[onclick*="shareToFacebook(${recipeId}"]`);
+  const origText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = '⏳ Generating image...'; btn.disabled = true; }
+
+  try {
+    // Generate DALL-E 3 food photo (cached after first generation)
+    const resp = await fetch(`${API}/recipe/${recipeId}/generate-image`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + userToken }
+    });
+    const data = await resp.json();
+    if (data.imageUrl) {
+      // Show image preview briefly before opening share dialog
+      showImagePreview(data.imageUrl, recipeId, recipeName);
+    } else {
+      // Image failed — share without image
+      openFBShare(recipeId);
+    }
+  } catch(e) {
+    console.error('Image gen error:', e);
+    openFBShare(recipeId);
+  } finally {
+    if (btn) { btn.textContent = origText; btn.disabled = false; }
+  }
+}
+
+function openFBShare(recipeId) {
   const shareUrl = `https://api.mealwheeliq.com/recipe/${recipeId}`;
   const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
   window.open(fbUrl, '_blank', 'width=600,height=500,scrollbars=yes');
+}
+
+function showImagePreview(imageUrl, recipeId, recipeName) {
+  // Show a preview modal with the generated image before sharing
+  let modal = document.getElementById('share-preview-modal');
+  if (modal) modal.remove();
+  modal = document.createElement('div');
+  modal.id = 'share-preview-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;padding:0';
+  modal.innerHTML = `
+    <div style="background:var(--card);border-radius:20px 20px 0 0;max-width:500px;width:100%;padding:1.25rem;animation:slideUp .2s ease">
+      <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:.75rem;text-align:center">Ready to share! 🎉</div>
+      <img src="${imageUrl}" alt="${recipeName}" style="width:100%;border-radius:12px;margin-bottom:.85rem;max-height:280px;object-fit:cover">
+      <div style="font-size:12px;color:var(--ink3);margin-bottom:1rem;text-align:center">AI-generated photo of ${recipeName}</div>
+      <button onclick="openFBShare(${recipeId});document.getElementById('share-preview-modal').remove()"
+        style="width:100%;padding:.9rem;background:#1877F2;color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:.5rem">
+        📘 Share to Facebook
+      </button>
+      <button onclick="document.getElementById('share-preview-modal').remove()"
+        style="width:100%;padding:.75rem;background:none;border:1.5px solid var(--border);border-radius:14px;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">
+        Cancel
+      </button>
+    </div>`;
+  modal.onclick = e => { if (e.target === modal) modal.remove(); };
+  document.body.appendChild(modal);
 }
 
 function shareRecipe(name) {
