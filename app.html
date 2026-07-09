@@ -3333,27 +3333,50 @@ function openFBShare(shareUrl) {
 
 function showImagePreview(imageUrl, recipeId, recipeName, shareUrl) {
   shareUrl = shareUrl || `https://mealwheeliq.com/recipe.html?id=${recipeId}`;
-  // Show a preview modal with the generated image before sharing
+
   let modal = document.getElementById('share-preview-modal');
   if (modal) modal.remove();
   modal = document.createElement('div');
   modal.id = 'share-preview-modal';
   modal.style.cssText = 'position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;padding:0';
-  modal.innerHTML = `
-    <div style="background:var(--card);border-radius:20px 20px 0 0;max-width:500px;width:100%;padding:1.25rem;animation:slideUp .2s ease">
-      <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:.75rem;text-align:center">Ready to share! 🎉</div>
-      <img src="${imageUrl}" alt="${recipeName}" style="width:100%;border-radius:12px;margin-bottom:.85rem;max-height:280px;object-fit:cover">
-      <div style="font-size:12px;color:var(--ink3);margin-bottom:1rem;text-align:center">AI-generated photo of ${recipeName}</div>
-      <button onclick="openFBShare(${recipeId});document.getElementById('share-preview-modal').remove()"
-        style="width:100%;padding:.9rem;background:#1877F2;color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:.5rem">
-        📘 Share to Facebook
-      </button>
-      <button onclick="document.getElementById('share-preview-modal').remove()"
-        style="width:100%;padding:.75rem;background:none;border:1.5px solid var(--border);border-radius:14px;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">
-        Cancel
-      </button>
-    </div>`;
-  modal.onclick = e => { if (e.target === modal) modal.remove(); };
+
+  // Build modal DOM properly — avoids shareUrl being lost in innerHTML template
+  const inner = document.createElement('div');
+  inner.style.cssText = 'background:var(--card);border-radius:20px 20px 0 0;max-width:500px;width:100%;padding:1.25rem;animation:slideUp .2s ease';
+
+  const heading = document.createElement('div');
+  heading.style.cssText = 'font-size:14px;font-weight:700;color:var(--ink);margin-bottom:.75rem;text-align:center';
+  heading.textContent = 'Ready to share! 🎉';
+
+  const img = document.createElement('img');
+  img.src = imageUrl;
+  img.alt = recipeName;
+  img.style.cssText = 'width:100%;border-radius:12px;margin-bottom:.85rem;max-height:280px;object-fit:cover';
+
+  const caption = document.createElement('div');
+  caption.style.cssText = 'font-size:12px;color:var(--ink3);margin-bottom:1rem;text-align:center';
+  caption.textContent = `AI-generated photo of ${recipeName}`;
+
+  const shareBtn = document.createElement('button');
+  shareBtn.style.cssText = 'width:100%;padding:.9rem;background:#1877F2;color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;margin-bottom:.5rem;display:block';
+  shareBtn.textContent = '📘 Share to Facebook';
+  shareBtn.addEventListener('click', () => {
+    modal.remove();
+    openFBShare(shareUrl); // shareUrl is correctly captured in closure
+  });
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.style.cssText = 'width:100%;padding:.75rem;background:none;border:1.5px solid var(--border);border-radius:14px;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif;color:var(--ink2)';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', () => modal.remove());
+
+  inner.appendChild(heading);
+  inner.appendChild(img);
+  inner.appendChild(caption);
+  inner.appendChild(shareBtn);
+  inner.appendChild(cancelBtn);
+  modal.appendChild(inner);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
   document.body.appendChild(modal);
 }
 
