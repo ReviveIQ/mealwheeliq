@@ -3282,8 +3282,10 @@ function renderHistory(recipes) {
 let shareRecipeName = '';
 
 function shareToFacebook(recipeId, recipeName) {
-  const recipeUrl = `https://mealwheeliq.com/recipe.html?id=${recipeId}`;
-  const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(recipeUrl)}`;
+  // Facebook crawler needs the API URL which serves pre-rendered OG meta tags
+  // Real users who click the shared post are redirected to the recipe page
+  const shareUrl = `https://api.mealwheeliq.com/recipe/${recipeId}`;
+  const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
   window.open(fbUrl, '_blank', 'width=600,height=500,scrollbars=yes');
 }
 
