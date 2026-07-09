@@ -3284,40 +3284,55 @@ function renderHistory(recipes) {
 let shareRecipeName = '';
 
 async function shareToFacebook(recipeId, recipeName) {
-  // Show loading state on the button
-  const btn = document.querySelector(`[onclick*="shareToFacebook(${recipeId}"]`);
+  const btn = event?.currentTarget || document.querySelector(`.fb-share-btn`);
   const origText = btn ? btn.textContent : '';
-  if (btn) { btn.textContent = '⏳ Generating image...'; btn.disabled = true; }
+  if (btn) { btn.textContent = '⏳ Preparing share...'; btn.disabled = true; }
 
   try {
-    // Generate DALL-E 3 food photo (cached after first generation)
-    const resp = await fetch(`${API}/recipe/${recipeId}/generate-image`, {
+    // Step 1: Generate food image (cached after first use)
+    const imgResp = await fetch(`${API}/recipe/${recipeId}/generate-image`, {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + userToken }
     });
-    const data = await resp.json();
-    if (data.imageUrl) {
-      // Show image preview briefly before opening share dialog
-      showImagePreview(data.imageUrl, recipeId, recipeName);
+    const imgData = await imgResp.json();
+    const imageUrl = imgData.imageUrl || '';
+
+    // Step 2: Fetch full recipe data
+    const recipeResp = await fetch(`${API}/recipe/${recipeId}`, {
+      headers: { 'Authorization': 'Bearer ' + userToken }
+    });
+    const recipe = await recipeResp.json();
+
+    // Step 3: Build OG page and push to GitHub Pages via our API
+    const ogResp = await fetch(`${API}/recipe/${recipeId}/og-page`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+      body: JSON.stringify({ imageUrl })
+    });
+    const ogData = await ogResp.json();
+    const shareUrl = ogData.pageUrl || `https://mealwheeliq.com/recipe.html?id=${recipeId}`;
+
+    // Step 4: Show preview then open Facebook share
+    if (imageUrl) {
+      showImagePreview(imageUrl, recipeId, recipeName, shareUrl);
     } else {
-      // Image failed — share without image
-      openFBShare(recipeId);
+      openFBShare(shareUrl);
     }
   } catch(e) {
-    console.error('Image gen error:', e);
-    openFBShare(recipeId);
+    console.error('Share error:', e);
+    openFBShare(`https://mealwheeliq.com/recipe.html?id=${recipeId}`);
   } finally {
     if (btn) { btn.textContent = origText; btn.disabled = false; }
   }
 }
 
-function openFBShare(recipeId) {
-  const shareUrl = `https://api.mealwheeliq.com/recipe/${recipeId}`;
+function openFBShare(shareUrl) {
   const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
   window.open(fbUrl, '_blank', 'width=600,height=500,scrollbars=yes');
 }
 
-function showImagePreview(imageUrl, recipeId, recipeName) {
+function showImagePreview(imageUrl, recipeId, recipeName, shareUrl) {
+  shareUrl = shareUrl || `https://mealwheeliq.com/recipe.html?id=${recipeId}`;
   // Show a preview modal with the generated image before sharing
   let modal = document.getElementById('share-preview-modal');
   if (modal) modal.remove();
