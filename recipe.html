@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Recipe — MealWheelIQ</title>
+  <meta id="og-title" property="og:title" content="A recipe from MealWheelIQ">
+  <meta id="og-desc" property="og:description" content="Spin the wheel and get real recipes from your fridge. Free on MealWheelIQ.">
+  <meta property="og:image" content="https://mealwheeliq.com/icons/icon-512.png">
+  <meta id="og-url" property="og:url" content="https://mealwheeliq.com">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="MealWheelIQ">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#C94B2A">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--coral:#C94B2A;--coral-pale:#FAF0EB;--green:#2A6B4A;--green-pale:#EAF3EE;--ink:#1C1714;--ink2:#4A3F38;--ink3:#8C7B72;--bg:#FAF8F5;--card:#FFFFFF;--border:#EAE5DF}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+    nav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 2rem;background:white;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--ink);text-decoration:none}
+    .nav-logo span{color:var(--coral)}
+    .nav-cta{background:var(--coral);color:white;border-radius:22px;padding:.5rem 1.25rem;font-size:13px;font-weight:700;text-decoration:none;font-family:'DM Sans',sans-serif}
+    .wrap{max-width:640px;margin:0 auto;padding:2rem 1.25rem 5rem}
+    .loading{text-align:center;padding:4rem 1rem;font-size:15px;color:var(--ink3)}
+    .recipe-hero{text-align:center;padding:1.5rem 0 1.25rem}
+    .recipe-emoji-big{font-size:64px;display:block;margin-bottom:.75rem}
+    .recipe-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,5vw,2.4rem);font-weight:700;line-height:1.1;margin-bottom:.75rem}
+    .recipe-pills{display:flex;justify-content:center;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem}
+    .pill{font-size:12px;padding:4px 12px;border-radius:20px;background:var(--bg);border:1px solid var(--border);color:var(--ink2)}
+    .pill.green{background:var(--green-pale);color:var(--green);border-color:transparent}
+    .shared-by{font-size:13px;color:var(--ink3);margin-bottom:1.5rem}
+    .section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin:.85rem 0 .5rem}
+    .ing-list{list-style:none;margin-bottom:1.25rem}
+    .ing-list li{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--bg);font-size:14px;color:var(--ink2)}
+    .buy-tag{font-size:10px;color:var(--coral);background:var(--coral-pale);padding:2px 8px;border-radius:8px}
+    .steps-list{padding-left:1.2rem;margin-bottom:1.5rem}
+    .steps-list li{font-size:14px;color:var(--ink2);margin-bottom:.6rem;line-height:1.65}
+    .teaser-blur{filter:blur(5px);user-select:none;pointer-events:none}
+    .unlock-card{background:var(--ink);border-radius:18px;padding:1.75rem 1.5rem;text-align:center;margin:1.5rem 0}
+    .unlock-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:white;margin-bottom:.5rem}
+    .unlock-sub{font-size:13px;color:rgba(255,255,255,.65);margin-bottom:1.25rem;line-height:1.55}
+    .unlock-btn{background:var(--coral);color:white;text-decoration:none;border-radius:24px;padding:.8rem 1.75rem;font-size:15px;font-weight:700;font-family:'DM Sans',sans-serif;display:inline-block;margin-bottom:.75rem}
+    .unlock-free{font-size:12px;color:rgba(255,255,255,.45)}
+    .fb-share-bar{display:flex;align-items:center;justify-content:center;gap:.75rem;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem;margin-bottom:1rem}
+    .fb-share-bar p{font-size:13px;color:var(--ink2)}
+    .fb-btn{background:#1877F2;color:white;border:none;border-radius:10px;padding:.6rem 1.25rem;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .error-state{text-align:center;padding:4rem 1rem}
+    footer{border-top:1px solid var(--border);padding:1.5rem;text-align:center;font-size:12px;color:var(--ink3)}
+    footer a{color:var(--coral);text-decoration:none}
+    @media(max-width:640px){nav{padding:.75rem 1rem}}
+  </style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">MealWheel<span>IQ</span></a>
+  <a href="/login.html" class="nav-cta">Try free 🎰</a>
+</nav>
+
+<div class="wrap">
+  <div class="loading" id="loading">🍽️ Loading recipe...</div>
+  <div id="recipe-content" style="display:none"></div>
+  <div class="error-state" id="error-state" style="display:none">
+    <div style="font-size:48px;margin-bottom:1rem">😕</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;margin-bottom:.5rem">Recipe not found</h2>
+    <p style="font-size:14px;color:var(--ink3);margin-bottom:1.5rem">This recipe may have been removed or is no longer public.</p>
+    <a href="/login.html" style="background:var(--coral);color:white;text-decoration:none;border-radius:24px;padding:.75rem 1.75rem;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif">Spin your own recipe free →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/">MealWheelIQ</a> · AI-powered dinner planning · <a href="/login.html">Try free</a> · <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a>
+</footer>
+
+<script>
+const API = 'https://api.mealwheeliq.com';
+
+// Get recipe ID from URL query param — /recipe.html?id=123
+const params = new URLSearchParams(window.location.search);
+const recipeId = params.get('id');
+
+async function loadRecipe() {
+  if (!recipeId || isNaN(recipeId)) {
+    showError();
+    return;
+  }
+
+  try {
+    const resp = await fetch(`${API}/recipe/${recipeId}`);
+    if (!resp.ok) { showError(); return; }
+    const r = await resp.json();
+    renderRecipe(r);
+  } catch(e) {
+    console.error(e);
+    showError();
+  }
+}
+
+function showError() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('error-state').style.display = 'block';
+}
+
+function renderRecipe(r) {
+  // Update meta tags for Facebook OG
+  const title = `${r.emoji || '🍽️'} ${r.recipe_name} — Made with MealWheelIQ`;
+  const ings = (r.ingredients || []).slice(0, 3).map(i => i.name).join(', ');
+  const desc = `${r.recipe_name}: ${ings}... and more. Spin the wheel and get your own AI-generated recipe from MealWheelIQ — free.`;
+
+  document.title = title;
+  document.getElementById('page-title').textContent = title;
+  document.getElementById('og-title').setAttribute('content', title);
+  document.getElementById('og-desc').setAttribute('content', desc);
+  const canonicalUrl = `https://mealwheeliq.com/recipe.html?id=${recipeId}`;
+  document.getElementById('og-url').setAttribute('content', canonicalUrl);
+
+  const allIngs = r.ingredients || [];
+  const visibleIngs = allIngs.slice(0, 3);
+  const hiddenIngs = allIngs.slice(3);
+  const allSteps = r.steps || [];
+  const visibleSteps = allSteps.slice(0, 1);
+  const hiddenSteps = allSteps.slice(1);
+
+  const html = `
+    <div class="recipe-hero">
+      <span class="recipe-emoji-big">${r.emoji || '🍽️'}</span>
+      <h1 class="recipe-title">${r.recipe_name}</h1>
+      <div class="recipe-pills">
+        <span class="pill">⏱ ${r.time || '30 min'}</span>
+        <span class="pill">${r.difficulty || 'Easy'}</span>
+        <span class="pill">${r.style || ''}</span>
+        <span class="pill green">🔥 ${r.calories_per_serving} kcal/serving</span>
+        <span class="pill green">💪 ${r.protein_g}g protein</span>
+      </div>
+      <div class="shared-by">Spun on MealWheelIQ 🎰</div>
+    </div>
+
+    <div class="fb-share-bar">
+      <p>Love this recipe? Share it with your people.</p>
+      <button class="fb-btn" onclick="shareFB()">📘 Share to Facebook</button>
+    </div>
+
+    <div class="section-label">Ingredients</div>
+    <ul class="ing-list">
+      ${visibleIngs.map(i => `
+        <li>
+          <span>${i.organic ? '🌿 ' : ''}${i.name}</span>
+          ${i.buy ? '<span class="buy-tag">buy</span>' : ''}
+        </li>`).join('')}
+      ${hiddenIngs.length ? `
+        <li class="teaser-blur">
+          <span>████████████████</span>
+        </li>
+        <li class="teaser-blur">
+          <span>████████████</span>
+        </li>` : ''}
+    </ul>
+
+    <div class="section-label">Instructions</div>
+    <ol class="steps-list">
+      ${visibleSteps.map(s => `<li>${s}</li>`).join('')}
+      ${hiddenSteps.length ? `
+        <li class="teaser-blur">████████████████████████████████████</li>
+        <li class="teaser-blur">████████████████████</li>` : ''}
+    </ol>
+
+    <div class="unlock-card">
+      <div class="unlock-title">Want the full recipe?</div>
+      <div class="unlock-sub">
+        ${r.recipe_name} has ${allIngs.length} ingredients and ${allSteps.length} steps.
+        Sign up free and spin your own AI-generated recipes from whatever's in your fridge.
+      </div>
+      <a href="/login.html" class="unlock-btn">Get the full recipe — it's free 🎰</a>
+      <div class="unlock-free">Free account · No credit card · Unlimited free spins to start</div>
+    </div>`;
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('recipe-content').innerHTML = html;
+  document.getElementById('recipe-content').style.display = 'block';
+}
+
+function shareFB() {
+  const pageUrl = `https://mealwheeliq.com/recipe.html?id=${recipeId}`;
+  const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
+  window.open(fbUrl, '_blank', 'width=600,height=500,scrollbars=yes');
+}
+
+loadRecipe();
+</script>
+</body>
+</html>
