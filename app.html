@@ -705,6 +705,7 @@ button, a { touch-action: manipulation; }
         <h2 style="font-size:22px;line-height:1.2">Any food allergies<br>or restrictions?</h2>
         <p style="font-size:14px;margin-bottom:1.25rem">This keeps your family safe. <strong id="chef-name-allergy">Your chef</strong> will never include these in any recipe.</p>
 
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:.5rem">Allergies</div>
         <div class="allergy-grid">
           <button class="allergy-btn" id="al-nutfree" onclick="toggleAllergy('nutfree')">🥜 Nut Allergy</button>
           <button class="allergy-btn" id="al-shellfishfree" onclick="toggleAllergy('shellfishfree')">🐚 Shellfish Allergy</button>
@@ -712,10 +713,24 @@ button, a { touch-action: manipulation; }
           <button class="allergy-btn" id="al-dairyfree" onclick="toggleAllergy('dairyfree')">🥛 Dairy Allergy</button>
           <button class="allergy-btn" id="al-eggfree" onclick="toggleAllergy('eggfree')">🥚 Egg Allergy</button>
           <button class="allergy-btn" id="al-soyfree" onclick="toggleAllergy('soyfree')">🌿 Soy Allergy</button>
+        </div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin:.75rem 0 .5rem">Dietary Preferences</div>
+        <div class="allergy-grid">
           <button class="allergy-btn" id="al-vegan" onclick="toggleAllergy('vegan')">🌱 Vegan</button>
           <button class="allergy-btn" id="al-vegetarian" onclick="toggleAllergy('vegetarian')">🥦 Vegetarian</button>
           <button class="allergy-btn" id="al-nopork" onclick="toggleAllergy('nopork')">🚫 No Pork</button>
           <button class="allergy-btn" id="al-noredmeat" onclick="toggleAllergy('noredmeat')">🥩 No Red Meat</button>
+          <button class="allergy-btn" id="al-pregnancy" onclick="toggleAllergy('pregnancy')">🤰 Pregnancy-Safe</button>
+          <button class="allergy-btn" id="al-diabetic" onclick="toggleAllergy('diabetic')">💊 Diabetic-Friendly</button>
+        </div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin:.75rem 0 .5rem">Religious &amp; Cultural</div>
+        <div class="allergy-grid">
+          <button class="allergy-btn" id="al-kosher" onclick="toggleAllergy('kosher')">🕍 Kosher</button>
+          <button class="allergy-btn" id="al-halal" onclick="toggleAllergy('halal')">🌙 Halal</button>
+          <button class="allergy-btn" id="al-hindu" onclick="toggleAllergy('hindu')">🕉️ Hindu Vegetarian</button>
+          <button class="allergy-btn" id="al-jain" onclick="toggleAllergy('jain')">☸️ Jain</button>
+          <button class="allergy-btn" id="al-buddhist" onclick="toggleAllergy('buddhist')">🧘 Buddhist Vegetarian</button>
+          <button class="allergy-btn" id="al-lent" onclick="toggleAllergy('lent')">✝️ Lent / No Meat Fridays</button>
         </div>
 
         <div class="allergy-none-row">
@@ -897,6 +912,22 @@ button, a { touch-action: manipulation; }
         <button class="diet-btn" id="diet-paleo" onclick="toggleDiet('paleo')">🦴 Paleo</button>
         <button class="diet-btn" id="diet-whole30" onclick="toggleDiet('whole30')">🌀 Whole30</button>
         <button class="diet-btn" id="diet-mediterranean" onclick="toggleDiet('mediterranean')">🫙 Mediterranean Diet</button>
+        <button class="diet-btn" id="diet-carnivore" onclick="toggleDiet('carnivore')">🥩 Carnivore</button>
+        <button class="diet-btn" id="diet-diabetic" onclick="toggleDiet('diabetic')">💊 Diabetic-Friendly</button>
+        <button class="diet-btn" id="diet-pregnancy" onclick="toggleDiet('pregnancy')">🤰 Pregnancy-Safe</button>
+        <button class="diet-btn" id="diet-lent" onclick="toggleDiet('lent')">✝️ Lent / No Meat Fridays</button>
+
+        <div class="diet-group-label">Religious &amp; Cultural Traditions</div>
+        <button class="diet-btn" id="diet-kosher" onclick="toggleDiet('kosher')">🕍 Kosher</button>
+        <button class="diet-btn" id="diet-halal" onclick="toggleDiet('halal')">🌙 Halal</button>
+        <button class="diet-btn" id="diet-hindu" onclick="toggleDiet('hindu')">🕉️ Hindu Vegetarian</button>
+        <button class="diet-btn" id="diet-jain" onclick="toggleDiet('jain')">☸️ Jain</button>
+        <button class="diet-btn" id="diet-buddhist" onclick="toggleDiet('buddhist')">🧘 Buddhist Vegetarian</button>
+
+        <div class="diet-group-label">Medical &amp; Therapeutic</div>
+        <button class="diet-btn" id="diet-fodmap" onclick="toggleDiet('fodmap')">🌿 Low-FODMAP</button>
+        <button class="diet-btn" id="diet-lowpurine" onclick="toggleDiet('lowpurine')">💧 Low-Purine (Gout)</button>
+        <button class="diet-btn" id="diet-kidneyfriendly" onclick="toggleDiet('kidneyfriendly')">🫘 Kidney-Friendly</button>
       </div>
     </div>
 
@@ -3135,41 +3166,71 @@ function toggleDiet(diet) {
 function getDietPromptText() {
   if (!activeDiets.size) return '';
 
-  // Strict requirements — hard rules the recipe MUST follow
+  // ── STRICT: hard rules, violations unacceptable ──────────────────────────
   const strict = {
-    vegan: 'STRICTLY vegan — absolutely no meat, fish, dairy, eggs, or honey',
+    // Dietary restrictions
+    vegan: 'STRICTLY vegan — absolutely no meat, fish, dairy, eggs, or honey of any kind',
     vegetarian: 'STRICTLY vegetarian — no meat or fish of any kind',
     pescatarian: 'pescatarian — no meat, but fish and seafood are allowed',
-    nopork: 'no pork or pork products of any kind (no bacon, ham, sausage)',
-    noredmeat: 'no red meat (no beef, pork, lamb, or game — chicken, turkey, and fish are fine)',
-    glutenfree: 'STRICTLY gluten-free — absolutely no wheat, barley, rye, or gluten-containing ingredients. Use gluten-free alternatives.',
-    dairyfree: 'STRICTLY dairy-free — no milk, cheese, butter, cream, yogurt, or any dairy. Use dairy-free alternatives.',
-    nutfree: 'STRICTLY nut-free — no peanuts, tree nuts, nut oils, or nut butters. Safe for nut allergies.',
+    nopork: 'no pork or pork products of any kind (no bacon, ham, sausage, lard, prosciutto)',
+    noredmeat: 'no red meat (no beef, pork, lamb, veal, or game — chicken, turkey, and fish are fine)',
+
+    // Allergens
+    glutenfree: 'STRICTLY gluten-free — absolutely no wheat, barley, rye, spelt, or gluten-containing sauces. Use gluten-free alternatives only.',
+    dairyfree: 'STRICTLY dairy-free — no milk, cheese, butter, cream, yogurt, ghee, or any dairy. Use dairy-free alternatives.',
+    nutfree: 'STRICTLY nut-free — no peanuts, tree nuts (almonds, walnuts, cashews, pecans, etc), nut oils, or nut butters. Safe for severe nut allergies.',
     eggfree: 'STRICTLY egg-free — no eggs or egg-based ingredients in any form',
-    shellfishfree: 'STRICTLY shellfish-free — no shrimp, crab, lobster, clams, oysters, or any shellfish',
-    soyfree: 'STRICTLY soy-free — no soy sauce, tofu, edamame, or soy-based products'
+    shellfishfree: 'STRICTLY shellfish-free — no shrimp, crab, lobster, clams, oysters, scallops, or any shellfish',
+    soyfree: 'STRICTLY soy-free — no soy sauce, tofu, tempeh, edamame, miso, or any soy-based products',
+
+    // Religious & cultural — deep rules
+    kosher: 'STRICTLY Kosher — (1) No pork or pork products ever. (2) No shellfish ever. (3) CRITICAL: if the protein is meat or poultry, the recipe must be COMPLETELY dairy-free — no butter, no cream, no cheese, no milk anywhere in the dish. If the dish is dairy-based, no meat or poultry may appear. Meat and dairy are never in the same meal. (4) No blood — assume meat is properly prepared. Use olive oil or schmaltz instead of butter for meat dishes.',
+    halal: 'STRICTLY Halal — (1) No pork or pork derivatives of any kind (no bacon, ham, lard, gelatin unless halal-certified). (2) NO alcohol in cooking — no wine reductions, no beer marinades, no vanilla extract (alcohol-based). Use halal alternatives: grape juice for wine, apple cider vinegar for wine vinegar. (3) Meat must be halal-slaughtered — note this as a shopping instruction. (4) All seafood is permitted.',
+    hindu: 'Hindu Vegetarian — NO beef or veal of any kind (the cow is sacred). Most Hindu vegetarians avoid all meat; use only plant-based proteins, dairy, or eggs unless specified. Dairy is central and celebrated — ghee, paneer, yogurt, and milk are encouraged. Strong spice tradition — cumin, turmeric, coriander, mustard seeds, curry leaves.',
+    jain: 'STRICTLY Jain — (1) Absolutely no meat, fish, poultry, or eggs. (2) NO root vegetables — this overrides all assumed staples: NO garlic, NO onion, NO potatoes, NO carrots, NO beets, NO radishes, NO turnips, NO leeks. These ingredients do not exist for this user. (3) Use asafoetida (hing) as a substitute for garlic/onion flavor. (4) Focus on lentils, beans, leafy vegetables above ground, dairy, grains. (5) No eating after sunset (mention timing in notes).',
+    buddhist: 'Buddhist Vegetarian — (1) No meat, poultry, or fish of any kind. (2) Many Buddhist traditions avoid alliums — NO garlic, NO onion, NO leeks, NO shallots, NO chives, NO scallions. These are NOT available for this recipe. (3) Focus on tofu, tempeh, mushrooms (for umami depth), vegetables, grains, legumes. Mushrooms are highly valued — use them generously for savory depth.',
+
+    // Medical
+    lent: 'Lenten/Catholic Friday restriction — no meat (beef, pork, poultry, lamb) in this recipe. Fish and seafood are permitted and encouraged. Dairy and eggs are fine.',
+    pregnancy: 'PREGNANCY-SAFE — (1) No raw or undercooked fish, shellfish, or meat (everything fully cooked through). (2) No deli meats, cured meats, or hot dogs unless heated until steaming. (3) No high-mercury fish (no shark, swordfish, king mackerel, tilefish, bigeye tuna). Low-mercury fish encouraged (salmon, sardines, shrimp, cod). (4) No unpasteurized cheeses or soft cheeses (brie, camembert, blue cheese) unless heated. (5) Limit added sodium. (6) No alcohol whatsoever.',
   };
 
-  // Health guidance — flexible goals, not allergen-level strict
+  // ── HEALTH GOALS: flexible guidance ──────────────────────────────────────
   const goals = {
     lowcarb: 'low-carb (target under 30g net carbs per serving — minimize bread, pasta, rice, starchy vegetables)',
-    keto: 'ketogenic (under 20g net carbs, high fat, moderate protein — think meats, cheese, eggs, low-carb vegetables, avocado)',
+    keto: 'ketogenic (under 20g net carbs, high fat, moderate protein — meats, cheese, eggs, low-carb vegetables, avocado, olive oil)',
     highprotein: 'high-protein (at least 40g protein per serving — prioritize lean meats, eggs, legumes, Greek yogurt)',
-    lowsodium: 'low-sodium (under 600mg sodium per serving — avoid added salt, soy sauce, canned goods with salt, cured meats)',
+    lowsodium: 'low-sodium (under 600mg sodium per serving — avoid added salt, soy sauce, canned goods with salt, processed meats)',
     lowcalorie: 'low-calorie (target under 500 kcal per serving — lean proteins, lots of vegetables, minimal added fats)',
-    hearthealthy: 'heart-healthy (minimize saturated fat and sodium, prioritize omega-3s, fiber, and healthy unsaturated fats)',
-    antiinflammatory: 'anti-inflammatory (prioritize fatty fish, leafy greens, berries, turmeric, ginger, olive oil — avoid refined grains and processed foods)',
-    paleo: 'paleo (meat, fish, eggs, vegetables, fruits, nuts, seeds — no grains, legumes, dairy, or processed foods)',
-    whole30: 'Whole30 compliant (no grains, dairy, legumes, added sugar, alcohol, or processed additives — whole foods only)',
-    mediterranean: 'Mediterranean diet (olive oil, fish, whole grains, vegetables, legumes, moderate dairy — minimal red meat)'
+    hearthealthy: 'heart-healthy (minimize saturated fat and sodium, prioritize omega-3s, soluble fiber, and healthy unsaturated fats — olive oil, fatty fish, legumes)',
+    antiinflammatory: 'anti-inflammatory (prioritize fatty fish, leafy greens, berries, turmeric, ginger, olive oil — avoid refined grains, processed foods, and excess sugar)',
+    paleo: 'paleo (meat, fish, eggs, vegetables, fruits, nuts, seeds only — no grains, legumes, dairy, refined sugar, or processed foods)',
+    whole30: 'Whole30 compliant (no grains, dairy, legumes, added sugar, alcohol, or processed additives — whole unprocessed foods only)',
+    mediterranean: 'Mediterranean diet (olive oil as primary fat, fish 2-3x/week, whole grains, vegetables, legumes, moderate dairy, minimal red meat)',
+    carnivore: 'carnivore diet (meat, fish, eggs, and animal products only — absolutely no plant foods, no vegetables, no grains, no legumes, no fruit)',
+    diabetic: 'diabetic-friendly (low glycemic index foods, target under 45g carbs per meal, prioritize fiber-rich vegetables, lean proteins, and healthy fats — minimize white rice, white bread, white potatoes, sugary sauces)',
+    lowpurine: 'low-purine for gout management (avoid organ meats, anchovies, sardines, mussels, yeast extracts. Limit red meat and shellfish. Encourage low-fat dairy, vegetables, whole grains, cherries, and adequate hydration)',
+    kidneyfriendly: 'kidney-friendly (limit potassium: no bananas, oranges, potatoes, tomatoes, avocados in large amounts. Limit phosphorus: no dairy in large amounts, no nuts, no whole grains. Limit sodium under 500mg/serving. Keep protein moderate — not excessive)',
+    fodmap: 'LOW-FODMAP for IBS management — this overrides assumed staples: NO garlic and NO onion (use garlic-infused oil for flavor instead, or green tops of scallions only). No wheat, no rye. No legumes (beans, lentils, chickpeas). No lactose (hard cheeses and lactose-free dairy OK). No high-fructose fruits (apples, pears, mangoes, honey). Allowed: rice, oats, eggs, meat, fish, tofu, most vegetables except onion/garlic/cauliflower/mushrooms.'
+  };
+
+  // ── PANTRY OVERRIDES: ingredients that must be removed from assumed staples ─
+  const pantryOverrides = {
+    jain: 'PANTRY OVERRIDE — The following assumed staples are NOT available for this Jain recipe and must not appear anywhere: garlic, onion, potatoes, carrots, beets, radishes, turnips, leeks. Do not use these as substitutes or hidden ingredients.',
+    buddhist: 'PANTRY OVERRIDE — The following assumed staples are NOT available for this Buddhist Vegetarian recipe: garlic, onion, leeks, shallots, chives, scallions. Do not use these even as aromatics or background flavor.',
+    fodmap: 'PANTRY OVERRIDE — The following assumed staples are NOT available for this Low-FODMAP recipe: garlic (use garlic-infused oil instead), onion (use green scallion tops only). Also remove: wheat flour, regular pasta.',
+    kosher: 'PANTRY OVERRIDE — If this recipe contains meat or poultry: butter, cream, milk, cheese, and all dairy products are NOT available. Replace with olive oil, chicken schmaltz, or pareve alternatives.',
+    halal: 'PANTRY OVERRIDE — The following are NOT available: any wine, beer, sake, or alcohol-containing ingredient including vanilla extract. Replace wine with grape juice or halal stock, replace vanilla extract with vanilla bean or halal-certified vanilla.',
   };
 
   const strictActive = Array.from(activeDiets).filter(d => strict[d]).map(d => strict[d]);
   const goalActive = Array.from(activeDiets).filter(d => goals[d]).map(d => goals[d]);
+  const overrideActive = Array.from(activeDiets).filter(d => pantryOverrides[d]).map(d => pantryOverrides[d]);
 
   let result = '';
-  if (strictActive.length) result += `STRICT DIETARY REQUIREMENTS (non-negotiable — any violation is unacceptable): ${strictActive.join('; ')}. `;
-  if (goalActive.length) result += `HEALTH GOALS (follow as closely as possible): ${goalActive.join('; ')}.`;
+  if (strictActive.length) result += `STRICT DIETARY REQUIREMENTS (non-negotiable — any violation is completely unacceptable): ${strictActive.join('; ')}. `;
+  if (goalActive.length) result += `HEALTH GOALS (follow as closely as possible): ${goalActive.join('; ')}. `;
+  if (overrideActive.length) result += overrideActive.join(' ');
   return result.trim();
 }
 
