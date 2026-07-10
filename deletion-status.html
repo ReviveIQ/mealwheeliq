@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Deletion Status — MealWheelIQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:#FAF8F5;color:#1C1714;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center}
+    .card{background:white;border-radius:20px;padding:2.5rem 2rem;max-width:480px;width:100%;box-shadow:0 2px 20px rgba(0,0,0,.06)}
+    .icon{font-size:48px;margin-bottom:1rem}
+    h1{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;margin-bottom:.75rem}
+    p{font-size:14px;color:#4A3F38;line-height:1.7;margin-bottom:.75rem}
+    .code{background:#FAF8F5;border:1px solid #EAE5DF;border-radius:8px;padding:.6rem 1rem;font-size:13px;color:#8C7B72;margin:1rem 0;font-family:monospace}
+    a{color:#C94B2A;text-decoration:none;font-weight:600}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">✅</div>
+    <h1>Data Deletion Complete</h1>
+    <p>Your MealWheelIQ account and all associated data have been permanently deleted from our systems.</p>
+    <p>This includes your recipe history, pantry ingredients, dietary preferences, meal plans, and account information.</p>
+    <div class="code" id="confirmation-code">Loading confirmation code...</div>
+    <p style="font-size:12px;color:#8C7B72">If you have questions, contact us at <a href="mailto:hello@mealwheeliq.com">hello@mealwheeliq.com</a></p>
+    <p style="margin-top:1.5rem"><a href="/">← Back to MealWheelIQ</a></p>
+  </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    document.getElementById('confirmation-code').textContent = id ? 'Confirmation: ' + id : 'No confirmation code found';
+  </script>
+</body>
+</html>
