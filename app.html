@@ -3327,9 +3327,33 @@ function renderHistory(recipes) {
 let shareRecipeName = '';
 
 async function shareToFacebook(recipeId, recipeName) {
-  // OG page was pre-built when recipe was saved — just open Facebook directly
-  const shareUrl = `https://mealwheeliq.com/og/${recipeId}.html`;
-  openFBShare(shareUrl);
+  if (!recipeId) { alert('Save the recipe first to share it.'); return; }
+
+  const btn = event?.currentTarget;
+  const origText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = '⏳ Sharing...'; btn.disabled = true; }
+
+  try {
+    // Build OG page now (instant if already built, fast if not)
+    const ogResp = await fetch(`${API}/recipe/${recipeId}/og-page`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+      body: JSON.stringify({ imageUrl: null })
+    });
+    const ogData = await ogResp.json();
+    const shareUrl = ogData.pageUrl || `https://mealwheeliq.com/og/${recipeId}.html`;
+
+    // Small delay to let GitHub Pages propagate if brand new
+    const isNew = ogData.wasNew;
+    if (isNew) await new Promise(r => setTimeout(r, 3000));
+
+    openFBShare(shareUrl);
+  } catch(e) {
+    console.error('Share error:', e);
+    openFBShare(`https://mealwheeliq.com/recipe.html?id=${recipeId}`);
+  } finally {
+    if (btn) { btn.textContent = origText; btn.disabled = false; }
+  }
 }
 
 function openFBShare(shareUrl) {
