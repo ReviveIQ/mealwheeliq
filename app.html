@@ -3326,6 +3326,9 @@ function renderHistory(recipes) {
 // ─── SHARE ────────────────────────────────────────────────────────────────────
 let shareRecipeName = '';
 
+// Track which recipe OG pages have been pre-built this session
+const ogPagesBuilt = new Set();
+
 async function shareToFacebook(recipeId, recipeName) {
   if (!recipeId) { alert('Save the recipe first to share it.'); return; }
 
@@ -3333,24 +3336,38 @@ async function shareToFacebook(recipeId, recipeName) {
   const origText = btn ? btn.textContent : '';
   if (btn) { btn.textContent = '⏳ Sharing...'; btn.disabled = true; }
 
+  const shareUrl = `https://mealwheeliq.com/og/${recipeId}.html`;
+
   try {
-    // Build OG page now (instant if already built, fast if not)
-    const ogResp = await fetch(`${API}/recipe/${recipeId}/og-page`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
-      body: JSON.stringify({ imageUrl: null })
-    });
-    const ogData = await ogResp.json();
-    const shareUrl = ogData.pageUrl || `https://mealwheeliq.com/og/${recipeId}.html`;
+    if (!ogPagesBuilt.has(recipeId)) {
+      // First time sharing this recipe — build OG page and wait for GitHub Pages
+      if (btn) btn.textContent = '⏳ Building share card...';
+      const ogResp = await fetch(`${API}/recipe/${recipeId}/og-page`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+        body: JSON.stringify({ imageUrl: null })
+      });
+      const ogData = await ogResp.json();
 
-    // Small delay to let GitHub Pages propagate if brand new
-    const isNew = ogData.wasNew;
-    if (isNew) await new Promise(r => setTimeout(r, 3000));
-
+      if (ogData.wasNew) {
+        // New OG page — wait for GitHub Pages to propagate (poll up to 30s)
+        if (btn) btn.textContent = '⏳ Almost ready...';
+        let ready = false;
+        for (let i = 0; i < 6; i++) {
+          await new Promise(r => setTimeout(r, 5000));
+          try {
+            const check = await fetch(shareUrl, { method: 'HEAD' });
+            if (check.ok || check.status === 200) { ready = true; break; }
+          } catch(e) {}
+        }
+      }
+      ogPagesBuilt.add(recipeId);
+    }
+    // OG page exists — open Facebook immediately
     openFBShare(shareUrl);
   } catch(e) {
     console.error('Share error:', e);
-    openFBShare(`https://mealwheeliq.com/recipe.html?id=${recipeId}`);
+    openFBShare(shareUrl); // try anyway
   } finally {
     if (btn) { btn.textContent = origText; btn.disabled = false; }
   }
