@@ -2673,7 +2673,8 @@ function cbHTML(r){
 
 function ingTag(ing){
   const cls=ing.organic?'ing org':ing.buy?'ing buy':'ing';
-  return `<span class="${cls}">${ing.buy?'+ ':''}${ing.name}</span>`;
+  const qty = ing.quantity ? ` <span style="font-size:10px;opacity:.7">${ing.quantity}${ing.unit?' '+ing.unit:''}</span>` : '';
+  return `<span class="${cls}">${ing.buy?'+ ':''}${ing.name}${qty}</span>`;
 }
 
 function cardHTML(r,delay,recipeId){
