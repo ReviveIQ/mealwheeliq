@@ -1105,6 +1105,20 @@ button, a { touch-action: manipulation; }
 <script>
 const API = 'https://api.mealwheeliq.com';
 
+function showToast(msg, duration=3000) {
+  let t = document.getElementById('mwiq-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'mwiq-toast';
+    t.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1C1714;color:white;padding:.65rem 1.25rem;border-radius:24px;font-size:14px;font-weight:600;z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, duration);
+}
+
 // Facebook SDK
 window.fbAsyncInit = function() {
   FB.init({ appId: '912238324473168', cookie: true, xfbml: true, version: 'v25.0' });
@@ -2984,7 +2998,7 @@ async function favoriteRecipe(id, btn) {
     const data = await resp.json();
     if (resp.ok) {
       if (btn) { btn.textContent='✅ Saved!'; btn.style.opacity='0.7'; }
-      showToast("Saved! Don\'t forget to share it 📘");
+      showToast('Saved! Don\'t forget to share it 📘');
       // Pre-build OG share page in background — ready by the time they tap Share
       setTimeout(() => {
         fetch(`${API}/recipe/${id}/og-page`, {
