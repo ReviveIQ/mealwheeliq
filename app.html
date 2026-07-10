@@ -1104,6 +1104,18 @@ button, a { touch-action: manipulation; }
 
 <script>
 const API = 'https://api.mealwheeliq.com';
+
+// Facebook SDK
+window.fbAsyncInit = function() {
+  FB.init({ appId: '912238324473168', cookie: true, xfbml: true, version: 'v25.0' });
+};
+(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/en_US/sdk.js';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
 const INGREDIENT_DB = {
   "Beef & Pork":["Ground Beef","Beef Sirloin","Beef Chuck Roast","Beef Short Ribs","Flank Steak","Ribeye Steak","NY Strip Steak","Beef Tenderloin","Beef Brisket","Pork Chops","Pork Tenderloin","Pork Shoulder","Baby Back Ribs","Italian Sausage","Chorizo","Bacon","Ham","Prosciutto","Ground Pork","Pork Belly"],
   "Poultry":["Chicken Breast","Chicken Thighs","Chicken Drumsticks","Whole Chicken","Ground Chicken","Chicken Wings","Turkey Breast","Ground Turkey","Duck Breast","Rotisserie Chicken"],
@@ -2654,7 +2666,8 @@ function cardHTML(r,delay,recipeId){
     <div class="card-actions">
       ${recipeId?`<button class="card-action-btn fav" id="fav-btn-${recipeId}" onclick="favoriteRecipe(${recipeId},this)">⭐ Save</button>`:''}
       <button class="card-action-btn send-shopper" onclick="sendRecipeToShopper(this)">📨 Send to shopper</button>
-      ${recipeId?`<button class="card-action-btn fb-share-btn" onclick="shareToFacebook(${recipeId},'${r.name.replace(/'/g,"\'")}')" title="Share to Facebook">📘 Share</button>`:''}
+      ${recipeId?`<button class="card-action-btn fb-share-btn" onclick="shareToFacebook(${recipeId},'${r.name.replace(/'/g,"\'")}')" title="Share to Facebook">📘 Share</button>
+      <span class="fb-save" data-uri="https://mealwheeliq.com/og/${recipeId}.html" data-size="small" title="Save to Facebook"></span>`:''}
       ${recipeId?`<div class="star-rating" title="Rate this recipe">${[1,2,3,4,5].map(n=>`<span class="star" onclick="rateRecipe(${recipeId},${n},this.parentElement)" title="${n} star${n>1?'s':''}">☆</span>`).join('')}</div>`:''}
     </div>
   </div>`;
