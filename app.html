@@ -2966,6 +2966,15 @@ async function favoriteRecipe(id, btn) {
     const data = await resp.json();
     if (resp.ok) {
       if (btn) { btn.textContent='✅ Saved!'; btn.style.opacity='0.7'; }
+      showToast("Saved! Don\'t forget to share it 📘");
+      // Pre-build OG share page in background — ready by the time they tap Share
+      setTimeout(() => {
+        fetch(`${API}/recipe/${id}/og-page`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+          body: JSON.stringify({ imageUrl: null })
+        }).then(r => r.json()).then(d => console.log('OG pre-built:', d.pageUrl)).catch(() => {});
+      }, 1000);
     } else {
       if (btn) { btn.textContent='⭐ Save'; btn.disabled=false; }
       console.error('Favorite failed:', resp.status, data);
@@ -3286,26 +3295,9 @@ function renderHistory(recipes) {
 let shareRecipeName = '';
 
 async function shareToFacebook(recipeId, recipeName) {
-  const btn = event?.currentTarget || document.querySelector('.fb-share-btn');
-  const origText = btn ? btn.textContent : '';
-  if (btn) { btn.textContent = '⏳ Preparing share...'; btn.disabled = true; }
-
-  try {
-    // Build OG page on GitHub Pages with recipe meta tags
-    const ogResp = await fetch(`${API}/recipe/${recipeId}/og-page`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
-      body: JSON.stringify({ imageUrl: null })
-    });
-    const ogData = await ogResp.json();
-    const shareUrl = ogData.pageUrl || `https://mealwheeliq.com/recipe.html?id=${recipeId}`;
-    openFBShare(shareUrl);
-  } catch(e) {
-    console.error('Share error:', e);
-    openFBShare(`https://mealwheeliq.com/recipe.html?id=${recipeId}`);
-  } finally {
-    if (btn) { btn.textContent = origText; btn.disabled = false; }
-  }
+  // OG page was pre-built when recipe was saved — just open Facebook directly
+  const shareUrl = `https://mealwheeliq.com/og/${recipeId}.html`;
+  openFBShare(shareUrl);
 }
 
 function openFBShare(shareUrl) {
