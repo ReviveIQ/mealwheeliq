@@ -2965,10 +2965,15 @@ async function loadFavorites(){
 }
 
 async function favoriteRecipe(id, btn) {
+  console.log('favoriteRecipe called:', id, 'token:', !!userToken);
   if (!id) { 
     if (btn) { btn.textContent='⚠️ No ID'; }
     console.error('favoriteRecipe: no id provided');
     return; 
+  }
+  if (!userToken) {
+    showToast('Please sign in to save recipes');
+    return;
   }
   if (btn) { btn.textContent='Saving...'; btn.disabled=true; }
   try {
