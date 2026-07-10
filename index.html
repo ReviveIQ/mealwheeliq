@@ -205,6 +205,11 @@
   <link rel="apple-touch-startup-image" media="(device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3)" href="/splash/splash-1284x2778.png">
   <link rel="apple-touch-startup-image" media="(device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3)" href="/splash/splash-1179x2556.png">
   <link rel="apple-touch-startup-image" media="(device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3)" href="/splash/splash-1290x2796.png">
+  <!-- Facebook SDK -->
+  <div id="fb-root"></div>
+  <script async defer crossorigin="anonymous"
+    src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v25.0&appId=912238324473168">
+  </script>
 </head>
 <body>
 
@@ -497,7 +502,27 @@
 </section>
 
 <div style="border-top:1px solid var(--border)">
-  <footer>
+  <!-- FACEBOOK PAGE PLUGIN -->
+<section style="background:var(--cream);padding:3rem 2rem;text-align:center;border-top:1px solid var(--border)">
+  <div style="max-width:960px;margin:0 auto">
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--ink);margin-bottom:.5rem">Follow MealWheelIQ on Facebook</h2>
+    <p style="font-size:14px;color:var(--ink3);margin-bottom:1.5rem">Daily dinner ideas, recipe inspiration, and family cooking tips</p>
+    <div style="display:flex;justify-content:center">
+      <div class="fb-page"
+        data-href="https://www.facebook.com/profile.php?id=61591664615764"
+        data-tabs="timeline"
+        data-width="500"
+        data-height="300"
+        data-small-header="true"
+        data-adapt-container-width="true"
+        data-hide-cover="false"
+        data-show-facepile="true">
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
     <a href="#" class="footer-logo">MealWheel<span>IQ</span></a>
     <div class="footer-links">
       <a href="#how">How it works</a>
