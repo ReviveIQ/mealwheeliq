@@ -1990,7 +1990,9 @@ Suggest 3-5 fresh ingredients to buy (buy:true) that fit this style. Flag organi
 Servings: ${s}. Target approximately ${g} kcal per serving. ${avoidStr}
 
 Recipe steps: Lead with action verbs, 5-7 steps, timing and visual cues, final step seasons and serves.
-Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️","time":"30 min","difficulty":"Easy","style":"American","calories_per_serving":520,"protein_g":38,"carbs_g":45,"fat_g":18,"ingredients":[{"name":"ingredient","organic":false,"buy":false}],"steps":["Step 1."]}]}`;
+INGREDIENT QUANTITIES: For every ingredient, include a realistic quantity and unit scaled to the serving count. Use standard grocery units: lbs, oz, cups, tbsp, tsp, cloves, can (15oz), bunch, head, piece. Examples for 2 servings: chicken breast = "1.5 lbs", olive oil = "2 tbsp", garlic = "4 cloves", broth = "2 cups", pasta = "8 oz".
+
+Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️","time":"30 min","difficulty":"Easy","style":"American","calories_per_serving":520,"protein_g":38,"carbs_g":45,"fat_g":18,"ingredients":[{"name":"ingredient","quantity":"2","unit":"lbs","organic":false,"buy":false}],"steps":["Step 1."]}]}`;
 
     const resp = await fetch(API + '/generate', {
       method: 'POST',
@@ -2312,7 +2314,9 @@ SOUP RECIPE RULES:
 - Servings: ${s}. Target approximately ${g} kcal per serving. ${dietStr}
 
 Steps: 6-8 steps, lead with action verbs, include timing and sensory cues (color, smell, texture).
-Respond ONLY with valid JSON: {"recipes":[{"name":"Soup Name","emoji":"🍲","time":"45 min","difficulty":"Easy","style":"Soup","calories_per_serving":480,"protein_g":28,"carbs_g":42,"fat_g":16,"ingredients":[{"name":"ingredient","organic":false,"buy":false}],"steps":["Step 1."]}]}`;
+INGREDIENT QUANTITIES: For every ingredient, include a realistic quantity and unit scaled to the serving count. Use standard grocery units: lbs, oz, cups, tbsp, tsp, cloves, can (15oz), bunch, head, piece. Examples for 2 servings: chicken breast = "1.5 lbs", olive oil = "2 tbsp", garlic = "4 cloves", broth = "2 cups", pasta = "8 oz".
+
+Respond ONLY with valid JSON: {"recipes":[{"name":"Soup Name","emoji":"🍲","time":"45 min","difficulty":"Easy","style":"Soup","calories_per_serving":480,"protein_g":28,"carbs_g":42,"fat_g":16,"ingredients":[{"name":"ingredient","quantity":"2","unit":"lbs","organic":false,"buy":false}],"steps":["Step 1."]}]}`;
 
   // Show loading state
   document.getElementById('rh').textContent = `${chefName} is crafting your soup...`;
@@ -2451,7 +2455,9 @@ Recipe steps MUST follow professional cookbook standards (America's Test Kitchen
 - Final step: taste, season with salt and pepper, and a service instruction
 - Target 5–7 steps. Maximum 8. Eliminate all micro-steps.
 - Never use passive voice. Never start a step with "The", "Once", or "After".
-Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️","time":"30 min","difficulty":"Easy","style":"American","calories_per_serving":520,"protein_g":38,"carbs_g":45,"fat_g":18,"ingredients":[{"name":"ingredient","organic":false,"buy":false}],"steps":["Heat oil in a large skillet over medium-high heat.","Sear chicken until golden brown, about 4 minutes per side.","Add onion, cook until softened, about 3 minutes.","Simmer until cooked through, about 15 minutes.","Taste, season with salt and pepper, and serve hot."]}]}`;
+INGREDIENT QUANTITIES: For every ingredient, include a realistic quantity and unit scaled to the serving count. Use standard grocery units: lbs, oz, cups, tbsp, tsp, cloves, can (15oz), bunch, head, piece. Examples for 2 servings: chicken breast = "1.5 lbs", olive oil = "2 tbsp", garlic = "4 cloves", broth = "2 cups", pasta = "8 oz".
+
+Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️","time":"30 min","difficulty":"Easy","style":"American","calories_per_serving":520,"protein_g":38,"carbs_g":45,"fat_g":18,"ingredients":[{"name":"ingredient","quantity":"2","unit":"lbs","organic":false,"buy":false}],"steps":["Heat oil in a large skillet over medium-high heat.","Sear chicken until golden brown, about 4 minutes per side.","Add onion, cook until softened, about 3 minutes.","Simmer until cooked through, about 15 minutes.","Taste, season with salt and pepper, and serve hot."]}]}`;
   };
 
   try {
@@ -2576,7 +2582,9 @@ Recipe steps MUST follow professional cookbook standards (America's Test Kitchen
 - Final step: taste, season with salt and pepper, and a service instruction
 - Target 5–7 steps. Maximum 8. Eliminate all micro-steps.
 - Never use passive voice. Never start a step with "The", "Once", or "After".
-Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️","time":"30 min","difficulty":"Easy","style":"American","calories_per_serving":520,"protein_g":38,"carbs_g":45,"fat_g":18,"ingredients":[{"name":"ingredient","organic":false,"buy":false}],"steps":["Heat oil in a large skillet over medium-high heat.","Sear chicken until golden brown, about 4 minutes per side. Transfer to a plate.","Add onion and cook until softened, about 3 minutes. Stir in garlic and cook 1 minute more.","Pour in broth, scraping up any browned bits. Return chicken to the pan, cover, and simmer until cooked through, about 15 minutes.","Taste, season with salt and pepper, and serve hot."]}]}`;
+INGREDIENT QUANTITIES: For every ingredient, include a realistic quantity and unit scaled to the serving count. Use standard grocery units: lbs, oz, cups, tbsp, tsp, cloves, can (15oz), bunch, head, piece. Examples for 2 servings: chicken breast = "1.5 lbs", olive oil = "2 tbsp", garlic = "4 cloves", broth = "2 cups", pasta = "8 oz".
+
+Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️","time":"30 min","difficulty":"Easy","style":"American","calories_per_serving":520,"protein_g":38,"carbs_g":45,"fat_g":18,"ingredients":[{"name":"ingredient","quantity":"2","unit":"lbs","organic":false,"buy":false}],"steps":["Heat oil in a large skillet over medium-high heat.","Sear chicken until golden brown, about 4 minutes per side. Transfer to a plate.","Add onion and cook until softened, about 3 minutes. Stir in garlic and cook 1 minute more.","Pour in broth, scraping up any browned bits. Return chicken to the pan, cover, and simmer until cooked through, about 15 minutes.","Taste, season with salt and pepper, and serve hot."]}]}`;
   };
 
   // Fire count requests in parallel — pass recipe index so index 2 gets stretch treatment
@@ -2752,14 +2760,36 @@ function buildGL(){
   const PANT=['pasta','noodle','rice','bread','bun','roll','tortilla','bean','broth','tomato sauce','oil','vinegar','sauce','maple','peanut','pancake','breadcrumb','caper','wine','naan','flour','quinoa','couscous','oats','cereal','cracker','chip','stock','soup','salsa','pesto','mustard','ketchup','mayo','jam','jelly','honey','sugar','spice','seasoning'];
   const dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday'];
 
-  // Build ingredient map with which days need each item
-  const ingMap = {}; // key: ingredient name lowercase → {name, organic, days:[]}
+  // Build ingredient map with which days need each item + quantities
+  const ingMap = {}; // key: ingredient name lowercase → {name, organic, days:[], quantity, unit}
   wk.forEach((r, dayIdx) => {
     (r.ingredients||[]).filter(i=>i.buy).forEach(ing => {
       const k = ing.name.toLowerCase();
-      if (!ingMap[k]) ingMap[k] = {name: ing.name, organic: ing.organic, days: []};
-      if (!ingMap[k].days.includes(dayIdx)) ingMap[k].days.push(dayIdx);
+      if (!ingMap[k]) {
+        ingMap[k] = {name: ing.name, organic: ing.organic, days: [], quantity: 0, unit: ing.unit || '', rawQty: []};
+      }
+      if (!ingMap[k].days.includes(dayIdx)) {
+        ingMap[k].days.push(dayIdx);
+        // Accumulate quantities across days
+        const qty = parseFloat(ing.quantity) || 0;
+        if (qty > 0) ingMap[k].quantity += qty;
+        if (!ingMap[k].unit && ing.unit) ingMap[k].unit = ing.unit;
+      }
     });
+  });
+  // Format quantities for display
+  Object.values(ingMap).forEach(ing => {
+    if (ing.quantity > 0) {
+      // Round nicely: 1.5 stays 1.5, 2.0 becomes 2, 0.25 becomes 1/4
+      const q = ing.quantity;
+      const fractions = {0.25:'¼', 0.33:'⅓', 0.5:'½', 0.67:'⅔', 0.75:'¾'};
+      const whole = Math.floor(q);
+      const frac = Math.round((q - whole) * 100) / 100;
+      const fracStr = fractions[frac] || (frac > 0 ? '+' : '');
+      ing.qtyDisplay = whole > 0 ? whole + fracStr : (fractions[frac] || q.toFixed(1));
+    } else {
+      ing.qtyDisplay = '';
+    }
   });
 
   // Sort into categories
@@ -2799,8 +2829,9 @@ function buildGL(){
     html += `<div class="gl-cat-block"><div class="glcn">${cat}</div><div class="gl-items">`;
     items.forEach(item => {
       const dayLabels = item.days.map(d => dayNames[d].slice(0,3)).join(', ');
+      const qtyStr = item.qtyDisplay ? `${item.qtyDisplay}${item.unit ? ' '+item.unit : ''}` : '';
       html += `<div class="glit-row" onclick="this.classList.toggle('ck')">
-        <span class="glit-name">${item.organic?'🌿 ':''}${item.name}</span>
+        <span class="glit-name">${item.organic?'🌿 ':''}${item.name}${qtyStr ? ` <span style="color:var(--coral);font-weight:600;font-size:12px"> — ${qtyStr}</span>` : ''}</span>
         <span class="glit-day">${dayLabels}</span>
       </div>`;
     });
