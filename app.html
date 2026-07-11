@@ -2001,7 +2001,7 @@ Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️
     const resp = await fetch(API + '/generate', {
       method: 'POST',
       headers: {'Content-Type':'application/json','Authorization':'Bearer '+userToken},
-      body: JSON.stringify({prompt})
+      body: JSON.stringify({prompt, dailyGoal: parseInt(document.getElementById('calgoal').value) || 2000})
     });
     const data = await resp.json();
     const raw = data.content?.map(b=>b.text||'').join('') || '';
@@ -2332,7 +2332,7 @@ Respond ONLY with valid JSON: {"recipes":[{"name":"Soup Name","emoji":"🍲","ti
     const resp = await fetch(API + '/generate', {
       method: 'POST',
       headers: {'Content-Type':'application/json','Authorization':'Bearer '+userToken},
-      body: JSON.stringify({prompt})
+      body: JSON.stringify({prompt, dailyGoal: parseInt(document.getElementById('calgoal').value) || 2000})
     });
     const data = await resp.json();
     const raw = data.content?.map(b=>b.text||'').join('') || '';
@@ -2472,7 +2472,7 @@ Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️
       fetch(API+'/generate', {
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+userToken},
-        body: JSON.stringify({prompt: makeWeekPrompt(i, [])})
+        body: JSON.stringify({prompt: makeWeekPrompt(i, []), dailyGoal: parseInt(document.getElementById('calgoal').value) || 2000})
       })
     ));
 
@@ -2502,7 +2502,7 @@ Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️
       fetch(API+'/generate', {
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+userToken},
-        body: JSON.stringify({prompt: makeWeekPrompt(i, avoidNames)})
+        body: JSON.stringify({prompt: makeWeekPrompt(i, avoidNames), dailyGoal: parseInt(document.getElementById('calgoal').value) || 2000})
       })
     ));
 
@@ -2613,7 +2613,7 @@ Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️
       body:JSON.stringify({prompt: makePrompt(i).replace(avoidStr, `${avoidStr} ${sessionAvoid}`).replace(
         'Generate 1 dinner recipe that is',
         `Generate 1 dinner recipe that is ${varietyStyles[i] || styleHint} —`
-      )})
+      ), dailyGoal: parseInt(document.getElementById('calgoal').value) || 2000})
     })
   );
 
