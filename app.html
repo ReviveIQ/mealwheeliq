@@ -889,6 +889,7 @@ button, a { touch-action: manipulation; }
       <div class="panel-title">Dietary preferences</div>
       <div class="diet-filters" id="diet-filters">
         <div class="diet-group-label">Dietary Restrictions</div>
+        <button class="diet-btn" id="diet-quickmeal" onclick="toggleDiet('quickmeal')">⏱️ Quick Meal (45 min)</button>
         <button class="diet-btn" id="diet-vegan" onclick="toggleDiet('vegan')">🌱 Vegan</button>
         <button class="diet-btn" id="diet-vegetarian" onclick="toggleDiet('vegetarian')">🥦 Vegetarian</button>
         <button class="diet-btn" id="diet-pescatarian" onclick="toggleDiet('pescatarian')">🐟 Pescatarian</button>
@@ -3260,6 +3261,8 @@ function getDietPromptText() {
 
   // ── STRICT: hard rules, violations unacceptable ──────────────────────────
   const strict = {
+    // Time constraint
+    quickmeal: 'STRICT TIME LIMIT — total time (prep + cook) must be 45 minutes or less. NO slow-braising, NO oven roasts over 45 min, NO recipes requiring marinating/resting beyond 10 minutes. This is for a weeknight last-minute dinner — favor stovetop searing, sautéing, quick simmers, sheet-pan at high heat, or one-pan methods. Do not suggest anything described as "slow-braised," "low and slow," or requiring hours.',
     // Dietary restrictions
     vegan: 'STRICTLY vegan — absolutely no meat, fish, dairy, eggs, or honey of any kind',
     vegetarian: 'STRICTLY vegetarian — no meat or fish of any kind',
