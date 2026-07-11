@@ -889,7 +889,7 @@ button, a { touch-action: manipulation; }
       <div class="panel-title">Dietary preferences</div>
       <div class="diet-filters" id="diet-filters">
         <div class="diet-group-label">Dietary Restrictions</div>
-        <button class="diet-btn" id="diet-quickmeal" onclick="toggleDiet('quickmeal')">⏱️ Quick Meal (45 min)</button>
+        <button class="diet-btn" id="diet-slowcook" onclick="toggleDiet('slowcook')">🍲 Slow Cook / Braise</button>
         <button class="diet-btn" id="diet-vegan" onclick="toggleDiet('vegan')">🌱 Vegan</button>
         <button class="diet-btn" id="diet-vegetarian" onclick="toggleDiet('vegetarian')">🥦 Vegetarian</button>
         <button class="diet-btn" id="diet-pescatarian" onclick="toggleDiet('pescatarian')">🐟 Pescatarian</button>
@@ -2409,6 +2409,7 @@ async function generateFullWeek() {
   window._dailyGoal = dailyGoal;
   const g = Math.round(dailyGoal * 0.35);
   const dietStr = getDietPromptText();
+  const timeStr = getTimeConstraintText();
   const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
 
   const weekCravingText = getCravingText();
@@ -2449,7 +2450,7 @@ WEEK PLANNING RULES:
 - For the CREATIVE WILDCARD night: be bold and unexpected — surprise the family with something they've never made before
 - ${avoidStr}
 - Flag organic:true for meats, eggs, leafy greens, thin-skin produce
-- Servings: ${s}. Target approximately ${g} kcal per serving. ${dietStr}
+- Servings: ${s}. Target approximately ${g} kcal per serving. ${dietStr} ${timeStr}
 
 Recipe steps MUST follow professional cookbook standards (America's Test Kitchen / Bon Appétit style):
 - Lead every step with an action verb: Heat, Sear, Brown, Stir, Whisk, Fold, Simmer, Roast, Toss, Season, Garnish
@@ -2552,6 +2553,7 @@ async function generateRecipe(wi) {
     : wheelCategoryHint;
   const avoidStr=wk.length?`Do NOT repeat: ${wk.map(r=>r.name).join(', ')}.`:'';
   const dietStr=getDietPromptText();
+  const timeStr = getTimeConstraintText();
   const count=mode==='week'?1:3;
   // Recipe index 2 = "stretch" recipe with ~30% buy ingredients for meal inspiration
   const makePrompt = (recipeIndex) => {
@@ -2575,7 +2577,7 @@ Aromatics: garlic, onion (assume always on hand)
 
 ${buyInstruction}
 Flag organic:true for meats, eggs, leafy greens, thin-skin produce.
-Servings: ${s}. Target approximately ${g} kcal per serving for dinner. ${avoidStr} ${dietStr}
+Servings: ${s}. Target approximately ${g} kcal per serving for dinner. ${avoidStr} ${dietStr} ${timeStr}
 
 Recipe steps MUST follow professional cookbook standards (America's Test Kitchen / Bon Appétit style):
 - Lead every step with an action verb: Heat, Sear, Brown, Stir, Whisk, Fold, Simmer, Roast, Toss, Season, Garnish
@@ -3256,13 +3258,20 @@ function toggleDiet(diet) {
   savePreferences();
 }
 
+// Weeknight-quick is the default assumption for a spin — nobody spinning the
+// wheel wants a 3-hour braise for tonight unless they explicitly ask for one.
+function getTimeConstraintText() {
+  if (activeDiets.has('slowcook')) return ''; // slowcook's own strict rule handles it
+  return 'TIME LIMIT — total time (prep + cook) must be 45 minutes or less. This is for a last-minute weeknight dinner — favor stovetop searing, sautéing, quick simmers, sheet-pan at high heat, or one-pan methods. Do NOT suggest anything slow-braised, low-and-slow, or requiring hours of cook time. ';
+}
+
 function getDietPromptText() {
   if (!activeDiets.size) return '';
 
   // ── STRICT: hard rules, violations unacceptable ──────────────────────────
   const strict = {
-    // Time constraint
-    quickmeal: 'STRICT TIME LIMIT — total time (prep + cook) must be 45 minutes or less. NO slow-braising, NO oven roasts over 45 min, NO recipes requiring marinating/resting beyond 10 minutes. This is for a weeknight last-minute dinner — favor stovetop searing, sautéing, quick simmers, sheet-pan at high heat, or one-pan methods. Do not suggest anything described as "slow-braised," "low and slow," or requiring hours.',
+    // Time constraint — opt-in for people who WANT a long braise/slow-cook project
+    slowcook: 'SLOW-COOK MODE — this recipe should be a long, low-and-slow braise or roast (2-4+ hours), building deep flavor through slow cooking (Dutch oven braise, slow roast, low oven, or similar). Favor tougher cuts that benefit from long cooking (chuck, short rib, pork shoulder, lamb shank, bone-in thighs) and rich, developed sauces.',
     // Dietary restrictions
     vegan: 'STRICTLY vegan — absolutely no meat, fish, dairy, eggs, or honey of any kind',
     vegetarian: 'STRICTLY vegetarian — no meat or fish of any kind',
