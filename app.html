@@ -2711,7 +2711,7 @@ function cardHTML(r,delay,recipeId){
     <div class="card-actions">
       ${recipeId?`<button class="card-action-btn fav" id="fav-btn-${recipeId}" onclick="favoriteRecipe(${recipeId},this)">⭐ Save</button>`:''}
       <button class="card-action-btn send-shopper" onclick="sendRecipeToShopper(this)">📨 Send to shopper</button>
-      ${recipeId?`<button class="card-action-btn fb-share-btn" onclick="shareToFacebook(${recipeId},'${r.name.replace(/'/g,"\'")}')" title="Share to Facebook">📘 Share</button>
+      ${recipeId?`<button class="card-action-btn fb-share-btn" id="fb-share-btn-${recipeId}" onclick="shareToFacebook(${recipeId},'${r.name.replace(/'/g,"\'")}')" title="Save the recipe first to enable sharing" disabled style="opacity:.45;cursor:not-allowed">📘 Share</button>
       <span class="fb-save" data-uri="https://mealwheeliq.com/og/${recipeId}.html" data-size="small" title="Save to Facebook"></span>`:''}
       ${recipeId?`<div class="star-rating" title="Rate this recipe">${[1,2,3,4,5].map(n=>`<span class="star" onclick="rateRecipe(${recipeId},${n},this.parentElement)" title="${n} star${n>1?'s':''}">☆</span>`).join('')}</div>`:''}
     </div>
@@ -3052,15 +3052,8 @@ async function favoriteRecipe(id, btn) {
     const data = await resp.json();
     if (resp.ok) {
       if (btn) { btn.textContent='✅ Saved!'; btn.style.opacity='0.7'; }
-      showToast('Saved! Don\'t forget to share it 📘');
-      // Pre-build OG share page in background — ready by the time they tap Share
-      setTimeout(() => {
-        fetch(`${API}/recipe/${id}/og-page`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
-          body: JSON.stringify({ imageUrl: null })
-        }).then(r => r.json()).then(d => console.log('OG pre-built:', d.pageUrl)).catch(() => {});
-      }, 1000);
+      showToast('Saved! Prepping your share card... 📸');
+      prepareShareCard(id);
     } else {
       if (btn) { btn.textContent='⭐ Save'; btn.disabled=false; }
       console.error('Favorite failed:', resp.status, data);
@@ -3383,48 +3376,66 @@ let shareRecipeName = '';
 // Track which recipe OG pages have been pre-built this session
 const ogPagesBuilt = new Set();
 
+// Builds the OG share page in the background after save, then unlocks the
+// Share button once the image/card is confirmed live — avoids the user
+// tapping Share and hitting a broken/empty preview on Facebook.
+async function prepareShareCard(recipeId) {
+  const shareUrl = `https://mealwheeliq.com/og/${recipeId}.html`;
+  const shareBtn = document.getElementById(`fb-share-btn-${recipeId}`);
+
+  try {
+    const ogResp = await fetch(`${API}/recipe/${recipeId}/og-page`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+      body: JSON.stringify({ imageUrl: null })
+    });
+    const ogData = await ogResp.json();
+    console.log('OG page building:', ogData.pageUrl);
+
+    // Poll GitHub Pages until the OG page (with image) actually resolves —
+    // up to ~2 minutes, matching real-world propagation + image gen time
+    let ready = false;
+    for (let i = 0; i < 24; i++) {
+      await new Promise(r => setTimeout(r, 5000));
+      try {
+        const check = await fetch(shareUrl, { method: 'HEAD', cache: 'no-store' });
+        if (check.ok) { ready = true; break; }
+      } catch (e) {}
+    }
+
+    if (shareBtn) {
+      shareBtn.disabled = false;
+      shareBtn.style.opacity = '1';
+      shareBtn.style.cursor = 'pointer';
+      shareBtn.title = 'Share to Facebook';
+    }
+
+    if (ready) {
+      showToast("Your photo's ready! Don't forget to share 📘 #MealWheelIQ #WhatsForDinner");
+    } else {
+      // Still enable Share as a fallback even if polling timed out —
+      // sharer.php will just show a slightly delayed preview
+      showToast("Ready to share whenever you are 📘 #MealWheelIQ #WhatsForDinner");
+    }
+  } catch (e) {
+    console.error('prepareShareCard error:', e);
+    // Fail open — don't leave the user stuck with a permanently disabled button
+    if (shareBtn) {
+      shareBtn.disabled = false;
+      shareBtn.style.opacity = '1';
+      shareBtn.style.cursor = 'pointer';
+    }
+  }
+}
+
 async function shareToFacebook(recipeId, recipeName) {
   if (!recipeId) { alert('Save the recipe first to share it.'); return; }
 
-  const btn = event?.currentTarget;
-  const origText = btn ? btn.textContent : '';
-  if (btn) { btn.textContent = '⏳ Sharing...'; btn.disabled = true; }
-
+  // By the time this button is clickable, prepareShareCard() has already
+  // confirmed the OG page (with image) is live — so we can open Facebook
+  // immediately with no extra wait or build step.
   const shareUrl = `https://mealwheeliq.com/og/${recipeId}.html`;
-
-  try {
-    if (!ogPagesBuilt.has(recipeId)) {
-      // First time sharing this recipe — build OG page and wait for GitHub Pages
-      if (btn) btn.textContent = '⏳ Building share card...';
-      const ogResp = await fetch(`${API}/recipe/${recipeId}/og-page`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
-        body: JSON.stringify({ imageUrl: null })
-      });
-      const ogData = await ogResp.json();
-
-      if (ogData.wasNew) {
-        // New OG page — wait for GitHub Pages to propagate (poll up to 30s)
-        if (btn) btn.textContent = '⏳ Almost ready...';
-        let ready = false;
-        for (let i = 0; i < 6; i++) {
-          await new Promise(r => setTimeout(r, 5000));
-          try {
-            const check = await fetch(shareUrl, { method: 'HEAD' });
-            if (check.ok || check.status === 200) { ready = true; break; }
-          } catch(e) {}
-        }
-      }
-      ogPagesBuilt.add(recipeId);
-    }
-    // OG page exists — open Facebook immediately
-    openFBShare(shareUrl);
-  } catch(e) {
-    console.error('Share error:', e);
-    openFBShare(shareUrl); // try anyway
-  } finally {
-    if (btn) { btn.textContent = origText; btn.disabled = false; }
-  }
+  openFBShare(shareUrl);
 }
 
 function openFBShare(shareUrl) {
