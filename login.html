@@ -309,8 +309,8 @@ if (params.get('session') === 'expired') showError('Session expired. Please sign
             });
             const data = await resp.json();
             if (data.token) {
-              localStorage.setItem('mwiq_token', data.token);
-              localStorage.setItem('mwiq_user', JSON.stringify({ email: data.email, plan: data.plan }));
+              localStorage.setItem('mw_token', data.token);
+              localStorage.setItem('mw_user', JSON.stringify({ email: data.email, plan: data.plan }));
               window.location.href = '/app.html';
             } else {
               alert('Facebook login failed: ' + (data.error || 'Unknown error'));
