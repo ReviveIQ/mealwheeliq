@@ -2554,17 +2554,24 @@ async function generateRecipe(wi) {
   const avoidStr=wk.length?`Do NOT repeat: ${wk.map(r=>r.name).join(', ')}.`:'';
   const dietStr=getDietPromptText();
   const timeStr = getTimeConstraintText();
-  const count=mode==='week'?1:3;
+  const count=mode==='week'?1:4;
   // Recipe index 2 = "stretch" recipe with ~30% buy ingredients for meal inspiration
   const makePrompt = (recipeIndex) => {
     const isStretch = recipeIndex === 2 && mode !== 'week';
+    const isSalad = recipeIndex === 3 && mode !== 'week';
     const buyInstruction = mode === 'week'
       ? 'You may suggest additional ingredients to buy as needed — mark them buy:true.'
-      : isStretch
+      : isSalad
+        ? "SALAD FREEDOM: This is a guaranteed hearty, healthy option — encourage the user toward a great salad whether or not they have every ingredient on hand. Freely include fresh produce and a protein (grilled chicken, salmon, steak, shrimp, chickpeas, etc.) even if not in their pantry — mark those buy:true. Up to half the ingredients can be buy:true."
+        : isStretch
         ? 'INSPIRATION RECIPE: Include 2–4 exciting ingredients to buy (buy:true) that complement what the user has. About 30% of ingredients should be buy:true. This expands their meal ideas beyond the pantry.'
         : 'PANTRY RULE: Maximum 2 ingredients should be buy:true. Build the recipe around what the user already has.';
 
-    return `You are ${chefName}, a professional chef with expertise in bold flavors, live-fire cooking, and fresh ingredients. Generate 1 dinner recipe that is ${styleHint}.
+    const introLine = isSalad
+      ? `You are ${chefName}, a professional chef with expertise in bold flavors, live-fire cooking, and fresh ingredients. Generate 1 HEARTY MAIN-COURSE DINNER SALAD (not a side salad — substantial enough to be the whole meal, with a real protein) that is ${styleHint}.`
+      : `You are ${chefName}, a professional chef with expertise in bold flavors, live-fire cooking, and fresh ingredients. Generate 1 dinner recipe that is ${styleHint}.`;
+
+    return `${introLine}
 
 User's available ingredients: ${ingList}
 
@@ -2597,7 +2604,8 @@ NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other
   const varietyStyles = [
     styleHint, // Recipe 0: exactly what was requested
     `${styleHint} — but use a completely different cuisine style and cooking technique than what you'd normally choose for this`,
-    `${styleHint} — take an unexpected international angle: think Mediterranean, Asian, Mexican, Middle Eastern, or Caribbean flavors`
+    `${styleHint} — take an unexpected international angle: think Mediterranean, Asian, Mexican, Middle Eastern, or Caribbean flavors`,
+    styleHint // Recipe 3: guaranteed salad — introLine already handles the framing, no extra style injection needed
   ];
 
   // Avoid list — all recipes shown this session so respin gives fresh results
