@@ -22,7 +22,7 @@ An AI-powered family dinner planning app that eliminates the nightly "what's for
 ## Three Ways to Spin
 
 ### 🧊 Tonight's Dinner
-Spin the wheel, get 3 chef-quality recipes built from your actual pantry in seconds. Each spin lands on a cuisine style — American, Mediterranean, Chef's Special, Quick Meal, Comfort Food, and more. No extra shopping required.
+Spin the wheel, get 4 chef-quality recipes built from your actual pantry in seconds — including a guaranteed hearty main-course salad option to encourage healthy choices. Each spin lands on a cuisine style — American, Mediterranean, Chef's Special, Quick Meal, Comfort Food, and more. No extra shopping required.
 
 ### 📅 Plan My Week
 Generate all 5 weeknight dinners in one shot. Each night is assigned a distinct cuisine style for real variety:
