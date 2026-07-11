@@ -1105,6 +1105,9 @@ button, a { touch-action: manipulation; }
 <script>
 const API = 'https://api.mealwheeliq.com';
 
+// Track all recipe names shown this session — used for avoid list on respin
+let shownRecipeNames = [];
+
 function showToast(msg, duration=3000) {
   let t = document.getElementById('mwiq-toast');
   if (!t) {
@@ -2587,12 +2590,27 @@ INGREDIENT QUANTITIES: For every ingredient, include a realistic quantity and un
 Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️","time":"30 min","difficulty":"Easy","style":"American","calories_per_serving":520,"protein_g":38,"carbs_g":45,"fat_g":18,"ingredients":[{"name":"ingredient","quantity":"2","unit":"lbs","organic":false,"buy":false}],"steps":["Heat oil in a large skillet over medium-high heat.","Sear chicken until golden brown, about 4 minutes per side. Transfer to a plate.","Add onion and cook until softened, about 3 minutes. Stir in garlic and cook 1 minute more.","Pour in broth, scraping up any browned bits. Return chicken to the pan, cover, and simmer until cooked through, about 15 minutes.","Taste, season with salt and pepper, and serve hot."]}]}`;
   };
 
-  // Fire count requests in parallel — pass recipe index so index 2 gets stretch treatment
+  // Style variety — each of the 3 recipes gets a different cuisine/technique direction
+  const varietyStyles = [
+    styleHint, // Recipe 0: exactly what was requested
+    `${styleHint} — but use a completely different cuisine style and cooking technique than what you'd normally choose for this`,
+    `${styleHint} — take an unexpected international angle: think Mediterranean, Asian, Mexican, Middle Eastern, or Caribbean flavors`
+  ];
+
+  // Avoid list — all recipes shown this session so respin gives fresh results
+  const sessionAvoid = shownRecipeNames.length
+    ? `IMPORTANT — Do NOT generate any of these recipes that were already shown: ${shownRecipeNames.join(', ')}. These must be completely different recipes.`
+    : '';
+
+  // Fire count requests in parallel — each with different style direction
   const parallelRequests = Array.from({length: count}, (_, i) =>
     fetch(API+'/generate', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+userToken},
-      body:JSON.stringify({prompt: makePrompt(i)})
+      body:JSON.stringify({prompt: makePrompt(i).replace(avoidStr, `${avoidStr} ${sessionAvoid}`).replace(
+        'Generate 1 dinner recipe that is',
+        `Generate 1 dinner recipe that is ${varietyStyles[i] || styleHint} —`
+      )})
     })
   );
 
@@ -2630,6 +2648,10 @@ Respond ONLY with valid JSON: {"recipes":[{"name":"Recipe Name","emoji":"🍽️
       if(wk.length>=5) document.getElementById('sbtn').textContent='🎉 See My Week!';
       showWeekResults();
     } else {
+      // Track shown recipe names for respin avoid list
+      recipes.forEach(r => {
+        if (r.name && !shownRecipeNames.includes(r.name)) shownRecipeNames.push(r.name);
+      });
       showFridgeResults(recipes);
       loadHistory();
     }
