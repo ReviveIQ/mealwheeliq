@@ -103,4 +103,22 @@
     <priority>0.8</priority>
   </url>
 
+  <url>
+    <loc>https://mealwheeliq.com/blog/pantry-first-method.html</loc>
+    <lastmod>2026-07-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mealwheeliq.com/blog/ai-planned-dinner-from-fridge-photo.html</loc>
+    <lastmod>2026-07-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mealwheeliq.com/blog/best-homemade-soups-from-scratch.html</loc>
+    <lastmod>2026-07-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
