@@ -121,8 +121,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* SPIN */
 .spin-area{display:flex;flex-direction:column;align-items:center;margin:1rem 0;gap:.85rem}
-.ww{position:relative;width:210px;height:210px}
-.ptr{position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:22px solid var(--coral);z-index:10;filter:drop-shadow(0 2px 4px rgba(201,75,42,.3))}
+.ww{position:relative;width:300px;height:210px}
+.ptr{position:absolute;top:-14px;left:105px;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:22px solid var(--coral);z-index:10;filter:drop-shadow(0 2px 4px rgba(201,75,42,.3))}
 canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .sbtn{background:var(--coral);color:white;border:none;padding:12px 36px;border-radius:28px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(201,75,42,.3)}
 .sbtn:hover{background:var(--coral-dark);transform:translateY(-1px)}
@@ -959,7 +959,7 @@ button, a { touch-action: manipulation; }
     <div class="winfo hidden" id="winfo">📅 <strong>Week mode:</strong> Spin 5 times to plan Mon–Fri. After all 5 spins see your calorie breakdown and grocery list.</div>
 
     <div class="spin-area">
-      <div class="ww"><div class="ptr"></div><canvas id="wc" width="210" height="210"></canvas></div>
+      <div class="ww"><div class="ptr"></div><canvas id="wc" width="300" height="210"></canvas></div>
       <div id="wklabel" class="wk-label hidden"></div>
       <button class="sbtn" id="sbtn" onclick="spin()">✨ Spin &amp; Generate Recipe</button>
     </div>
@@ -2218,10 +2218,15 @@ function removeTag(item) {
 }
 
 // ─── WHEEL ───────────────────────────────────────────────────────────────────
+const mascotImg = new Image();
+let mascotLoaded = false;
+mascotImg.onload = () => { mascotLoaded = true; if (typeof drawWheel === 'function') drawWheel(); };
+mascotImg.src = '/icons/mascot-wheel-side.png';
+
 function drawWheel() {
   const c=document.getElementById('wc'),ctx=c.getContext('2d');
   const segs=8,arc=2*Math.PI/segs,cx=105,cy=105,r=100;
-  ctx.clearRect(0,0,210,210); ctx.save(); ctx.translate(cx,cy); ctx.rotate(ang);
+  ctx.clearRect(0,0,300,210); ctx.save(); ctx.translate(cx,cy); ctx.rotate(ang);
   for(let i=0;i<segs;i++){
     ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,i*arc,(i+1)*arc);ctx.closePath();
     ctx.fillStyle=WC[i%WC.length];ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.stroke();
@@ -2231,6 +2236,13 @@ function drawWheel() {
   ctx.restore();
   ctx.beginPath();ctx.arc(cx,cy,21,0,2*Math.PI);ctx.fillStyle='white';ctx.fill();
   ctx.beginPath();ctx.arc(cx,cy,15,0,2*Math.PI);ctx.fillStyle='#C94B2A';ctx.fill();
+  // Mascot drawn fixed (outside the rotation transform above) — his arm
+  // stays put resting on the wheel's edge while the colored segments spin
+  // underneath, instead of rotating with them.
+  if (mascotLoaded) {
+    const mw = 130, mh = mascotImg.height * (mw / mascotImg.width);
+    ctx.drawImage(mascotImg, 178, 210 - mh + 6, mw, mh);
+  }
 }
 
 let st=0,sd=0;
