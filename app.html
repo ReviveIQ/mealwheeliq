@@ -24,7 +24,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
 
 /* NAV */
 nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;background:rgba(250,247,242,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
-.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--ink);text-decoration:none}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-logo-icon{width:32px;height:32px;border-radius:8px;object-fit:cover}
 .nav-logo span{color:var(--coral)}
 .nav-right{display:flex;align-items:center;gap:10px}
 .nav-plan{font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--gold-pale);color:var(--gold);border:1px solid rgba(184,134,11,.2)}
@@ -457,6 +458,7 @@ footer a{color:var(--coral);text-decoration:none;margin:0 .25rem}
   /* ── Nav ── */
   nav { padding: .6rem .85rem; }
   .nav-logo { font-size: 1.15rem; }
+  .nav-logo-icon { width: 26px; height: 26px; }
   .nav-user { display: none; } /* hide email on mobile — too long */
   .nav-btn { padding: 5px 10px; font-size: 11px; }
   .nav-plan { font-size: 10px; padding: 2px 8px; }
@@ -604,7 +606,7 @@ button, a { touch-action: manipulation; }
 <body>
 
 <nav>
-  <a href="index.html" class="nav-logo">MealWheel<span>IQ</span></a>
+  <a href="index.html" class="nav-logo"><img src="/icons/icon-96.png" alt="" class="nav-logo-icon">MealWheel<span>IQ</span></a>
   <div class="nav-right">
     <span class="nav-plan" id="nav-plan">Free</span>
     <span class="nav-user" id="nav-user"></span>
