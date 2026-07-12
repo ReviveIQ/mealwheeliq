@@ -21,7 +21,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
 a{color:var(--coral);text-decoration:none}
 a:hover{text-decoration:underline}
 nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 2rem;border-bottom:1px solid var(--border);background:rgba(250,247,242,.9);backdrop-filter:blur(12px)}
-.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--ink);text-decoration:none}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-logo-icon{width:32px;height:32px;border-radius:8px;object-fit:cover}
 .nav-logo span{color:var(--coral)}
 .nav-link{font-size:13px;font-weight:500;color:var(--ink2)}
 main{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1rem}
@@ -96,7 +97,7 @@ footer a{color:var(--ink3)}
 </head>
 <body>
 <nav>
-  <a href="index.html" class="nav-logo">MealWheel<span>IQ</span></a>
+  <a href="index.html" class="nav-logo"><img src="/icons/icon-96.png" alt="" class="nav-logo-icon">MealWheel<span>IQ</span></a>
   <a href="index.html" class="nav-link">Back to home</a>
 </nav>
 <main>
