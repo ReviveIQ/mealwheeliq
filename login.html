@@ -57,6 +57,16 @@ main{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 
 @keyframes spin{to{transform:rotate(360deg)}}
 footer{text-align:center;padding:1.5rem;font-size:12px;color:var(--ink3)}
 footer a{color:var(--ink3)}
+@media (max-width: 480px) {
+  nav{padding:.75rem 1.25rem}
+  main{padding:1.25rem .75rem}
+  .auth-card{padding:1.5rem 1.25rem}
+  .auth-header h1{font-size:1.6rem}
+  .plan-pills{gap:6px}
+  .plan-pill{min-width:calc(50% - 6px);padding:.6rem .4rem}
+  .plan-pill .pp-name{font-size:12px}
+  .plan-pill .pp-price{font-size:11px}
+}
 </style>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#C94B2A">
