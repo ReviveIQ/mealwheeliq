@@ -122,6 +122,8 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* SPIN */
 .spin-area{display:flex;flex-direction:column;align-items:center;margin:1rem 0;gap:.85rem}
 .ww{position:relative;width:210px;height:210px}
+.mascot-side{position:absolute;right:-88px;bottom:-6px;width:105px;height:auto;pointer-events:none;z-index:2}
+@media (max-width:480px){.mascot-side{display:none}}
 .ptr{position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:22px solid var(--coral);z-index:10;filter:drop-shadow(0 2px 4px rgba(201,75,42,.3))}
 canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .sbtn{background:var(--coral);color:white;border:none;padding:12px 36px;border-radius:28px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(201,75,42,.3)}
@@ -959,7 +961,7 @@ button, a { touch-action: manipulation; }
     <div class="winfo hidden" id="winfo">📅 <strong>Week mode:</strong> Spin 5 times to plan Mon–Fri. After all 5 spins see your calorie breakdown and grocery list.</div>
 
     <div class="spin-area">
-      <div class="ww"><div class="ptr"></div><canvas id="wc" width="210" height="210"></canvas></div>
+      <div class="ww"><div class="ptr"></div><canvas id="wc" width="210" height="210"></canvas><img src="/icons/mascot-wheel-side.png" alt="" class="mascot-side"></div>
       <div id="wklabel" class="wk-label hidden"></div>
       <button class="sbtn" id="sbtn" onclick="spin()">✨ Spin &amp; Generate Recipe</button>
     </div>
