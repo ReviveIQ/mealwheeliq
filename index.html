@@ -21,7 +21,8 @@
     button, a { touch-action: manipulation; }
 
     nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: .85rem 2rem; background: rgba(250,248,245,.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
-    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 700; color: var(--ink); text-decoration: none; }
+    .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 700; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo-icon { width: 34px; height: 34px; border-radius: 8px; object-fit: cover; }
     .nav-logo span { color: var(--coral); }
     .nav-right { display: flex; align-items: center; gap: 1.25rem; }
     .nav-link { font-size: 13px; font-weight: 500; color: var(--ink2); text-decoration: none; transition: color .2s; }
@@ -214,7 +215,7 @@
 <body>
 
 <nav>
-  <a href="#" class="nav-logo">MealWheel<span>IQ</span></a>
+  <a href="#" class="nav-logo"><img src="/icons/icon-96.png" alt="" class="nav-logo-icon">MealWheel<span>IQ</span></a>
   <div class="nav-right">
     <div class="nav-links">
       <a href="#how" class="nav-link">How it works</a>
