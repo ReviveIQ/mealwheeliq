@@ -2605,8 +2605,8 @@ NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other
   // Style variety — each of the 3 recipes gets a different cuisine/technique direction
   const varietyStyles = [
     styleHint, // Recipe 0: exactly what was requested
-    `${styleHint} — but use a completely different cuisine style and cooking technique than what you'd normally choose for this`,
-    `${styleHint} — take an unexpected international angle: think Mediterranean, Asian, Mexican, Middle Eastern, or Caribbean flavors`,
+    `${styleHint} — use a completely different cuisine style, cooking technique, AND different primary protein/vegetable base than you'd normally default to. Even under dietary restrictions, do not repeat the same core ingredient combination as another recipe in this set (e.g. if one recipe centers on cauliflower and chickpeas, this one must NOT also center on cauliflower and chickpeas — pick a genuinely different base like mushrooms, lentils, tofu, eggplant, or squash).`,
+    `${styleHint} — take an unexpected international angle: think Mediterranean, Asian, Mexican, Middle Eastern, or Caribbean flavors. This recipe's primary protein/vegetable base MUST be different from both other recipes in this set — do not default to the same safe combination (like cauliflower + chickpeas) just because it fits the dietary restrictions. Dietary restrictions narrow ingredient choices, they do not mean every recipe should look the same.`,
     styleHint // Recipe 3: guaranteed salad — introLine already handles the framing, no extra style injection needed
   ];
 
@@ -3290,7 +3290,7 @@ function getDietPromptText() {
     noredmeat: 'no red meat (no beef, pork, lamb, veal, or game — chicken, turkey, and fish are fine)',
 
     // Allergens
-    glutenfree: 'STRICTLY gluten-free — absolutely no wheat, barley, rye, spelt, or gluten-containing sauces. Use gluten-free alternatives only.',
+    glutenfree: 'STRICTLY gluten-free — absolutely no wheat, barley, rye, spelt, or gluten-containing sauces. This explicitly EXCLUDES couscous, bulgur, farro, orzo, semolina, regular pasta, regular bread, soy sauce (unless labeled tamari/gluten-free), and anything made from wheat flour — these are common mistakes, double-check every ingredient against this list. Use gluten-free alternatives only (rice, quinoa, corn, gluten-free oats, rice pasta, tamari).',
     dairyfree: 'STRICTLY dairy-free — no milk, cheese, butter, cream, yogurt, ghee, or any dairy. Use dairy-free alternatives.',
     nutfree: 'STRICTLY nut-free — no peanuts, tree nuts (almonds, walnuts, cashews, pecans, etc), nut oils, or nut butters. Safe for severe nut allergies.',
     eggfree: 'STRICTLY egg-free — no eggs or egg-based ingredients in any form',
