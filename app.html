@@ -2417,14 +2417,18 @@ function showSoupCategorySelector() {
 
   container.appendChild(grid);
 
-  // Insert before the spin button
-  const spinBtn = document.getElementById('spin-btn') || document.getElementById('sbtn');
-  if (spinBtn && spinBtn.parentNode) {
-    spinBtn.parentNode.insertBefore(container, spinBtn);
+  // Insert after the mode buttons row, before the wheel
+  const spinArea = document.querySelector('.spin-area');
+  const modeButtons = document.querySelector('.mbtns') || document.querySelector('.mode-row') || document.getElementById('bsoup')?.parentNode;
+  
+  if (spinArea && spinArea.parentNode) {
+    spinArea.parentNode.insertBefore(container, spinArea);
+  } else if (modeButtons) {
+    modeButtons.after(container);
   } else {
-    // Fallback — insert after mode buttons
-    const modeBar = document.querySelector('.mode-bar') || document.querySelector('.mbtn')?.parentNode;
-    if (modeBar) modeBar.after(container);
+    // Last fallback — prepend to main content
+    const main = document.querySelector('.main') || document.querySelector('.container');
+    if (main) main.prepend(container);
   }
 }
 
