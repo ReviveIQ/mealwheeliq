@@ -640,7 +640,7 @@ button, a { touch-action: manipulation; }
   <!-- SECTION TABS -->
   <div class="section-tabs">
     <button class="stab act" id="stab-spin" onclick="showSection('spin')">🎡 Spin</button>
-    <button class="stab" id="stab-history" onclick="showSection('history')">📖 History</button>
+    <button class="stab" id="stab-history" onclick="showSection('history')">📖 Cookbook</button>
     <button class="stab" id="stab-favorites" onclick="showSection('favorites')">⭐ Favorites</button>
     <button class="stab" id="stab-mealplans" onclick="showSection('mealplans')">📅 Meal Plans</button>
     <button class="stab" id="stab-blog" onclick="showSection('blog')">✍️ Blog</button>
@@ -990,9 +990,9 @@ button, a { touch-action: manipulation; }
   <div id="section-history" class="hidden">
     <div class="history-panel">
       <div class="panel-title">Recent recipes</div>
-      <input type="text" class="search-bar" id="history-search" style="font-size:16px" placeholder="🔍 Search your recipe history..." oninput="filterHistory()">
+      <input type="text" class="search-bar" id="history-search" style="font-size:16px" placeholder="🔍 Search your cookbook..." oninput="filterHistory()">
       <div class="history-list" id="history-list">
-        <div class="empty-state">Spin the wheel to start building your recipe history!</div>
+        <div class="empty-state">Spin the wheel to start building your cookbook!</div>
       </div>
     </div>
   </div>
@@ -2967,7 +2967,7 @@ async function loadHistory(){
     if(!resp.ok)return;
     const recipes=await resp.json();
     const el=document.getElementById('history-list');
-    if(!recipes.length){el.innerHTML='<div class="empty-state">Spin the wheel to start building your recipe history!</div>';return;}
+    if(!recipes.length){el.innerHTML='<div class="empty-state">Spin the wheel to start building your cookbook!</div>';return;}
     el.innerHTML=recipes.map(r=>`
       <div class="history-item">
         <div class="hi-em">${r.emoji||'🍽️'}</div>
