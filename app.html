@@ -2839,18 +2839,19 @@ function cbHTML(r){
   const sourceBadge = isVerified
     ? `<span class="cb" style="background:#EAF3EE;color:#2A6B4A;border:1px solid #b8e8d4">✓ USDA verified</span>`
     : `<span class="cb" style="background:#F5F5F5;color:#8C7B72">~ AI estimate</span>`;
-  const fiberBit = r.fiber_g ? `<span class="cb" style="background:#F5F0FF;color:#6B46C1">${Math.round((r.fiber_g||0)*s*10)/10}g fiber</span>` : '';
-  const sodiumBit = r.sodium_mg ? `<span class="cb" style="background:#FFF5F0;color:#C05621">${Math.round((r.sodium_mg||0)*s)}mg sodium</span>` : '';
+  const fiberBit = r.fiber_g ? `<span class="cb" style="background:#F5F0FF;color:#6B46C1">${Math.round((r.fiber_g||0)*10)/10}g fiber</span>` : '';
+  const sodiumBit = r.sodium_mg ? `<span class="cb" style="background:#FFF5F0;color:#C05621">${Math.round((r.sodium_mg||0))}mg sodium</span>` : '';
+  // All macros shown per person (1 serving) for clarity
   return `<div class="cbrow" style="flex-wrap:wrap">
-    <span class="cb cbc">${tc} kcal</span>
-    <span class="cb cbp">${Math.round((r.protein_g||0)*s*10)/10}g protein</span>
-    <span class="cb cbk">${Math.round((r.carbs_g||0)*s*10)/10}g carbs</span>
-    <span class="cb cbf">${Math.round((r.fat_g||0)*s*10)/10}g fat</span>
+    <span class="cb cbc">${tc} kcal/person</span>
+    <span class="cb cbp">${Math.round((r.protein_g||0)*10)/10}g protein</span>
+    <span class="cb cbk">${Math.round((r.carbs_g||0)*10)/10}g carbs</span>
+    <span class="cb cbf">${Math.round((r.fat_g||0)*10)/10}g fat</span>
     ${fiberBit}${sodiumBit}
     <div class="gbw" style="width:100%;margin-top:4px">
       <div class="gbb"><div class="gbf" style="width:${bw}%;background:${bc}"></div></div>
       <div class="gbl" style="display:flex;justify-content:space-between">
-        <span>${tc} kcal · ${pct>115?'⚠️ A bit high':'✓ On target'} (${g} kcal goal)</span>
+        <span>${tc} kcal · ${pct>115?'⚠️ A bit high':'✓ On target'} (${g} kcal goal/person)</span>
         ${sourceBadge}
       </div>
     </div>
