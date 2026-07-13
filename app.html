@@ -3117,9 +3117,28 @@ function renderThreeDayPlan(recipes) {
   recipes.forEach(r => {
     (r.ingredients || []).filter(i => i.buy).forEach(ing => {
       const k = ing.name.toLowerCase();
-      if (!ingMap[k]) ingMap[k] = { name: ing.name, organic: ing.organic, recipes: [] };
-      if (!ingMap[k].recipes.includes(r.recipe_name)) ingMap[k].recipes.push(r.recipe_name);
+      if (!ingMap[k]) ingMap[k] = { name: ing.name, organic: ing.organic, recipes: [], quantity: 0, unit: ing.unit || '' };
+      if (!ingMap[k].recipes.includes(r.recipe_name)) {
+        ingMap[k].recipes.push(r.recipe_name);
+        const qty = parseFloat(ing.quantity) || 0;
+        if (qty > 0) ingMap[k].quantity += qty;
+        if (!ingMap[k].unit && ing.unit) ingMap[k].unit = ing.unit;
+      }
     });
+  });
+
+  // Format quantities for display — same rounding/fraction logic as the weekly list
+  Object.values(ingMap).forEach(ing => {
+    if (ing.quantity > 0) {
+      const q = ing.quantity;
+      const fractions = {0.25:'¼', 0.33:'⅓', 0.5:'½', 0.67:'⅔', 0.75:'¾'};
+      const whole = Math.floor(q);
+      const frac = Math.round((q - whole) * 100) / 100;
+      const fracStr = fractions[frac] || (frac > 0 ? '+' : '');
+      ing.qtyDisplay = whole > 0 ? whole + fracStr : (fractions[frac] || q.toFixed(1));
+    } else {
+      ing.qtyDisplay = '';
+    }
   });
 
   const cats = { 'Proteins': [], 'Produce': [], 'Dairy & refrigerated': [], 'Pantry & dry goods': [], 'Other': [] };
@@ -3140,8 +3159,9 @@ function renderThreeDayPlan(recipes) {
     if (!items.length) return;
     html += `<div class="gl-cat-block"><div class="glcn">${cat}</div><div class="gl-items">`;
     items.forEach(item => {
+      const qtyStr = item.qtyDisplay ? `${item.qtyDisplay}${item.unit ? ' '+item.unit : ''}` : '';
       html += `<div class="glit-row" onclick="this.classList.toggle('ck')">
-        <span class="glit-name">${item.organic ? '🌿 ' : ''}${item.name}</span>
+        <span class="glit-name">${item.organic ? '🌿 ' : ''}${item.name}${qtyStr ? ` <span style="color:var(--coral);font-weight:600;font-size:12px"> — ${qtyStr}</span>` : ''}</span>
       </div>`;
     });
     html += '</div></div>';
