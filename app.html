@@ -251,6 +251,15 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;font-size:12px;color:var(--ink3)}
 footer a{color:var(--coral);text-decoration:none;margin:0 .25rem}
 /* ── SOUP CREATOR ── */
+.soup-cat-selector{margin:1rem 0;animation:fadeIn .3s ease}
+.soup-cat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:.6rem;text-align:center}
+.soup-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.soup-cat-btn{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .5rem;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;transition:all .15s;color:var(--ink2);line-height:1.3}
+.soup-cat-btn:hover{border-color:var(--coral);color:var(--coral)}
+.soup-cat-btn.act{background:var(--coral);color:white;border-color:var(--coral)}
+.soup-cat-btn.any{grid-column:1/-1;background:var(--ink);color:white;border-color:var(--ink)}
+.soup-cat-btn.any.act{background:var(--coral);border-color:var(--coral)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .soup-batch-toggle{margin-top:1rem;text-align:center}
 .soup-batch-btn{background:var(--card);border:2px dashed var(--coral);border-radius:14px;padding:.85rem 1.5rem;font-size:15px;font-weight:600;color:var(--coral);cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;transition:all .2s}
 .soup-batch-btn:hover{background:var(--coral-pale,#FAF0EB)}
@@ -2279,19 +2288,145 @@ function spin() {
 
 // ─── WEEK BATCH GENERATION — all 5 dinners in one shot ──────────────────────
 // ─── SOUP CREATOR ────────────────────────────────────────────────────────────
-const SOUP_STYLES = {
-  'Broth & Noodle': 'a deeply flavorful broth-based noodle soup (ramen, pho, chicken noodle, udon, or vermicelli). The broth must be the star — layer aromatics, toast spices, simmer for depth. Finish with fresh herbs, a squeeze of citrus, and textural toppings.',
-  'Creamy & Blended': 'a silky smooth blended soup (butternut squash bisque, roasted tomato, potato leek, carrot ginger, or cauliflower). Roast vegetables first for depth. Blend until completely smooth. Finish with cream or coconut milk, and a contrasting garnish.',
-  'Hearty Stew': 'a thick, satisfying stew with chunks of protein and vegetables (beef stew, lamb tagine, pork posole, Irish stew, or Brunswick stew). Low and slow cooking. Rich sauce that coats everything. Serve with crusty bread.',
-  'Chili & Chowder': 'either a bold chili or a creamy chowder (beef chili, white chicken chili, corn chowder, clam chowder, or green chile). Deep seasoning, layered spices, proper simmer time. Top with fresh garnishes.',
-  'World Soups': 'an authentic world soup (Italian minestrone, Ukrainian borscht, Indian mulligatawny, Portuguese caldo verde, Moroccan harira, Thai tom kha, or Mexican sopa de lima). Use authentic flavor profiles and traditional technique.',
-  'Light & Fresh': 'a light, vegetable-forward soup (lentil, minestrone primavera, tomato basil, spring vegetable, or cold gazpacho). Fresh herbs, bright acid finish, minimal fat. Should feel nourishing and clean.',
-  'Umami & Rich': 'a deeply umami-forward soup (French onion with gruyère toast, mushroom and thyme, miso ramen, porcini bisque, or roasted garlic). Deeply savory, complex, layered. Worth the time it takes.',
-  "Chefs Surprise": "a creative, unexpected soup that combines unusual flavor profiles in a way that surprises and delights. Be bold — fusion is encouraged."
+// ─── SOUP STYLE LIBRARY — 36 variations across 6 categories ─────────────────
+const SOUP_CATEGORIES = {
+  '🥣 Broth & Light': {
+    color: '#EAF3EE', textColor: '#2A6B4A',
+    styles: {
+      'Light & Brothy': 'a delicate, crystal-clear broth-based soup. Build a proper stock base from aromatics. Keep it light — shredded protein, tender vegetables, fresh herbs added at the very end. Finish with a squeeze of citrus and fresh dill or parsley. Should feel restorative and clean.',
+      'Lemon Herb': 'a bright, herbaceous broth soup with a dominant lemon presence. Avgolemono-inspired or lemon chicken orzo style. Temper eggs into the broth for richness without heaviness. Abundant fresh herbs — parsley, dill, tarragon, thyme. Finish with extra virgin olive oil.',
+      'Asian Ginger Broth': 'a clean, ginger-forward Asian-style broth soup. Build with fresh ginger, garlic, scallions, and star anise. Use soy sauce, mirin, and sesame oil for depth. Add thin rice noodles or tofu. Finish with bok choy, scallion greens, and chili oil.',
+      'Pho-Style': 'an aromatic Vietnamese-inspired pho. Char onion and ginger directly over flame for smokiness. Toast star anise, cinnamon, cloves, and cardamom in the broth. Simmer long and low. Serve with rice noodles and a full garnish plate: bean sprouts, fresh basil, lime, jalapeño, hoisin.',
+      'Tom Yum': 'a Thai hot and sour soup — intensely aromatic, fiery, and bright. Build with lemongrass, galangal or ginger, kaffir lime leaves, and Thai chilies. Fish sauce for salinity, lime juice for acid. Mushrooms and shrimp are traditional. Should smell like a Thai kitchen.',
+      'Egg Drop': 'a silky Chinese egg drop soup. Start with a clean chicken broth seasoned with soy sauce, sesame oil, and white pepper. Thicken slightly with cornstarch. Stream beaten eggs in slowly while stirring to create silky ribbons. Top with scallions and a drop of chili oil.',
+      'French Onion': 'a classic French onion soup with deeply caramelized onions. Cook onions low and slow for 45-60 minutes until jammy, sweet, and golden brown. Deglaze with white wine or sherry. Top with toasted baguette slices buried under melted gruyère, then broil until bubbling and golden.'
+    }
+  },
+  '🥛 Creamy & Rich': {
+    color: '#FAF0EB', textColor: '#C94B2A',
+    styles: {
+      'Creamy Bisque': 'a luxurious, restaurant-quality bisque. Sweat aromatics in butter, add main ingredient, simmer in broth, then blend completely smooth. Finish with heavy cream, a touch of sherry or white wine, and a garnish that adds texture contrast. Should be silky with zero lumps.',
+      'Potato Leek': 'a velvety French-style vichyssoise or hot potato leek soup. Sweat leeks gently in butter until silky. Simmer with potatoes and broth until completely tender. Blend until impossibly smooth. Finish with cream and chives. Serve hot or chilled — both are classic.',
+      'Corn Chowder': 'a hearty corn chowder with sweet corn as the star. Render bacon for the fat base. Sweat onion and celery, add potatoes and broth, simmer until tender. Add corn last to keep it bright. Finish with cream and fresh thyme. Should be thick, chunky, and satisfying.',
+      'Clam Chowder': 'a New England-style clam chowder — thick, cream-based, deeply briny. Render salt pork or bacon. Build the base with onion, celery, and potatoes. Add clam juice and chopped clams. Finish with heavy cream. Never red — this is the white, creamy version. Serve in a sourdough bowl.',
+      'Butternut Squash': 'a deeply golden, silky butternut squash bisque. Roast the squash first with olive oil and maple syrup for caramelization. Sweat onion and ginger, add the roasted squash and broth, simmer, blend smooth. Finish with coconut milk and warming spices — nutmeg, cinnamon, cardamom. Garnish with toasted pepitas.',
+      'Brie & Mushroom': 'an elegant, rich mushroom and brie bisque. Sauté mixed mushrooms in butter until deeply browned — do not rush this step. Add shallots, thyme, and a splash of white wine. Blend with broth and rind-removed brie until velvety. Garnish with a fresh mushroom sauté and fresh thyme.',
+      'Carrot Ginger': 'a vibrant, jewel-orange carrot ginger soup — vegan but deeply satisfying. Roast carrots with olive oil and honey. Sweat onion and fresh ginger, add roasted carrots and broth. Blend smooth. Finish with coconut milk and a squeeze of orange. Garnish with a swirl of cream and toasted coconut.'
+    }
+  },
+  '🍜 Noodle & Pasta': {
+    color: '#FAF8F5', textColor: '#4A3F38',
+    styles: {
+      'Chicken Noodle': 'a deeply comforting classic chicken noodle soup from scratch. Simmer bone-in chicken in broth with mirepoix until falling off the bone. Strain, shred chicken, return to broth. Add egg noodles and cook until just tender. Season generously with salt, pepper, and fresh parsley. This is comfort food at its most honest.',
+      'Italian Wedding': 'a traditional Italian Wedding soup with tiny meatballs, greens, and pasta in a rich chicken broth. Make pork or beef meatballs no bigger than a marble. Simmer in the broth. Add acini di pepe or orzo pasta. Finish with escarole or spinach wilted in at the end. Finish with parmesan and lemon zest.',
+      'Minestrone': 'a hearty Italian minestrone packed with seasonal vegetables, beans, and pasta. Build with a soffritto base of onion, carrot, celery, and garlic. Add diced tomatoes, vegetable broth, cannellini beans, zucchini, and green beans. Finish with ditalini pasta, fresh basil, and a generous parmesan rind cooked in the broth the whole time.',
+      'Pastina': 'a simple, deeply comforting Italian pastina soup — the Italian equivalent of chicken noodle soup. Rich chicken broth, tiny star-shaped or acini di pepe pasta cooked directly in the soup, finished with butter and a generous snowfall of parmesan. Simple, restorative, and deeply satisfying.',
+      'Lemon Chicken Dumpling': 'a bright, lemony chicken soup with soft homemade or store-bought dumplings. Pull poached chicken into rough pieces. Brighten the broth aggressively with fresh lemon juice and zest. Add pillowy dumplings or gnocchi. Finish with fresh dill and more lemon. Should be bright and fresh, not heavy.',
+      'Tortellini in Brodo': 'classic Italian tortellini in broth — deceptively simple, incredibly satisfying. The broth must be impeccable: long-simmered chicken or beef stock, clarified if possible. Float cheese or meat tortellini in the broth. Finish with parmesan and black pepper. The quality of the broth is everything here.',
+      'Ramen-Style': 'a restaurant-quality tonkotsu or shoyu ramen-style soup. Build a rich pork or chicken broth with soy sauce tare, mirin, and sake. Cook ramen noodles separately. Assemble in bowls: noodles, broth, soft-boiled marinated egg, chashu pork or chicken, bamboo shoots, nori, corn, and scallions.'
+    }
+  },
+  '🫕 Chunky & Hearty': {
+    color: '#F0EBE3', textColor: '#5C4033',
+    styles: {
+      'Beef Stew': 'a deeply rich, slow-braised beef stew. Brown beef chuck in batches — no crowding. Deglaze with red wine. Add root vegetables, thyme, bay leaves, and beef broth. Braise low and slow until beef is fork-tender and falling apart. Thicken with a flour roux or cornstarch slurry. Serve with crusty bread to soak up the sauce.',
+      'White Bean & Sausage': 'a hearty Italian white bean and sausage soup — the kind that gets better the next day. Brown Italian sausage, breaking into pieces. Add onion, garlic, and rosemary. Pour in cannellini beans and chicken broth. Add kale or escarole at the end. Drop a parmesan rind in while it simmers. Finish with extra virgin olive oil.',
+      'Chicken & Dumplings': 'a Southern-style chicken and dumplings — thick, creamy, and deeply comforting. Pull braised chicken thighs into chunks. Make a thick, creamy broth base with onion, celery, and cream. Drop flat or fluffy dumplings directly into the simmering broth and let them steam-cook with the lid on. Should be thick enough to eat with a fork.',
+      'Split Pea': 'a deeply satisfying split pea soup with ham. Simmer dried split peas with a smoked ham hock or diced ham, onion, celery, and carrots until peas completely dissolve into a thick, creamy base. Season with thyme and bay leaf. The ham hock does the work — pull meat off the bone and stir back in. Serve with crusty rye bread.',
+      'Lentil': 'a deeply spiced red lentil soup — the kind served in Mediterranean restaurants with warm pita. Bloom cumin, coriander, smoked paprika, and turmeric in olive oil with onion and garlic. Add red lentils and broth. Simmer until completely soft. Finish with a squeeze of lemon and a drizzle of cumin-infused olive oil. Simple, cheap, and extraordinary.',
+      'Tuscan Ribollita': 'a thick Tuscan peasant soup — ribollita means "reboiled" and it improves every time you heat it. Build with cannellini beans, lacinato kale, cavolo nero, diced tomatoes, and stale bread torn and stirred in to thicken everything. This soup should be thick enough to stand a spoon in. Finish with the best olive oil you have.',
+      'Pozole': 'a traditional Mexican pozole — a hominy and pork soup with deep, complex chile broth. Simmer pork shoulder in a broth built from toasted dried chiles (ancho, guajillo, pasilla). Add canned hominy in the last hour. Pull and shred the pork. Serve with a full garnish spread: shredded cabbage, radishes, lime, dried oregano, and tostadas.'
+    }
+  },
+  '🌶️ Bold & Spicy': {
+    color: '#FFF0E8', textColor: '#A83200',
+    styles: {
+      'Tortilla Soup': 'a smoky, bold Mexican chicken tortilla soup. Build the broth from charred tomatoes, chipotle peppers, and toasted cumin. Simmer with pulled chicken. Fry corn tortilla strips until crispy. Load the bowls: soup, tortilla strips, avocado, crema, cotija, and fresh cilantro. The toppings are half the dish.',
+      'Tom Kha': 'a fragrant Thai coconut soup — tom kha gai. Build with lemongrass, galangal, kaffir lime leaves, and Thai bird chilies in coconut milk. Add chicken or shrimp and mushrooms. Balance fish sauce (salty), lime juice (sour), palm sugar (sweet), and chilies (heat). Should hit all four tastes simultaneously.',
+      'Laksa': 'a Malaysian spiced coconut noodle soup. Build the laksa paste from dried shrimp, lemongrass, galangal, turmeric, and chilies. Fry the paste in oil until fragrant. Add coconut milk and prawn broth. Serve over thick rice noodles with shrimp, tofu puffs, bean sprouts, and a dollop of sambal.',
+      'Harissa Lamb': 'a bold North African spiced lamb soup with harissa and chickpeas. Brown lamb shoulder pieces with onion and garlic. Add harissa paste, canned tomatoes, chickpeas, and lamb broth. Simmer until lamb is tender. Season with cumin and coriander. Finish with preserved lemon and fresh cilantro.',
+      'Thai Curry Soup': 'a bold Thai curry soup — somewhere between a curry and a soup. Build with red or green curry paste fried in coconut cream. Add broth to loosen, then protein and vegetables. Fish sauce, lime juice, and a touch of sugar balance the heat. Serve over jasmine rice with fresh Thai basil and lime wedges.',
+      'Smoky Chipotle Black Bean': 'a deeply smoky chipotle black bean soup. Build with chipotle peppers in adobo sauce, cumin, and smoked paprika. Add black beans and chicken or vegetable broth. Partially blend for a thick, smoky base with whole beans remaining. Finish with lime juice. Top with sour cream, pickled red onion, and fresh cilantro.',
+      'Spicy Sausage & Kale': 'a fiery Italian sausage and kale soup — spicy, hearty, and deeply satisfying. Brown hot Italian sausage. Add garlic, red pepper flakes, white beans, and chicken broth. Simmer with lacinato kale until wilted. Finish with a squeeze of lemon and parmesan. Should have a noticeable kick that builds with each bite.'
+    }
+  },
+  '🌱 Fresh & Garden': {
+    color: '#EAF3EE', textColor: '#2A6B4A',
+    styles: {
+      'Spring Vegetable': 'a delicate spring vegetable soup that celebrates fresh produce. Build a light broth from leek tops and vegetable scraps. Add tender spring vegetables in order of cooking time: peas, asparagus tips, zucchini, snap peas, baby spinach. Finish with fresh lemon, mint, and tarragon. Should taste like a farmers market.',
+      'Roasted Tomato Basil': 'a deeply flavored roasted tomato basil soup. Roast tomatoes, garlic, and onion at high heat until caramelized and jammy. Blend with warm broth until smooth. Finish with fresh basil torn in at the last moment — never cooked. A swirl of cream or burrata on top. Serve with grilled cheese.',
+      'Gazpacho': 'a classic Spanish cold gazpacho — made to be served ice cold. Blend ripe tomatoes, cucumber, red pepper, garlic, sherry vinegar, and excellent olive oil until smooth but with some texture. Season aggressively. Chill for at least 2 hours. Serve in cold bowls with diced cucumber, croutons, and a drizzle of olive oil.',
+      'Pea & Mint': 'a vibrant, jewel-green pea and mint soup — can be served hot or cold. Sauté shallots in butter, add frozen or fresh peas and vegetable broth. Simmer briefly — overcooking kills the color. Blend immediately with fresh mint and a squeeze of lemon. Pass through a sieve for maximum smoothness. Garnish with crème fraîche and pea shoots.',
+      'Carrot & Coriander': 'a bright, warming carrot and coriander soup. Sweat onion and garlic, add toasted ground coriander and cumin. Add chopped carrots and vegetable broth. Simmer until completely tender. Blend smooth. Finish with fresh cilantro and a swirl of yogurt. Light, aromatic, and deeply comforting.',
+      'Cucumber Mint Cold Soup': 'a refreshing chilled cucumber mint soup — perfect for warm evenings. Blend English cucumber, Greek yogurt, fresh mint, garlic, lemon juice, and olive oil until silky smooth. Season with salt and white pepper. Chill thoroughly. Serve in cold bowls with diced cucumber, toasted pine nuts, and fresh dill.',
+      'Zucchini Basil': 'a summery zucchini basil soup — can be served warm or at room temperature. Sauté onion and garlic, add diced zucchini and vegetable broth. Simmer until completely soft. Blend with a generous handful of fresh basil until bright green. Finish with parmesan and good olive oil. Light enough for summer, satisfying enough for dinner.'
+    }
+  }
 };
+
+// Flatten all styles for random selection
+const SOUP_STYLES = {};
+Object.values(SOUP_CATEGORIES).forEach(cat => Object.assign(SOUP_STYLES, cat.styles));
+
+let selectedSoupCategory = null; // null = random from all categories
 
 let soupBigBatch = false;
 let currentSoupRecipe = null;
+
+function showSoupCategorySelector() {
+  // Remove existing selector if present
+  const existing = document.getElementById('soup-cat-selector');
+  if (existing) existing.remove();
+
+  const cats = Object.keys(SOUP_CATEGORIES);
+  const container = document.createElement('div');
+  container.id = 'soup-cat-selector';
+  container.className = 'soup-cat-selector';
+
+  const label = document.createElement('div');
+  label.className = 'soup-cat-label';
+  label.textContent = 'What kind of soup are you in the mood for?';
+  container.appendChild(label);
+
+  const grid = document.createElement('div');
+  grid.className = 'soup-cat-grid';
+
+  // "Surprise me" button
+  const anyBtn = document.createElement('button');
+  anyBtn.className = `soup-cat-btn any ${selectedSoupCategory === null ? 'act' : ''}`;
+  anyBtn.textContent = '🎰 Surprise Me — Any Style';
+  anyBtn.onclick = () => {
+    selectedSoupCategory = null;
+    document.querySelectorAll('.soup-cat-btn').forEach(b => b.classList.remove('act'));
+    anyBtn.classList.add('act');
+  };
+  grid.appendChild(anyBtn);
+
+  // Category buttons
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = `soup-cat-btn ${selectedSoupCategory === cat ? 'act' : ''}`;
+    btn.textContent = cat;
+    btn.onclick = () => {
+      selectedSoupCategory = cat;
+      document.querySelectorAll('.soup-cat-btn').forEach(b => b.classList.remove('act'));
+      btn.classList.add('act');
+    };
+    grid.appendChild(btn);
+  });
+
+  container.appendChild(grid);
+
+  // Insert before the spin button
+  const spinBtn = document.getElementById('spin-btn') || document.getElementById('sbtn');
+  if (spinBtn && spinBtn.parentNode) {
+    spinBtn.parentNode.insertBefore(container, spinBtn);
+  } else {
+    // Fallback — insert after mode buttons
+    const modeBar = document.querySelector('.mode-bar') || document.querySelector('.mbtn')?.parentNode;
+    if (modeBar) modeBar.after(container);
+  }
+}
 
 async function generateSoup() {
   const ingList = Array.from(selectedIngs).join(', ');
@@ -2300,11 +2435,16 @@ async function generateSoup() {
   const dietStr = getDietPromptText();
   const cravingText = getCravingText();
 
-  // Pick random soup style
-  const labels = Object.keys(SOUP_STYLES);
-  const wi = Math.floor(Math.random() * labels.length);
-  const soupLabel = labels[wi];
-  const soupStyle = SOUP_STYLES[soupLabel];
+  // Pick soup style — from selected category or random
+  let availableStyles;
+  if (selectedSoupCategory && SOUP_CATEGORIES[selectedSoupCategory]) {
+    availableStyles = Object.entries(SOUP_CATEGORIES[selectedSoupCategory].styles);
+  } else {
+    availableStyles = Object.entries(SOUP_STYLES);
+  }
+  const wi = Math.floor(Math.random() * availableStyles.length);
+  const soupLabel = availableStyles[wi][0];
+  const soupStyle = availableStyles[wi][1];
 
   const cravingLine = cravingText ? `\nThe user is craving: "${cravingText}" — incorporate this into the soup direction.` : '';
 
@@ -2332,7 +2472,7 @@ INGREDIENT QUANTITIES: For every ingredient, include a realistic quantity and un
 NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other source). The formula is: calories_per_serving = (protein_g×4) + (carbs_g×4) + (fat_g×9). This must hold within 10% — no exceptions. WORKED EXAMPLE: if protein_g=35, carbs_g=40, fat_g=20, then calories = (35×4)+(40×4)+(20×9) = 140+160+180 = 480 kcal. Before writing your final numbers, do this exact multiplication yourself for every recipe and adjust protein_g/carbs_g/fat_g (not just calories_per_serving) until they match. A recipe reporting high grams of protein/carbs/fat alongside a low calorie count is a math error — recalculate. Also use realistic single-serving portions (a typical dinner serving is 400-900 kcal, 20-50g protein, not 100g+ protein unless it's an extreme high-protein request). Respond ONLY with valid JSON: {"recipes":[{"name":"Soup Name","emoji":"🍲","time":"45 min","difficulty":"Easy","style":"Soup","calories_per_serving":480,"protein_g":28,"carbs_g":42,"fat_g":16,"ingredients":[{"name":"ingredient","quantity":"2","unit":"lbs","organic":false,"buy":false}],"steps":["Step 1."]}]}`;
 
   // Show loading state
-  document.getElementById('rh').textContent = `${chefName} is crafting your soup...`;
+  document.getElementById('rh').textContent = `${chefName} is crafting your ${soupLabel} soup...`;
   document.getElementById('results').classList.remove('hidden');
   document.getElementById('rcards').innerHTML = `<div class="loading-card"><div class="lc-emoji">🍲</div><div class="lc-label">${soupLabel}</div><div class="lc-sub">Simmering something special...</div></div>`;
   document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
@@ -3357,10 +3497,16 @@ function setMode(m){
   document.getElementById('bsoup').classList.toggle('act',m==='soup');
   // Swap wheel segments for soup mode
   if(m==='soup') {
-    WHEEL_LABELS=['Broth & Noodle','Creamy & Blended','Hearty Stew','Chili & Chowder','World Soups','Light & Fresh','Umami & Rich','Chefs Surprise'];
-    WHEEL_COLORS=['#C94B2A','#2A6B4A','#8B5E3C','#A0522D','#534AB7','#4A8C6F','#1C1714','#B8860B'];
+    WHEEL_LABELS=['🥣 Broth & Light','🥛 Creamy & Rich','🍜 Noodle & Pasta','🫕 Chunky & Hearty','🌶️ Bold & Spicy','🌱 Fresh & Garden','🥣 Broth & Light','🥛 Creamy & Rich'];
+    WHEEL_COLORS=['#2A6B4A','#C94B2A','#8B5E3C','#5C4033','#A83200','#2A6B4A','#2A6B4A','#C94B2A'];
     document.getElementById('spin-btn').textContent='🍲 Spin & Make Soup';
+    // Show soup category selector
+    showSoupCategorySelector();
   } else {
+    // Hide soup category selector
+    const soupCatEl = document.getElementById('soup-cat-selector');
+    if (soupCatEl) soupCatEl.style.display = 'none';
+    selectedSoupCategory = null;
     WHEEL_LABELS=["Tonight's Pick","Family Fave","Chef's Special","Something New","Quick Meal","Weekend Cook","Comfort Food","Seasonal Dish"];
     WHEEL_COLORS=['#C94B2A','#2A6B4A','#8B5E3C','#534AB7','#B8860B','#A0522D','#4A8C6F','#1C1714'];
     document.getElementById('spin-btn').textContent='✨ Spin & Generate Recipe';
