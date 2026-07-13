@@ -3059,6 +3059,7 @@ async function loadFavorites(){
         ${buyList.length ? `<div class="fav-buy-list">🛒 <strong>Need to buy:</strong> ${buyList.join(', ')}</div>` : '<div class="fav-buy-list" style="color:var(--green-dark)">✅ You have everything for this recipe!</div>'}
         <div class="fav-actions">
           <button class="fav-action-btn send" onclick="sendToShopper(${r.id})">📨 Send to shopper</button>
+          <button class="fav-action-btn" id="tdp-fav-btn-${r.id}" onclick="addToThreeDayPlan(${r.id}, document.getElementById('tdp-fav-btn-${r.id}'))">🗓️ Add to 3-Day Plan</button>
           <button class="fav-action-btn" onclick="shareFavorite(${r.id})">🔗 Share recipe</button>
           <button class="fav-action-btn remove" onclick="removeFavorite(${r.id}, this)">✕ Remove</button>
         </div>
