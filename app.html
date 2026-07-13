@@ -2903,12 +2903,59 @@ function showFridgeResults(recipes){
 
 function showWeekResults(){
   document.getElementById('rh').textContent=wk.length<5?`Week in progress — ${wk.length}/5 nights planned:`:'🎉 Your week is set!';
-  document.getElementById('rcards').innerHTML=wk.map((r,i)=>cardHTML(r,i*0.08)).join('');
+
+  const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  document.getElementById('rcards').innerHTML = wk.map((r,i) => `
+    <div style="position:relative">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem;padding:0 2px">
+        <span style="font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em">${dayNames[i] || 'Night '+(i+1)}</span>
+        <button onclick="removeWeekRecipe(${i})" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--ink3);padding:2px 6px;border-radius:6px;font-family:'DM Sans',sans-serif" title="Remove this night">🗑️ Remove</button>
+      </div>
+      ${cardHTML(r, i*0.08)}
+    </div>`).join('');
+
+  // Add Start Over button if any recipes exist
+  if (wk.length > 0) {
+    document.getElementById('rcards').innerHTML += `
+      <div style="text-align:center;margin-top:.75rem">
+        <button onclick="clearWeekPlan()" style="background:none;border:1.5px solid var(--border);border-radius:22px;padding:.5rem 1.25rem;font-size:13px;color:var(--ink3);cursor:pointer;font-family:'DM Sans',sans-serif">
+          🔄 Start Over
+        </button>
+      </div>`;
+  }
+
   if(wk.length>=5){buildWkCal();buildGL();
     document.getElementById('save-plan-btn').classList.remove('hidden');}
-  else{document.getElementById('wcalsec').innerHTML='';document.getElementById('glsec').innerHTML='';}
+  else{document.getElementById('wcalsec').innerHTML='';document.getElementById('glsec').innerHTML='';
+    document.getElementById('save-plan-btn').classList.add('hidden');}
   showCalPanel(wk);
   document.getElementById('results').classList.remove('hidden');
+}
+
+function removeWeekRecipe(index) {
+  wk.splice(index, 1);
+  // Remove from shownRecipeNames so it can be re-generated
+  showWeekResults();
+  // Update spin button
+  if (wk.length < 5) {
+    document.getElementById('sbtn').textContent = wk.length === 0 ? '📅 Plan My Whole Week' : `📅 Spin Night ${wk.length + 1}`;
+  }
+  showToast(`Night removed — spin to replace it`);
+}
+
+function clearWeekPlan() {
+  wk = [];
+  shownRecipeNames = shownRecipeNames.filter(n => !wk.map(r=>r.name).includes(n));
+  document.getElementById('rcards').innerHTML = '';
+  document.getElementById('wcalsec').innerHTML = '';
+  document.getElementById('glsec').innerHTML = '';
+  document.getElementById('save-plan-btn').classList.add('hidden');
+  document.getElementById('cstats').classList.add('hidden');
+  document.getElementById('pbwrap').classList.add('hidden');
+  document.getElementById('rh').textContent = 'Spin to plan your week';
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('sbtn').textContent = '📅 Plan My Whole Week';
+  showToast('Week cleared — ready to plan again 🎰');
 }
 
 function showCalPanel(recipes){
