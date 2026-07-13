@@ -968,6 +968,8 @@ button, a { touch-action: manipulation; }
       <button class="sbtn" id="sbtn" onclick="spin()">✨ Spin &amp; Generate Recipe</button>
     </div>
 
+    <div id="tdp-section" style="display:none;margin-bottom:1.5rem"></div>
+
     <div class="results hidden" id="results">
       <div class="rh" id="rh"></div>
       <div id="wcalsec"></div>
@@ -1179,6 +1181,7 @@ async function initApp() {
     await loadPreferences();
     buildIngUI();
     drawWheel();
+    loadThreeDayPlan();
   } catch(e) {
     console.error('Init failed:', e);
   }
@@ -2741,6 +2744,7 @@ function cardHTML(r,delay,recipeId){
     </div>
     <div class="card-actions">
       ${recipeId?`<button class="card-action-btn fav" id="fav-btn-${recipeId}" onclick="favoriteRecipe(${recipeId},this)">⭐ Save</button>`:''}
+      ${recipeId?`<button class="card-action-btn" id="tdp-btn-${recipeId}" onclick="addToThreeDayPlan(${recipeId},this)">🗓️ Add to 3-Day Plan</button>`:''}
       <button class="card-action-btn send-shopper" onclick="sendRecipeToShopper(this)">📨 Send to shopper</button>
       ${recipeId?`<button class="card-action-btn fb-share-btn" id="fb-share-btn-${recipeId}" onclick="shareToFacebook(${recipeId},'${r.name.replace(/'/g,"\'")}')" title="Save the recipe first to enable sharing" disabled style="opacity:.45;cursor:not-allowed">📘 Share</button>
       <span class="fb-save" data-uri="https://mealwheeliq.com/og/${recipeId}.html" data-size="small" title="Save to Facebook"></span>`:''}
@@ -3061,6 +3065,101 @@ async function loadFavorites(){
       </div>`;
     }).join('');
   } catch(e) { console.error('loadFavorites error:', e); }
+}
+
+async function addToThreeDayPlan(id, btn) {
+  if (!id) return;
+  if (!userToken) { showToast('Please sign in to build a 3-Day Plan'); return; }
+  if (btn) { btn.textContent = 'Adding...'; btn.disabled = true; }
+  try {
+    const resp = await fetch(API + '/threeday/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+      body: JSON.stringify({ recipeId: id })
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      if (btn) { btn.textContent = `✅ In plan (${data.count}/3)`; btn.style.opacity = '0.7'; }
+      showToast(data.count >= 3 ? '3-Day Plan complete! View your grocery list 🛒' : `Added! ${data.count}/3 in your plan`);
+      loadThreeDayPlan();
+    } else {
+      if (btn) { btn.textContent = '🗓️ Add to 3-Day Plan'; btn.disabled = false; }
+      showToast(data.error || 'Could not add to plan');
+    }
+  } catch (e) {
+    console.error('3-day plan add error:', e);
+    if (btn) { btn.textContent = '🗓️ Add to 3-Day Plan'; btn.disabled = false; }
+  }
+}
+
+async function loadThreeDayPlan() {
+  if (!userToken) return;
+  try {
+    const resp = await fetch(API + '/threeday', { headers: { 'Authorization': 'Bearer ' + userToken } });
+    if (!resp.ok) return;
+    const recipes = await resp.json();
+    renderThreeDayPlan(recipes);
+  } catch (e) { console.error('loadThreeDayPlan error:', e); }
+}
+
+function renderThreeDayPlan(recipes) {
+  const el = document.getElementById('tdp-section');
+  if (!el) return;
+  if (!recipes.length) { el.innerHTML = ''; el.style.display = 'none'; return; }
+  el.style.display = 'block';
+
+  const PROT=['beef','chicken','pork','salmon','shrimp','sausage','bacon','egg','rib','fish','tuna','cod','turkey','duck','lamb','steak','ground','tilapia','crab','lobster','scallop','tofu','tempeh','chorizo','ham','prosciutto','salami','pepperoni','meatball'];
+  const PROD=['potato','sweet potato','carrot','squash','zucchini','pepper','spinach','broccoli','onion','garlic','lemon','lime','asparagus','cabbage','avocado','tomato','mushroom','kale','eggplant','corn','cucumber','celery','lettuce','arugula','radish','beet','turnip','leek','scallion','shallot','herb','cilantro','parsley','basil','dill','mint','chive','ginger','jalapeno','jalapeño','chili pepper','green bean','pea','okra','fennel','brussels'];
+  const DAIRY=['cheese','cheddar','parmesan','butter','cream','milk','sour cream','yogurt','mozzarella','ricotta','feta','goat','cottage cheese','provolone','swiss','gouda','brie'];
+  const PANT=['pasta','noodle','rice','bread','bun','roll','tortilla','bean','broth','tomato sauce','oil','vinegar','sauce','maple','peanut','pancake','breadcrumb','caper','wine','naan','flour','quinoa','couscous','oats','cereal','cracker','chip','stock','soup','salsa','pesto','mustard','ketchup','mayo','jam','jelly','honey','sugar','spice','seasoning'];
+
+  const ingMap = {};
+  recipes.forEach(r => {
+    (r.ingredients || []).filter(i => i.buy).forEach(ing => {
+      const k = ing.name.toLowerCase();
+      if (!ingMap[k]) ingMap[k] = { name: ing.name, organic: ing.organic, recipes: [] };
+      if (!ingMap[k].recipes.includes(r.recipe_name)) ingMap[k].recipes.push(r.recipe_name);
+    });
+  });
+
+  const cats = { 'Proteins': [], 'Produce': [], 'Dairy & refrigerated': [], 'Pantry & dry goods': [], 'Other': [] };
+  Object.values(ingMap).forEach(ing => {
+    const k = ing.name.toLowerCase();
+    if (PROT.some(p => k.includes(p))) cats['Proteins'].push(ing);
+    else if (PROD.some(p => k.includes(p))) cats['Produce'].push(ing);
+    else if (DAIRY.some(p => k.includes(p))) cats['Dairy & refrigerated'].push(ing);
+    else if (PANT.some(p => k.includes(p))) cats['Pantry & dry goods'].push(ing);
+    else cats['Other'].push(ing);
+  });
+
+  let html = `<div class="glp">
+    <div class="gl-header-row"><h3>🗓️ 3-Day Plan (${recipes.length}/3)</h3></div>
+    <div style="margin:6px 0 10px;font-size:13px;color:var(--ink3)">${recipes.map(r => `${r.emoji} ${r.recipe_name}`).join(' · ')}</div>
+    <div class="glcats">`;
+  Object.entries(cats).forEach(([cat, items]) => {
+    if (!items.length) return;
+    html += `<div class="gl-cat-block"><div class="glcn">${cat}</div><div class="gl-items">`;
+    items.forEach(item => {
+      html += `<div class="glit-row" onclick="this.classList.toggle('ck')">
+        <span class="glit-name">${item.organic ? '🌿 ' : ''}${item.name}</span>
+      </div>`;
+    });
+    html += '</div></div>';
+  });
+  html += `</div>
+    <button class="cpb" onclick="clearThreeDayPlan()" style="margin-top:10px">🗑️ Clear plan &amp; start fresh</button>
+  </div>`;
+  el.innerHTML = html;
+}
+
+async function clearThreeDayPlan() {
+  const resp = await fetch(API + '/threeday', { headers: { 'Authorization': 'Bearer ' + userToken } });
+  const recipes = await resp.json();
+  for (const r of recipes) {
+    await fetch(API + '/threeday/remove/' + r.id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + userToken } });
+  }
+  loadThreeDayPlan();
+  showToast('3-Day Plan cleared');
 }
 
 async function favoriteRecipe(id, btn) {
