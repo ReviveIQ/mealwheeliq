@@ -991,6 +991,20 @@ button, a { touch-action: manipulation; }
 
     <div class="winfo hidden" id="winfo">📅 <strong>Week mode:</strong> Spin 5 times to plan Mon–Fri. After all 5 spins see your calorie breakdown and grocery list.</div>
 
+    <!-- Soup category selector — shown only in soup mode -->
+    <div id="soup-cat-selector" style="display:none;margin:.75rem 0">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:.6rem;text-align:center">What kind of soup?</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem">
+        <button class="soup-cat-btn any act" id="scat-any" onclick="setSoupCat(null)" style="grid-column:1/-1;background:var(--ink);color:white;border:none;border-radius:12px;padding:.6rem;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🎰 Surprise Me — Any Style</button>
+        <button class="soup-cat-btn" id="scat-broth" onclick="setSoupCat('🥣 Broth & Light')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .4rem;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🥣 Broth & Light</button>
+        <button class="soup-cat-btn" id="scat-creamy" onclick="setSoupCat('🥛 Creamy & Rich')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .4rem;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🥛 Creamy & Rich</button>
+        <button class="soup-cat-btn" id="scat-noodle" onclick="setSoupCat('🍜 Noodle & Pasta')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .4rem;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🍜 Noodle & Pasta</button>
+        <button class="soup-cat-btn" id="scat-hearty" onclick="setSoupCat('🫕 Chunky & Hearty')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .4rem;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🫕 Chunky & Hearty</button>
+        <button class="soup-cat-btn" id="scat-spicy" onclick="setSoupCat('🌶️ Bold & Spicy')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .4rem;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🌶️ Bold & Spicy</button>
+        <button class="soup-cat-btn" id="scat-fresh" onclick="setSoupCat('🌱 Fresh & Garden')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .4rem;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🌱 Fresh & Garden</button>
+      </div>
+    </div>
+
     <div class="spin-area">
       <div class="ww"><div class="ptr"></div><canvas id="wc" width="210" height="210"></canvas></div>
       <div id="wklabel" class="wk-label hidden"></div>
@@ -2446,61 +2460,34 @@ let soupBigBatch = false;
 let currentSoupRecipe = null;
 
 function showSoupCategorySelector() {
-  // Remove existing selector if present
-  const existing = document.getElementById('soup-cat-selector');
-  if (existing) existing.remove();
+  const el = document.getElementById('soup-cat-selector');
+  if (el) el.style.display = 'block';
+}
 
-  const cats = Object.keys(SOUP_CATEGORIES);
-  const container = document.createElement('div');
-  container.id = 'soup-cat-selector';
-  container.className = 'soup-cat-selector';
-
-  const label = document.createElement('div');
-  label.className = 'soup-cat-label';
-  label.textContent = 'What kind of soup are you in the mood for?';
-  container.appendChild(label);
-
-  const grid = document.createElement('div');
-  grid.className = 'soup-cat-grid';
-
-  // "Surprise me" button
-  const anyBtn = document.createElement('button');
-  anyBtn.className = `soup-cat-btn any ${selectedSoupCategory === null ? 'act' : ''}`;
-  anyBtn.textContent = '🎰 Surprise Me — Any Style';
-  anyBtn.onclick = () => {
-    selectedSoupCategory = null;
-    document.querySelectorAll('.soup-cat-btn').forEach(b => b.classList.remove('act'));
-    anyBtn.classList.add('act');
-  };
-  grid.appendChild(anyBtn);
-
-  // Category buttons
-  cats.forEach(cat => {
-    const btn = document.createElement('button');
-    btn.className = `soup-cat-btn ${selectedSoupCategory === cat ? 'act' : ''}`;
-    btn.textContent = cat;
-    btn.onclick = () => {
-      selectedSoupCategory = cat;
-      document.querySelectorAll('.soup-cat-btn').forEach(b => b.classList.remove('act'));
-      btn.classList.add('act');
-    };
-    grid.appendChild(btn);
+function setSoupCat(cat) {
+  selectedSoupCategory = cat;
+  // Reset all buttons
+  document.querySelectorAll('.soup-cat-btn').forEach(b => {
+    b.style.background = 'var(--card)';
+    b.style.color = 'var(--ink2)';
+    b.style.border = '1.5px solid var(--border)';
   });
-
-  container.appendChild(grid);
-
-  // Insert after the mode buttons row, before the wheel
-  const spinArea = document.querySelector('.spin-area');
-  const modeButtons = document.querySelector('.mbtns') || document.querySelector('.mode-row') || document.getElementById('bsoup')?.parentNode;
-  
-  if (spinArea && spinArea.parentNode) {
-    spinArea.parentNode.insertBefore(container, spinArea);
-  } else if (modeButtons) {
-    modeButtons.after(container);
-  } else {
-    // Last fallback — prepend to main content
-    const main = document.querySelector('.main') || document.querySelector('.container');
-    if (main) main.prepend(container);
+  // Highlight selected
+  const activeId = cat ? 'scat-' + cat.split(' ')[1].toLowerCase().replace('&','') : 'scat-any';
+  const activeMap = {
+    null: 'scat-any',
+    '🥣 Broth & Light': 'scat-broth',
+    '🥛 Creamy & Rich': 'scat-creamy',
+    '🍜 Noodle & Pasta': 'scat-noodle',
+    '🫕 Chunky & Hearty': 'scat-hearty',
+    '🌶️ Bold & Spicy': 'scat-spicy',
+    '🌱 Fresh & Garden': 'scat-fresh'
+  };
+  const activeBtn = document.getElementById(activeMap[cat] || 'scat-any');
+  if (activeBtn) {
+    activeBtn.style.background = 'var(--ink)';
+    activeBtn.style.color = 'white';
+    activeBtn.style.border = 'none';
   }
 }
 
@@ -3645,7 +3632,7 @@ function setMode(m){
   } else {
     // Hide soup category selector
     const soupCatEl = document.getElementById('soup-cat-selector');
-    if (soupCatEl) soupCatEl.style.display = 'none';
+    if (soupCatEl) { soupCatEl.style.display = 'none'; }
     selectedSoupCategory = null;
     WHEEL_LABELS=["Tonight's Pick","Family Fave","Chef's Special","Something New","Quick Meal","Weekend Cook","Comfort Food","Seasonal Dish"];
     WHEEL_COLORS=['#C94B2A','#2A6B4A','#8B5E3C','#534AB7','#B8860B','#A0522D','#4A8C6F','#1C1714'];
