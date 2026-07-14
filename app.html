@@ -921,8 +921,11 @@ button, a { touch-action: manipulation; }
     <div class="onote">🌿 <strong>Why organic matters:</strong> USDA organic = no synthetic pesticides. Harvard research links it to lower pesticide exposure in children. Organic livestock = no antibiotics — the WHO flags this as a key driver of antibiotic resistance. <strong>Green tags</strong> = highest-priority swaps.</div>
 
     <div class="ing-panel">
-      <div class="panel-title">Dietary preferences</div>
-      <div class="diet-filters" id="diet-filters">
+      <div class="panel-title" id="diet-panel-toggle" onclick="toggleDietPanel()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+        <span>Dietary preferences <span id="diet-active-count" style="font-weight:400;color:var(--ink3);font-size:12px"></span></span>
+        <span id="diet-chevron" style="transition:transform .2s">▾</span>
+      </div>
+      <div class="diet-filters" id="diet-filters" style="display:none">
         <div class="diet-group-label">Dietary Restrictions</div>
         <button class="diet-btn" id="diet-slowcook" onclick="toggleDiet('slowcook')">🍲 Slow Cook / Braise</button>
         <button class="diet-btn" id="diet-vegan" onclick="toggleDiet('vegan')">🌱 Vegan</button>
@@ -2233,6 +2236,7 @@ async function loadPreferences() {
         });
       }
     }
+    updateDietActiveCount();
   } catch {}
 }
 
@@ -3623,6 +3627,18 @@ function setMode(m){
   document.getElementById('bfridge').classList.toggle('act',m==='fridge');
   document.getElementById('bweek').classList.toggle('act',m==='week');
   document.getElementById('bsoup').classList.toggle('act',m==='soup');
+
+  // Cooking methods that don't apply to soup (a heated, liquid-based dish)
+  const soupIrrelevantMethods = ['airfryer','grill','sheetpan','nofuss'];
+  soupIrrelevantMethods.forEach(method => {
+    const btn = document.getElementById('method-' + method);
+    if (btn) btn.style.display = (m === 'soup') ? 'none' : '';
+  });
+  // If the currently selected method no longer applies, reset to "Any Method"
+  if (m === 'soup' && soupIrrelevantMethods.includes(selectedCookingMethod)) {
+    setMethod(null);
+  }
+
   // Swap wheel segments for soup mode
   if(m==='soup') {
     WHEEL_LABELS=['🥣 Broth & Light','🥛 Creamy & Rich','🍜 Noodle & Pasta','🫕 Chunky & Hearty','🌶️ Bold & Spicy','🌱 Fresh & Garden','🥣 Broth & Light','🥛 Creamy & Rich'];
@@ -3678,6 +3694,21 @@ function toggleDiet(diet) {
     btn.classList.add('act');
   }
   savePreferences();
+  updateDietActiveCount();
+}
+
+function toggleDietPanel() {
+  const panel = document.getElementById('diet-filters');
+  const chevron = document.getElementById('diet-chevron');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+function updateDietActiveCount() {
+  const el = document.getElementById('diet-active-count');
+  if (!el) return;
+  el.textContent = activeDiets.size > 0 ? `· ${activeDiets.size} active` : '';
 }
 
 // Weeknight-quick is the default assumption for a spin — nobody spinning the
