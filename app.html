@@ -2439,22 +2439,28 @@ async function generateSoup() {
   const dietStr = getDietPromptText();
   const cravingText = getCravingText();
 
-  // Pick soup style — from selected category or random
+  // Pick 3 DIFFERENT soup styles (no repeats) instead of one random pick,
+  // so a soup spin gives genuine variety just like Tonight's Dinner does.
   let availableStyles;
   if (selectedSoupCategory && SOUP_CATEGORIES[selectedSoupCategory]) {
     availableStyles = Object.entries(SOUP_CATEGORIES[selectedSoupCategory].styles);
   } else {
     availableStyles = Object.entries(SOUP_STYLES);
   }
-  const wi = Math.floor(Math.random() * availableStyles.length);
-  const soupLabel = availableStyles[wi][0];
-  const soupStyle = availableStyles[wi][1];
+  const shuffled = [...availableStyles].sort(() => Math.random() - 0.5);
+  const pickCount = Math.min(3, shuffled.length);
+  const chosenStyles = shuffled.slice(0, pickCount);
+  // If fewer than 3 distinct styles exist in this category, repeat with a
+  // "different technique" nudge rather than showing fewer soups
+  while (chosenStyles.length < 3) chosenStyles.push(shuffled[chosenStyles.length % shuffled.length]);
 
   const cravingLine = cravingText ? `\nThe user is craving: "${cravingText}" — incorporate this into the soup direction.` : '';
 
-  const prompt = `You are ${chefName}, a professional chef with deep expertise in soups, stocks, and braises. Generate 1 soup recipe.${cravingLine}
+  const makeSoupPrompt = (soupLabel, soupStyle, idx) => {
+    const varietyNote = idx > 0 ? ' This soup must use a genuinely different base, protein, and flavor profile than the other soups in this set — do not repeat the same core ingredients.' : '';
+    return `You are ${chefName}, a professional chef with deep expertise in soups, stocks, and braises. Generate 1 soup recipe.${cravingLine}
 
-SOUP STYLE: ${soupStyle}
+SOUP STYLE: ${soupStyle}${varietyNote}
 
 User's available ingredients (use as many as naturally fit): ${ingList}
 
@@ -2474,29 +2480,37 @@ Steps: 6-8 steps, lead with action verbs, include timing and sensory cues (color
 INGREDIENT QUANTITIES: For every ingredient, include a realistic quantity and unit scaled to the serving count. Use standard grocery units: lbs, oz, cups, tbsp, tsp, cloves, can (15oz), bunch, head, piece. Examples for 2 servings: chicken breast = "1.5 lbs", olive oil = "2 tbsp", garlic = "4 cloves", broth = "2 cups", pasta = "8 oz".
 
 NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other source). The formula is: calories_per_serving = (protein_g×4) + (carbs_g×4) + (fat_g×9). This must hold within 10% — no exceptions. WORKED EXAMPLE: if protein_g=35, carbs_g=40, fat_g=20, then calories = (35×4)+(40×4)+(20×9) = 140+160+180 = 480 kcal. Before writing your final numbers, do this exact multiplication yourself for every recipe and adjust protein_g/carbs_g/fat_g (not just calories_per_serving) until they match. A recipe reporting high grams of protein/carbs/fat alongside a low calorie count is a math error — recalculate. Also use realistic single-serving portions (a typical dinner serving is 400-900 kcal, 20-50g protein, not 100g+ protein unless it's an extreme high-protein request). Respond ONLY with valid JSON: {"recipes":[{"name":"Soup Name","emoji":"🍲","time":"45 min","difficulty":"Easy","style":"Soup","calories_per_serving":480,"protein_g":28,"carbs_g":42,"fat_g":16,"ingredients":[{"name":"ingredient","quantity":"2","unit":"lbs","organic":false,"buy":false}],"steps":["Step 1."]}]}`;
+  };
 
   // Show loading state
-  document.getElementById('rh').textContent = `${chefName} is crafting your ${soupLabel} soup...`;
+  document.getElementById('rh').textContent = `${chefName} is crafting your soups...`;
   document.getElementById('results').classList.remove('hidden');
-  document.getElementById('rcards').innerHTML = `<div class="loading-card"><div class="lc-emoji">🍲</div><div class="lc-label">${soupLabel}</div><div class="lc-sub">Simmering something special...</div></div>`;
+  document.getElementById('rcards').innerHTML = chosenStyles.map(([label]) =>
+    `<div class="loading-card"><div class="lc-emoji">🍲</div><div class="lc-label">${label}</div><div class="lc-sub">Simmering something special...</div></div>`
+  ).join('');
   document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
 
   try {
-    const resp = await fetch(API + '/generate', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer '+userToken},
-      body: JSON.stringify({prompt, dailyGoal: parseInt(document.getElementById('calgoal').value) || 2000})
-    });
-    const data = await resp.json();
-    const raw = data.content?.map(b=>b.text||'').join('') || '';
-    const clean = raw.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-    const recipe = parsed.recipes?.[0];
-    if (!recipe) throw new Error('No recipe');
+    const responses = await Promise.all(chosenStyles.map(([label, style], idx) =>
+      fetch(API + '/generate', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','Authorization':'Bearer '+userToken},
+        body: JSON.stringify({prompt: makeSoupPrompt(label, style, idx), dailyGoal: parseInt(document.getElementById('calgoal').value) || 2000})
+      }).then(r => r.json())
+    ));
 
-    currentSoupRecipe = recipe;
+    const recipes = responses.map(data => {
+      const raw = data.content?.map(b=>b.text||'').join('') || '';
+      const clean = raw.replace(/```json|```/g,'').trim();
+      const parsed = JSON.parse(clean);
+      return parsed.recipes?.[0];
+    }).filter(Boolean);
+
+    if (!recipes.length) throw new Error('No recipes');
+
+    currentSoupRecipe = recipes[0];
     soupBigBatch = false;
-    displaySoupRecipe(recipe, s);
+    displaySoupRecipes(recipes, s);
 
   } catch(e) {
     console.error('Soup generation failed:', e);
@@ -2504,15 +2518,13 @@ NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other
   }
 }
 
-function displaySoupRecipe(recipe, servings) {
+function displaySoupRecipes(recipes, servings) {
   const s = servings || parseInt(document.getElementById('servings').value) || 2;
-  const g = Math.round((parseInt(document.getElementById('calgoal').value)||2000)*0.35);
-  const tc = recipe.calories_per_serving || 0;
-  const pct = Math.round(tc/g*100);
 
-  // Render the soup card
-  document.getElementById('rh').textContent = `${chefName} made you a bowl 🍲`;
-  document.getElementById('rcards').innerHTML = cardHTML(recipe, 0, null) +
+  // Render all soup cards, passing recipe._id so Save/3-Day-Plan buttons work
+  document.getElementById('rh').textContent = recipes.length > 1 ? `${chefName} made you a few bowls 🍲` : `${chefName} made you a bowl 🍲`;
+  document.getElementById('rcards').innerHTML =
+    recipes.map((r, i) => cardHTML(r, i * 0.1, r._id || null)).join('') +
     `<div class="soup-batch-toggle" id="soup-batch-wrap">
       <button class="soup-batch-btn ${soupBigBatch?'act':''}" onclick="toggleSoupBatch()">
         ${soupBigBatch ? `✅ Big batch mode (×3 servings — feeds ${s*3})` : `🍲 Make it a big batch? (serves ${s*3})`}
@@ -2531,20 +2543,21 @@ function toggleSoupBatch() {
       ? `✅ Big batch mode (×3 servings — feeds ${s*3})`
       : `🍲 Make it a big batch? (serves ${s*3})`;
   }
-  // Show batch size note on recipe
-  const existingNote = document.getElementById('batch-size-note');
-  if (soupBigBatch && !existingNote) {
-    const card = document.querySelector('.recipe-card');
-    if (card) {
+  // Show batch size note on every soup card (there may be up to 3 now)
+  const cards = document.querySelectorAll('.rcard');
+  cards.forEach((card, i) => {
+    const noteId = 'batch-size-note-' + i;
+    const existingNote = document.getElementById(noteId);
+    if (soupBigBatch && !existingNote) {
       const note = document.createElement('div');
-      note.id = 'batch-size-note';
+      note.id = noteId;
       note.className = 'soup-batch-active-note';
       note.textContent = `📐 All ingredient quantities below are ×3 for a big batch (${s*3} servings). Simmer time may increase by 10–15 minutes.`;
       card.prepend(note);
+    } else if (!soupBigBatch && existingNote) {
+      existingNote.remove();
     }
-  } else if (!soupBigBatch && existingNote) {
-    existingNote.remove();
-  }
+  });
 }
 
 async function generateFullWeek() {
