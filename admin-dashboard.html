@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MealWheelIQ — Admin Dashboard</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#FAF7F2;color:#1C1714;padding:1.5rem}
+  h1{font-size:1.4rem;margin-bottom:.25rem}
+  .sub{color:#8C7B72;font-size:13px;margin-bottom:1.25rem}
+  .gate{max-width:420px;margin:4rem auto;background:white;border-radius:14px;padding:2rem;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+  .gate input{width:100%;padding:.7rem;border:1px solid #E2D9CE;border-radius:8px;margin:.75rem 0;font-size:14px}
+  .gate button{width:100%;padding:.7rem;background:#C94B2A;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px}
+  .stats-row{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+  .stat-card{background:white;border-radius:12px;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,.05);min-width:120px}
+  .stat-card .num{font-size:1.6rem;font-weight:700;color:#C94B2A}
+  .stat-card .lbl{font-size:11px;color:#8C7B72;text-transform:uppercase;letter-spacing:.05em}
+  table{width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);font-size:13px}
+  th{background:#1C1714;color:white;padding:.6rem .7rem;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;cursor:pointer;white-space:nowrap}
+  th:hover{background:#C94B2A}
+  td{padding:.55rem .7rem;border-bottom:1px solid #F0EAE3;white-space:nowrap}
+  tr:hover{background:#FAF0EB}
+  .plan-badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+  .plan-free{background:#F0EAE3;color:#8C7B72}
+  .plan-home_chef{background:#EAF3EE;color:#2A6B4A}
+  .plan-family{background:#E6F1FB;color:#185FA5}
+  .plan-trial{background:#FDF6E3;color:#B8860B}
+  .promo-tag{font-size:10px;background:#B8860B;color:white;padding:1px 5px;border-radius:6px;margin-left:4px}
+  .actions{display:flex;gap:6px}
+  .actions button{border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600}
+  .btn-clear{background:#FDF6E3;color:#B8860B}
+  .btn-delete{background:#FDEDEC;color:#C0392B}
+  .table-wrap{max-height:70vh;overflow:auto;border-radius:12px}
+  .search-box{margin-bottom:1rem}
+  .search-box input{width:100%;max-width:320px;padding:.6rem .8rem;border:1px solid #E2D9CE;border-radius:8px;font-size:14px}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1C1714;color:white;padding:.7rem 1.2rem;border-radius:8px;font-size:13px;display:none;z-index:999}
+  .empty{color:#8C7B72;text-align:center;padding:2rem}
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate">
+  <h2 style="margin-bottom:.5rem">🔐 Admin Access</h2>
+  <p style="font-size:13px;color:#8C7B72">Enter your admin secret to view the usage dashboard.</p>
+  <input type="password" id="secret-input" placeholder="Admin secret" onkeydown="if(event.key==='Enter')loadDashboard()">
+  <button onclick="loadDashboard()">View Dashboard</button>
+  <p id="gate-error" style="color:#C0392B;font-size:12px;margin-top:.5rem"></p>
+</div>
+
+<div id="dashboard" style="display:none">
+  <h1>📊 MealWheelIQ Usage Dashboard</h1>
+  <div class="sub">Every user, catalogued by ID and email, across all tracked activity.</div>
+
+  <div class="stats-row" id="summary-cards"></div>
+
+  <div class="search-box">
+    <input type="text" id="search" placeholder="🔍 Filter by email or ID..." oninput="renderTable()">
+  </div>
+
+  <div class="table-wrap">
+    <table id="user-table">
+      <thead>
+        <tr>
+          <th onclick="sortBy('id')">ID</th>
+          <th onclick="sortBy('email')">Email</th>
+          <th onclick="sortBy('plan')">Plan</th>
+          <th onclick="sortBy('created_at')">Joined</th>
+          <th onclick="sortBy('last_active')">Last Active</th>
+          <th onclick="sortBy('spins')">Spins</th>
+          <th onclick="sortBy('soup_spins')">Soup</th>
+          <th onclick="sortBy('week_spins')">Week</th>
+          <th onclick="sortBy('pantry_scans')">Pantry Scans</th>
+          <th onclick="sortBy('cookbook_recipes')">Cookbook</th>
+          <th onclick="sortBy('favorites_count')">Favorites</th>
+          <th onclick="sortBy('three_day_plan_count')">3-Day Plan</th>
+          <th onclick="sortBy('week_plans_count')">Saved Week Plans</th>
+          <th onclick="sortBy('total_events')">Total Events</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://api.mealwheeliq.com';
+let adminSecret = '';
+let allUsers = [];
+let sortField = 'created_at';
+let sortDir = -1;
+
+async function loadDashboard() {
+  const secret = document.getElementById('secret-input').value.trim();
+  if (!secret) return;
+  adminSecret = secret;
+
+  try {
+    const resp = await fetch(`${API}/admin/dashboard-data?secret=${encodeURIComponent(secret)}`);
+    if (!resp.ok) {
+      document.getElementById('gate-error').textContent = 'Invalid secret or server error.';
+      return;
+    }
+    const data = await resp.json();
+    allUsers = data.users;
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    renderSummary();
+    renderTable();
+  } catch (e) {
+    document.getElementById('gate-error').textContent = 'Could not reach the API.';
+  }
+}
+
+function renderSummary() {
+  const totalUsers = allUsers.length;
+  const totalSpins = allUsers.reduce((s,u)=>s+u.spins+u.soup_spins+u.week_spins, 0);
+  const totalScans = allUsers.reduce((s,u)=>s+u.pantry_scans, 0);
+  const paidUsers = allUsers.filter(u => u.plan && u.plan !== 'free').length;
+  const promoUsers = allUsers.filter(u => u.is_promo).length;
+
+  document.getElementById('summary-cards').innerHTML = `
+    <div class="stat-card"><div class="num">${totalUsers}</div><div class="lbl">Total Users</div></div>
+    <div class="stat-card"><div class="num">${paidUsers}</div><div class="lbl">Paid / Promo Plans</div></div>
+    <div class="stat-card"><div class="num">${promoUsers}</div><div class="lbl">First-100 Promo</div></div>
+    <div class="stat-card"><div class="num">${totalSpins}</div><div class="lbl">Total Spins (all types)</div></div>
+    <div class="stat-card"><div class="num">${totalScans}</div><div class="lbl">Pantry Scans</div></div>
+  `;
+}
+
+function sortBy(field) {
+  if (sortField === field) sortDir *= -1; else { sortField = field; sortDir = -1; }
+  renderTable();
+}
+
+function renderTable() {
+  const q = document.getElementById('search').value.toLowerCase();
+  let filtered = allUsers.filter(u =>
+    u.email.toLowerCase().includes(q) || String(u.id).includes(q)
+  );
+
+  filtered.sort((a,b) => {
+    let av = a[sortField], bv = b[sortField];
+    if (av == null) av = '';
+    if (bv == null) bv = '';
+    if (typeof av === 'string') return sortDir * av.localeCompare(bv);
+    return sortDir * (av - bv);
+  });
+
+  const tbody = document.getElementById('table-body');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="15" class="empty">No users match.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(u => {
+    const joined = new Date(u.created_at).toLocaleDateString();
+    const lastActive = u.last_active ? new Date(u.last_active).toLocaleDateString() : '—';
+    const plan = u.plan || 'free';
+    return `<tr>
+      <td>${u.id}</td>
+      <td>${u.email}</td>
+      <td><span class="plan-badge plan-${plan}">${plan}</span>${u.is_promo ? '<span class="promo-tag">PROMO</span>' : ''}</td>
+      <td>${joined}</td>
+      <td>${lastActive}</td>
+      <td>${u.spins}</td>
+      <td>${u.soup_spins}</td>
+      <td>${u.week_spins}</td>
+      <td>${u.pantry_scans}</td>
+      <td>${u.cookbook_recipes}</td>
+      <td>${u.favorites_count}</td>
+      <td>${u.three_day_plan_count}</td>
+      <td>${u.week_plans_count}</td>
+      <td><strong>${u.total_events}</strong></td>
+      <td class="actions">
+        <button class="btn-clear" onclick="clearCookbook(${u.id})">Clear Cookbook</button>
+        <button class="btn-delete" onclick="deleteUser(${u.id}, '${u.email}')">Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function clearCookbook(userId) {
+  if (!confirm(`Clear all recipes/meal plans for user ${userId}? This cannot be undone.`)) return;
+  try {
+    const resp = await fetch(`${API}/admin/clear-cookbook?userId=${userId}&secret=${encodeURIComponent(adminSecret)}`);
+    const data = await resp.json();
+    showToast(data.success ? `Cleared ${data.recipesCleared} recipes, ${data.mealPlansCleared} meal plans` : 'Failed: ' + data.error);
+    loadDashboard();
+  } catch (e) { showToast('Error clearing cookbook'); }
+}
+
+async function deleteUser(userId, email) {
+  if (!confirm(`PERMANENTLY DELETE user ${email} (ID ${userId})? This deletes their entire account and cannot be undone.`)) return;
+  if (!confirm(`Really sure? Type-confirm: delete ${email}?`)) return;
+  try {
+    const resp = await fetch(`${API}/admin/delete-users?ids=${userId}&secret=${encodeURIComponent(adminSecret)}`);
+    const data = await resp.json();
+    showToast(data.success ? `Deleted user ${userId}` : 'Failed: ' + data.error);
+    loadDashboard();
+  } catch (e) { showToast('Error deleting user'); }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3500);
+}
+</script>
+</body>
+</html>
