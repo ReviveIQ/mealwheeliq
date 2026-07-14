@@ -102,7 +102,12 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .sel-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:.5rem}
 .sel-tag{font-size:11px;padding:2px 8px;border-radius:12px;background:var(--green-pale);color:var(--green-dark);border:1px solid #b8e8d4;display:flex;align-items:center;gap:4px}
 .sel-tag .rm{cursor:pointer;font-size:14px;line-height:1;opacity:.7}.sel-tag .rm:hover{opacity:1}
-.diet-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.75rem}
+.diet-filters{display:flex;flex-direction:column;gap:0;margin-bottom:.75rem}
+.diet-cat{border-bottom:1px solid var(--border);padding:.4rem 0}
+.diet-cat:last-child{border-bottom:none}
+.diet-cat-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);padding:.3rem 0}
+.diet-cat-chevron{transition:transform .2s;font-size:12px}
+.diet-cat-body{display:flex;flex-wrap:wrap;gap:6px;padding-top:.5rem}
 .diet-group-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin:.6rem 0 .25rem;width:100%;flex-basis:100%}
 .diet-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid var(--border2);border-radius:20px;font-size:11.5px;font-weight:500;cursor:pointer;background:var(--cream);color:var(--ink2);transition:all .15s;font-family:'DM Sans',sans-serif}
 .diet-btn:hover{border-color:var(--green);background:var(--green-pale)}
@@ -926,64 +931,106 @@ button, a { touch-action: manipulation; }
         <span id="diet-chevron" style="transition:transform .2s">▾</span>
       </div>
       <div class="diet-filters" id="diet-filters" style="display:none">
-        <div class="diet-group-label">Dietary Restrictions</div>
-        <button class="diet-btn" id="diet-slowcook" onclick="toggleDiet('slowcook')">🍲 Slow Cook / Braise</button>
-        <button class="diet-btn" id="diet-vegan" onclick="toggleDiet('vegan')">🌱 Vegan</button>
-        <button class="diet-btn" id="diet-vegetarian" onclick="toggleDiet('vegetarian')">🥦 Vegetarian</button>
-        <button class="diet-btn" id="diet-pescatarian" onclick="toggleDiet('pescatarian')">🐟 Pescatarian</button>
-        <button class="diet-btn" id="diet-nopork" onclick="toggleDiet('nopork')">🚫 No Pork</button>
-        <button class="diet-btn" id="diet-noredmeat" onclick="toggleDiet('noredmeat')">🥩 No Red Meat</button>
 
-        <div class="diet-group-label">Allergens — Strict</div>
-        <button class="diet-btn" id="diet-glutenfree" onclick="toggleDiet('glutenfree')">🌾 Gluten-Free</button>
-        <button class="diet-btn" id="diet-dairyfree" onclick="toggleDiet('dairyfree')">🥛 Dairy-Free</button>
-        <button class="diet-btn" id="diet-nutfree" onclick="toggleDiet('nutfree')">🥜 Nut-Free</button>
-        <button class="diet-btn" id="diet-eggfree" onclick="toggleDiet('eggfree')">🥚 Egg-Free</button>
-        <button class="diet-btn" id="diet-shellfishfree" onclick="toggleDiet('shellfishfree')">🐚 Shellfish-Free</button>
-        <button class="diet-btn" id="diet-soyfree" onclick="toggleDiet('soyfree')">🌿 Soy-Free</button>
-
-        <div class="diet-group-label">Health Goals</div>
-        <button class="diet-btn" id="diet-lowcarb" onclick="toggleDiet('lowcarb')">📉 Low-Carb</button>
-        <button class="diet-btn" id="diet-keto" onclick="toggleDiet('keto')">🥑 Keto</button>
-        <button class="diet-btn" id="diet-highprotein" onclick="toggleDiet('highprotein')">💪 High-Protein</button>
-        <button class="diet-btn" id="diet-lowsodium" onclick="toggleDiet('lowsodium')">🧂 Low-Sodium</button>
-        <button class="diet-btn" id="diet-lowcalorie" onclick="toggleDiet('lowcalorie')">🔢 Low-Calorie</button>
-        <button class="diet-btn" id="diet-hearthealthy" onclick="toggleDiet('hearthealthy')">🫀 Heart-Healthy</button>
-        <button class="diet-btn" id="diet-antiinflammatory" onclick="toggleDiet('antiinflammatory')">🌿 Anti-Inflammatory</button>
-
-        <div class="diet-group-label">Lifestyle</div>
-        <button class="diet-btn" id="diet-paleo" onclick="toggleDiet('paleo')">🦴 Paleo</button>
-        <button class="diet-btn" id="diet-whole30" onclick="toggleDiet('whole30')">🌀 Whole30</button>
-        <button class="diet-btn" id="diet-mediterranean" onclick="toggleDiet('mediterranean')">🫙 Mediterranean Diet</button>
-        <button class="diet-btn" id="diet-carnivore" onclick="toggleDiet('carnivore')">🥩 Carnivore</button>
-        <button class="diet-btn" id="diet-diabetic" onclick="toggleDiet('diabetic')">💊 Diabetic-Friendly</button>
-        <button class="diet-btn" id="diet-pregnancy" onclick="toggleDiet('pregnancy')">🤰 Pregnancy-Safe</button>
-        <button class="diet-btn" id="diet-lent" onclick="toggleDiet('lent')">✝️ Lent / No Meat Fridays</button>
-
-        <div class="diet-group-label">Religious &amp; Cultural Traditions</div>
-        <button class="diet-btn" id="diet-kosher" onclick="toggleDiet('kosher')">🕍 Kosher</button>
-        <button class="diet-btn" id="diet-halal" onclick="toggleDiet('halal')">🌙 Halal</button>
-        <button class="diet-btn" id="diet-hindu" onclick="toggleDiet('hindu')">🕉️ Hindu Vegetarian</button>
-        <button class="diet-btn" id="diet-jain" onclick="toggleDiet('jain')">☸️ Jain</button>
-        <button class="diet-btn" id="diet-buddhist" onclick="toggleDiet('buddhist')">🧘 Buddhist Vegetarian</button>
-
-        <div class="diet-group-label">Medical &amp; Therapeutic</div>
-        <button class="diet-btn" id="diet-fodmap" onclick="toggleDiet('fodmap')">🌿 Low-FODMAP</button>
-        <button class="diet-btn" id="diet-lowpurine" onclick="toggleDiet('lowpurine')">💧 Low-Purine (Gout)</button>
-        <button class="diet-btn" id="diet-kidneyfriendly" onclick="toggleDiet('kidneyfriendly')">🫘 Kidney-Friendly</button>
-
-        <div class="method-label" style="margin-top:1rem">Cooking Method</div>
-        <div class="method-row" id="method-row">
-          <button class="method-btn act" id="method-any" onclick="setMethod(null)">🍳 Any Method</button>
-          <button class="method-btn" id="method-airfryer" onclick="setMethod('airfryer')">🌬️ Air Fryer</button>
-          <button class="method-btn" id="method-instantpot" onclick="setMethod('instantpot')">⚡ Instant Pot</button>
-          <button class="method-btn" id="method-slowcooker" onclick="setMethod('slowcooker')">🥘 Slow Cooker</button>
-          <button class="method-btn" id="method-grill" onclick="setMethod('grill')">🔥 Grill</button>
-          <button class="method-btn" id="method-sheetpan" onclick="setMethod('sheetpan')">🍽️ Sheet Pan</button>
-          <button class="method-btn" id="method-onepan" onclick="setMethod('onepan')">🥄 One Pan</button>
-          <button class="method-btn" id="method-stovetop" onclick="setMethod('stovetop')">🔆 Stovetop</button>
-          <button class="method-btn" id="method-nofuss" onclick="setMethod('nofuss')">🥗 No Cook</button>
+        <div class="diet-cat">
+          <div class="diet-cat-header" onclick="toggleDietCat('restrictions')">
+            <span>Dietary Restrictions</span><span class="diet-cat-chevron" id="chev-restrictions">▾</span>
+          </div>
+          <div class="diet-cat-body" id="cat-restrictions" style="display:none">
+            <button class="diet-btn" id="diet-slowcook" onclick="toggleDiet('slowcook')">🍲 Slow Cook / Braise</button>
+            <button class="diet-btn" id="diet-vegan" onclick="toggleDiet('vegan')">🌱 Vegan</button>
+            <button class="diet-btn" id="diet-vegetarian" onclick="toggleDiet('vegetarian')">🥦 Vegetarian</button>
+            <button class="diet-btn" id="diet-pescatarian" onclick="toggleDiet('pescatarian')">🐟 Pescatarian</button>
+            <button class="diet-btn" id="diet-nopork" onclick="toggleDiet('nopork')">🚫 No Pork</button>
+            <button class="diet-btn" id="diet-noredmeat" onclick="toggleDiet('noredmeat')">🥩 No Red Meat</button>
+          </div>
         </div>
+
+        <div class="diet-cat">
+          <div class="diet-cat-header" onclick="toggleDietCat('allergens')">
+            <span>Allergens — Strict</span><span class="diet-cat-chevron" id="chev-allergens">▾</span>
+          </div>
+          <div class="diet-cat-body" id="cat-allergens" style="display:none">
+            <button class="diet-btn" id="diet-glutenfree" onclick="toggleDiet('glutenfree')">🌾 Gluten-Free</button>
+            <button class="diet-btn" id="diet-dairyfree" onclick="toggleDiet('dairyfree')">🥛 Dairy-Free</button>
+            <button class="diet-btn" id="diet-nutfree" onclick="toggleDiet('nutfree')">🥜 Nut-Free</button>
+            <button class="diet-btn" id="diet-eggfree" onclick="toggleDiet('eggfree')">🥚 Egg-Free</button>
+            <button class="diet-btn" id="diet-shellfishfree" onclick="toggleDiet('shellfishfree')">🐚 Shellfish-Free</button>
+            <button class="diet-btn" id="diet-soyfree" onclick="toggleDiet('soyfree')">🌿 Soy-Free</button>
+          </div>
+        </div>
+
+        <div class="diet-cat">
+          <div class="diet-cat-header" onclick="toggleDietCat('health')">
+            <span>Health Goals</span><span class="diet-cat-chevron" id="chev-health">▾</span>
+          </div>
+          <div class="diet-cat-body" id="cat-health" style="display:none">
+            <button class="diet-btn" id="diet-lowcarb" onclick="toggleDiet('lowcarb')">📉 Low-Carb</button>
+            <button class="diet-btn" id="diet-keto" onclick="toggleDiet('keto')">🥑 Keto</button>
+            <button class="diet-btn" id="diet-highprotein" onclick="toggleDiet('highprotein')">💪 High-Protein</button>
+            <button class="diet-btn" id="diet-lowsodium" onclick="toggleDiet('lowsodium')">🧂 Low-Sodium</button>
+            <button class="diet-btn" id="diet-lowcalorie" onclick="toggleDiet('lowcalorie')">🔢 Low-Calorie</button>
+            <button class="diet-btn" id="diet-hearthealthy" onclick="toggleDiet('hearthealthy')">🫀 Heart-Healthy</button>
+            <button class="diet-btn" id="diet-antiinflammatory" onclick="toggleDiet('antiinflammatory')">🌿 Anti-Inflammatory</button>
+          </div>
+        </div>
+
+        <div class="diet-cat">
+          <div class="diet-cat-header" onclick="toggleDietCat('lifestyle')">
+            <span>Lifestyle</span><span class="diet-cat-chevron" id="chev-lifestyle">▾</span>
+          </div>
+          <div class="diet-cat-body" id="cat-lifestyle" style="display:none">
+            <button class="diet-btn" id="diet-paleo" onclick="toggleDiet('paleo')">🦴 Paleo</button>
+            <button class="diet-btn" id="diet-whole30" onclick="toggleDiet('whole30')">🌀 Whole30</button>
+            <button class="diet-btn" id="diet-mediterranean" onclick="toggleDiet('mediterranean')">🫙 Mediterranean Diet</button>
+            <button class="diet-btn" id="diet-carnivore" onclick="toggleDiet('carnivore')">🥩 Carnivore</button>
+            <button class="diet-btn" id="diet-diabetic" onclick="toggleDiet('diabetic')">💊 Diabetic-Friendly</button>
+            <button class="diet-btn" id="diet-pregnancy" onclick="toggleDiet('pregnancy')">🤰 Pregnancy-Safe</button>
+            <button class="diet-btn" id="diet-lent" onclick="toggleDiet('lent')">✝️ Lent / No Meat Fridays</button>
+          </div>
+        </div>
+
+        <div class="diet-cat">
+          <div class="diet-cat-header" onclick="toggleDietCat('religious')">
+            <span>Religious &amp; Cultural Traditions</span><span class="diet-cat-chevron" id="chev-religious">▾</span>
+          </div>
+          <div class="diet-cat-body" id="cat-religious" style="display:none">
+            <button class="diet-btn" id="diet-kosher" onclick="toggleDiet('kosher')">🕍 Kosher</button>
+            <button class="diet-btn" id="diet-halal" onclick="toggleDiet('halal')">🌙 Halal</button>
+            <button class="diet-btn" id="diet-hindu" onclick="toggleDiet('hindu')">🕉️ Hindu Vegetarian</button>
+            <button class="diet-btn" id="diet-jain" onclick="toggleDiet('jain')">☸️ Jain</button>
+            <button class="diet-btn" id="diet-buddhist" onclick="toggleDiet('buddhist')">🧘 Buddhist Vegetarian</button>
+          </div>
+        </div>
+
+        <div class="diet-cat">
+          <div class="diet-cat-header" onclick="toggleDietCat('medical')">
+            <span>Medical &amp; Therapeutic</span><span class="diet-cat-chevron" id="chev-medical">▾</span>
+          </div>
+          <div class="diet-cat-body" id="cat-medical" style="display:none">
+            <button class="diet-btn" id="diet-fodmap" onclick="toggleDiet('fodmap')">🌿 Low-FODMAP</button>
+            <button class="diet-btn" id="diet-lowpurine" onclick="toggleDiet('lowpurine')">💧 Low-Purine (Gout)</button>
+            <button class="diet-btn" id="diet-kidneyfriendly" onclick="toggleDiet('kidneyfriendly')">🫘 Kidney-Friendly</button>
+          </div>
+        </div>
+
+        <div class="diet-cat">
+          <div class="diet-cat-header" onclick="toggleDietCat('method')">
+            <span>Cooking Method</span><span class="diet-cat-chevron" id="chev-method">▾</span>
+          </div>
+          <div class="diet-cat-body method-row" id="cat-method" style="display:none">
+            <button class="method-btn act" id="method-any" onclick="setMethod(null)">🍳 Any Method</button>
+            <button class="method-btn" id="method-airfryer" onclick="setMethod('airfryer')">🌬️ Air Fryer</button>
+            <button class="method-btn" id="method-instantpot" onclick="setMethod('instantpot')">⚡ Instant Pot</button>
+            <button class="method-btn" id="method-slowcooker" onclick="setMethod('slowcooker')">🥘 Slow Cooker</button>
+            <button class="method-btn" id="method-grill" onclick="setMethod('grill')">🔥 Grill</button>
+            <button class="method-btn" id="method-sheetpan" onclick="setMethod('sheetpan')">🍽️ Sheet Pan</button>
+            <button class="method-btn" id="method-onepan" onclick="setMethod('onepan')">🥄 One Pan</button>
+            <button class="method-btn" id="method-stovetop" onclick="setMethod('stovetop')">🔆 Stovetop</button>
+            <button class="method-btn" id="method-nofuss" onclick="setMethod('nofuss')">🥗 No Cook</button>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -3702,6 +3749,14 @@ function toggleDietPanel() {
   const chevron = document.getElementById('diet-chevron');
   const isOpen = panel.style.display !== 'none';
   panel.style.display = isOpen ? 'none' : 'block';
+  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+function toggleDietCat(catId) {
+  const body = document.getElementById('cat-' + catId);
+  const chevron = document.getElementById('chev-' + catId);
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'flex';
   chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
 }
 
