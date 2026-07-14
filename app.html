@@ -2509,6 +2509,7 @@ async function generateSoup() {
   const s = parseInt(document.getElementById('servings').value) || 2;
   const g = Math.round((parseInt(document.getElementById('calgoal').value) || 2000) * 0.35);
   const dietStr = getDietPromptText();
+  const methodStr = getCookingMethodPrompt();
   const cravingText = getCravingText();
 
   // Pick 3 DIFFERENT soup styles (no repeats) instead of one random pick,
@@ -2647,6 +2648,7 @@ async function generateFullWeek() {
   window._dailyGoal = dailyGoal;
   const g = Math.round(dailyGoal * 0.35);
   const dietStr = getDietPromptText();
+  const methodStr = getCookingMethodPrompt();
   const timeStr = getTimeConstraintText();
   const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
 
@@ -2791,6 +2793,7 @@ async function generateRecipe(wi) {
     : wheelCategoryHint;
   const avoidStr=wk.length?`Do NOT repeat: ${wk.map(r=>r.name).join(', ')}.`:'';
   const dietStr=getDietPromptText();
+  const methodStr=getCookingMethodPrompt();
   const timeStr = getTimeConstraintText();
   const count=mode==='week'?1:4;
   // Recipe index 2 = "stretch" recipe with ~30% buy ingredients for meal inspiration
