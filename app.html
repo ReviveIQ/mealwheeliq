@@ -3644,14 +3644,16 @@ function saveThreeDayPlanAsPdf() {
       li{padding:.4rem 0;font-size:14px;border-bottom:1px dotted #E2D9CE}
       .chk{display:inline-block;width:16px}
       .save-btn{background:#C94B2A;color:white;border:none;border-radius:8px;padding:.7rem 1.4rem;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',Arial,sans-serif;margin-bottom:1.5rem}
+      .back-btn{background:none;color:#8C7B72;border:1px solid #E2D9CE;border-radius:8px;padding:.5rem 1rem;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',Arial,sans-serif;margin-bottom:1.2rem}
       .hint{font-size:12px;color:#8C7B72;margin-bottom:1.5rem}
-      @media print{.save-btn,.hint{display:none}body{margin:0}}
+      @media print{.save-btn,.hint,.back-btn{display:none}body{margin:0}}
     </style></head>
     <body>
+      <button class="back-btn" onclick="window.close()">← Back to MealWheelIQ</button>
       <h1>🍽️ MealWheelIQ — 3-Day Grocery List</h1>
       <div class="sub">${recipeList}</div>
       <button class="save-btn" onclick="window.print()">💾 Save as PDF</button>
-      <div class="hint">Click above, then choose "Save as PDF" as the destination in the print dialog.</div>
+      <div class="hint">Click above, then choose "Save as PDF" as the destination in the print dialog. When you're done, use "← Back to MealWheelIQ" above to close this tab.</div>
       ${itemsHtml}
     </body></html>`);
   win.document.close();
