@@ -16,10 +16,11 @@
   .stat-card{background:white;border-radius:12px;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,.05);min-width:120px}
   .stat-card .num{font-size:1.6rem;font-weight:700;color:#C94B2A}
   .stat-card .lbl{font-size:11px;color:#8C7B72;text-transform:uppercase;letter-spacing:.05em}
-  table{width:100%;border-collapse:separate;border-spacing:0;background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.05);font-size:13px}
-  th{background:#1C1714;color:white;padding:.6rem .7rem;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:10;cursor:pointer;white-space:nowrap}
+  table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.05);font-size:12px}
+  th{background:#1C1714;color:white;padding:.45rem .4rem;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.03em;position:sticky;top:0;z-index:10;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   th:hover{background:#C94B2A}
-  td{padding:.55rem .7rem;border-bottom:1px solid #F0EAE3;white-space:nowrap}
+  td{padding:.4rem .4rem;border-bottom:1px solid #F0EAE3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  td.email-cell{overflow:hidden;text-overflow:ellipsis}
   tr:hover{background:#FAF0EB}
   .plan-badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
   .plan-free{background:#F0EAE3;color:#8C7B72}
@@ -27,8 +28,8 @@
   .plan-family{background:#E6F1FB;color:#185FA5}
   .plan-trial{background:#FDF6E3;color:#B8860B}
   .promo-tag{font-size:10px;background:#B8860B;color:white;padding:1px 5px;border-radius:6px;margin-left:4px}
-  .actions{display:flex;gap:6px}
-  .actions button{border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600}
+  .actions{display:flex;gap:4px;flex-wrap:wrap}
+  .actions button{border:none;border-radius:5px;padding:3px 6px;font-size:10px;cursor:pointer;font-weight:600;white-space:nowrap}
   .btn-clear{background:#FDF6E3;color:#B8860B}
   .btn-delete{background:#FDEDEC;color:#C0392B}
   .table-wrap{max-height:70vh;overflow:auto;border-radius:12px}
@@ -60,6 +61,23 @@
 
   <div class="table-wrap">
     <table id="user-table">
+      <colgroup>
+        <col style="width:60px">
+        <col style="width:190px">
+        <col style="width:90px">
+        <col style="width:75px">
+        <col style="width:75px">
+        <col style="width:50px">
+        <col style="width:50px">
+        <col style="width:50px">
+        <col style="width:60px">
+        <col style="width:65px">
+        <col style="width:60px">
+        <col style="width:60px">
+        <col style="width:70px">
+        <col style="width:60px">
+        <col style="width:150px">
+      </colgroup>
       <thead>
         <tr>
           <th onclick="sortBy('id')">ID</th>
@@ -162,7 +180,7 @@ function renderTable() {
     const plan = u.plan || 'free';
     return `<tr>
       <td>${u.id}</td>
-      <td>${u.email}</td>
+      <td class="email-cell" title="${u.email}">${u.email}</td>
       <td><span class="plan-badge plan-${plan}">${plan}</span>${u.is_promo ? '<span class="promo-tag">PROMO</span>' : ''}</td>
       <td>${joined}</td>
       <td>${lastActive}</td>
