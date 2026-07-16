@@ -131,7 +131,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 
 /* SPIN */
 .spin-area{display:flex;flex-direction:column;align-items:center;margin:1rem 0;gap:.85rem}
-.ww{position:relative;width:210px;height:210px}
+.ww{position:relative;width:280px;height:280px}
 .ptr{position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:22px solid var(--coral);z-index:10;filter:drop-shadow(0 2px 4px rgba(201,75,42,.3))}
 canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .sbtn{background:var(--coral);color:white;border:none;padding:12px 36px;border-radius:28px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(201,75,42,.3)}
@@ -1062,7 +1062,7 @@ button, a { touch-action: manipulation; }
     <!-- Soup category selector — shown only in soup mode -->
 
     <div class="spin-area">
-      <div class="ww"><div class="ptr"></div><canvas id="wc" width="210" height="210"></canvas></div>
+      <div class="ww"><div class="ptr"></div><canvas id="wc" width="280" height="280"></canvas></div>
       <div id="wklabel" class="wk-label hidden"></div>
       <button class="sbtn" id="sbtn" onclick="spin()">✨ Spin &amp; Generate Recipe</button>
     </div>
@@ -2414,17 +2414,17 @@ function removeTag(item) {
 // ─── WHEEL ───────────────────────────────────────────────────────────────────
 function drawWheel() {
   const c=document.getElementById('wc'),ctx=c.getContext('2d');
-  const segs=8,arc=2*Math.PI/segs,cx=105,cy=105,r=100;
-  ctx.clearRect(0,0,210,210); ctx.save(); ctx.translate(cx,cy); ctx.rotate(ang);
+  const segs=8,arc=2*Math.PI/segs,cx=140,cy=140,r=133;
+  ctx.clearRect(0,0,280,280); ctx.save(); ctx.translate(cx,cy); ctx.rotate(ang);
   for(let i=0;i<segs;i++){
     ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,i*arc,(i+1)*arc);ctx.closePath();
     ctx.fillStyle=WC[i%WC.length];ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.stroke();
     ctx.save();ctx.rotate(i*arc+arc/2);ctx.textAlign='right';ctx.fillStyle='rgba(255,255,255,0.9)';
-    ctx.font='500 10px DM Sans,sans-serif';ctx.fillText(WHEEL_LABELS[i],r-6,4);ctx.restore();
+    ctx.font='500 13px DM Sans,sans-serif';ctx.fillText(WHEEL_LABELS[i],r-8,5);ctx.restore();
   }
   ctx.restore();
-  ctx.beginPath();ctx.arc(cx,cy,21,0,2*Math.PI);ctx.fillStyle='white';ctx.fill();
-  ctx.beginPath();ctx.arc(cx,cy,15,0,2*Math.PI);ctx.fillStyle='#C94B2A';ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,28,0,2*Math.PI);ctx.fillStyle='white';ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,20,0,2*Math.PI);ctx.fillStyle='#C94B2A';ctx.fill();
 }
 
 let st=0,sd=0;
