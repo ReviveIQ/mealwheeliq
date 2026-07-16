@@ -50,7 +50,10 @@
 </div>
 
 <div id="dashboard" style="display:none">
-  <h1>📊 MealWheelIQ Usage Dashboard</h1>
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <h1>📊 MealWheelIQ Usage Dashboard</h1>
+    <button id="refresh-btn" onclick="refreshDashboard()" style="padding:.5rem 1rem;background:white;border:1px solid #E2D9CE;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer">🔄 Refresh</button>
+  </div>
   <div class="sub">Every user, catalogued by ID and email, across all tracked activity.</div>
 
   <div class="stats-row" id="summary-cards"></div>
@@ -115,21 +118,35 @@ async function loadDashboard() {
   const secret = document.getElementById('secret-input').value.trim();
   if (!secret) return;
   adminSecret = secret;
+  const ok = await fetchAndRenderDashboard();
+  if (ok) {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+  }
+}
 
+async function refreshDashboard() {
+  const btn = document.getElementById('refresh-btn');
+  if (btn) { btn.textContent = '⏳ Refreshing...'; btn.disabled = true; }
+  await fetchAndRenderDashboard();
+  if (btn) { btn.textContent = '🔄 Refresh'; btn.disabled = false; }
+}
+
+async function fetchAndRenderDashboard() {
   try {
-    const resp = await fetch(`${API}/admin/dashboard-data?secret=${encodeURIComponent(secret)}`);
+    const resp = await fetch(`${API}/admin/dashboard-data?secret=${encodeURIComponent(adminSecret)}`);
     if (!resp.ok) {
       document.getElementById('gate-error').textContent = 'Invalid secret or server error.';
-      return;
+      return false;
     }
     const data = await resp.json();
     allUsers = data.users;
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
     renderSummary();
     renderTable();
+    return true;
   } catch (e) {
     document.getElementById('gate-error').textContent = 'Could not reach the API.';
+    return false;
   }
 }
 
