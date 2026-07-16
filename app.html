@@ -1323,6 +1323,7 @@ async function initApp() {
     userPlan = data.user.plan || 'free';
     spinCount = data.user.spinCount || 0;
     updateNavUI();
+    applyFeatureUnlocks(data.user.created_at);
     await loadPantryFromDB();
     await loadPreferences();
     buildIngUI();
@@ -1331,6 +1332,23 @@ async function initApp() {
   } catch(e) {
     console.error('Init failed:', e);
   }
+}
+
+// Progressive feature unlocks — new features reveal themselves as the
+// account matures, so the app doesn't overwhelm brand-new users on day 1.
+function applyFeatureUnlocks(createdAt) {
+  const daysSinceSignup = Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24));
+
+  const soupBtn = document.getElementById('bsoup');
+  if (soupBtn) soupBtn.style.display = daysSinceSignup >= 6 ? '' : 'none';
+
+  // 3-Day Plan: hide the "Add to 3-Day Plan" buttons and the summary section
+  // until day 12 — they're added dynamically per-card, so this flag is
+  // checked by cardHTML()/renderThreeDayPlan() at render time instead of
+  // toggled here directly.
+  window._threeDayPlanUnlocked = daysSinceSignup >= 12;
+  const tdpSection = document.getElementById('tdp-section');
+  if (tdpSection && !window._threeDayPlanUnlocked) tdpSection.style.display = 'none';
 }
 
 function updateNavUI() {
@@ -3016,7 +3034,7 @@ function cardHTML(r,delay,recipeId){
     </div>
     <div class="card-actions">
       ${recipeId?`<button class="card-action-btn fav" id="fav-btn-${recipeId}" onclick="favoriteRecipe(${recipeId},this)">⭐ Save</button>`:''}
-      ${recipeId?`<button class="card-action-btn" id="tdp-btn-${recipeId}" onclick="addToThreeDayPlan(${recipeId},this)">🗓️ Add to 3-Day Plan</button>`:''}
+      ${recipeId && window._threeDayPlanUnlocked?`<button class="card-action-btn" id="tdp-btn-${recipeId}" onclick="addToThreeDayPlan(${recipeId},this)">🗓️ Add to 3-Day Plan</button>`:''}
       <button class="card-action-btn send-shopper" onclick="sendRecipeToShopper(this)">📨 Send to shopper</button>
       ${recipeId?`<button class="card-action-btn fb-share-btn" id="fb-share-btn-${recipeId}" onclick="shareToFacebook(${recipeId},'${r.name.replace(/'/g,"\'")}')" title="Save the recipe first to enable sharing" disabled style="opacity:.45;cursor:not-allowed">📘 Share</button>
       <span class="fb-save" data-uri="https://mealwheeliq.com/og/${recipeId}.html" data-size="small" title="Save to Facebook"></span>`:''}
@@ -3378,7 +3396,7 @@ async function loadFavorites(){
         ${buyList.length ? `<div class="fav-buy-list">🛒 <strong>Need to buy:</strong> ${buyList.join(', ')}</div>` : '<div class="fav-buy-list" style="color:var(--green-dark)">✅ You have everything for this recipe!</div>'}
         <div class="fav-actions">
           <button class="fav-action-btn send" onclick="sendToShopper(${r.id})">📨 Send to shopper</button>
-          <button class="fav-action-btn" id="tdp-fav-btn-${r.id}" onclick="addToThreeDayPlan(${r.id}, document.getElementById('tdp-fav-btn-${r.id}'))">🗓️ Add to 3-Day Plan</button>
+          ${window._threeDayPlanUnlocked?`<button class="fav-action-btn" id="tdp-fav-btn-${r.id}" onclick="addToThreeDayPlan(${r.id}, document.getElementById('tdp-fav-btn-${r.id}'))">🗓️ Add to 3-Day Plan</button>`:''}
           <button class="fav-action-btn" onclick="shareFavorite(${r.id})">🔗 Share recipe</button>
           <button class="fav-action-btn remove" onclick="removeFavorite(${r.id}, this)">✕ Remove</button>
         </div>
