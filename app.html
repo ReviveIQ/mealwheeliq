@@ -2827,13 +2827,16 @@ async function generateFullWeek() {
     ? `\nThe user wants this week to lean toward: "${weekCravingText}". Use this as the guiding theme across all 5 nights, while still keeping each night distinct.`
     : '';
 
-  // Assign a distinct cuisine/style direction to each day to force real variety
+  // Assign a distinct cuisine/style direction to each day to force real variety.
+  // Weekly planning defaults to LIGHT, FRESH, and EASY across all 5 nights —
+  // someone planning a whole week wants meals they can realistically keep up
+  // with, not 5 nights of heavy, involved cooking.
   const dayStyles = [
-    'bold American comfort food or BBQ-inspired (think smash burgers, ribs, loaded potatoes, mac & cheese)',
-    'fresh Mediterranean or Italian (pasta, baked fish, antipasto bowls, bruschetta)',
+    'light American-style grilling or searing (grilled chicken, turkey burgers, seared fish) with a fresh side like corn salad or slaw — avoid heavy casseroles, deep-fried food, or excessive cheese',
+    'fresh Mediterranean (baked or grilled fish, veggie-forward pasta primavera, Greek-style salads, bruschetta) — lean on olive oil, lemon, and fresh herbs rather than heavy cream sauces',
     'LIGHT & FRESH night — a vibrant no-cook or minimal-cook meal: a big chopped salad, grain bowl, or fresh wrap. Build around easy grocery store finds like rotisserie chicken, canned tuna, hard-boiled eggs, or chickpeas. Include a simple homemade dressing with exact ratios (vinaigrette, tahini, lemon herb, etc). Suggest fresh produce easily found at any grocery store — cherry tomatoes, cucumber, avocado, mixed greens, feta, nuts, dried cranberries. Steps should be: chop, toss, dress, serve. No stove required.',
-    'bold Asian-inspired (stir fry, Thai peanut noodles, Korean BBQ, teriyaki, fried rice)',
-    'CREATIVE WILDCARD — something unexpected and fun that the family will talk about: tacos with a twist, a themed dinner night, a fusion dish, or an elevated comfort food nobody saw coming'
+    'light Asian-inspired stir-fry or noodle bowl (lean chicken/shrimp/tofu, fresh vegetables, quick high-heat stir-fry) — avoid deep-fried items or heavy fried rice, favor fresh herbs and a light sauce',
+    'CREATIVE but still light and easy — something the family will talk about without a lot of effort: fresh tacos with a bright slaw, a simple themed bowl, or a fun twist on a classic that\'s still quick to pull together'
   ];
 
   const makeWeekPrompt = (dayIndex, avoidNames) => {
@@ -2853,14 +2856,15 @@ Pantry: flour, sugar, cornstarch, chicken broth, beef broth
 Aromatics: garlic, onion (assume always on hand)
 
 WEEK PLANNING RULES:
+- DEFAULT ASSUMPTION for weekly planning: this user wants LIGHT, FRESH, and EASY-TO-MAKE dinners they can realistically keep up with across a whole week — not 5 nights of heavy, involved cooking. Favor quick-cook techniques (sauté, grill, sheet-pan, quick simmer, no-cook) over slow braises, heavy casseroles, or deep-fried dishes. Favor fresh vegetables, lean proteins, and bright flavors (herbs, citrus, light sauces) over rich cream sauces or excessive cheese — unless the user's own request above explicitly asks for something heartier.
 - Each night MUST feel completely different — different protein, different cuisine, different cooking technique
 - Suggest 3-6 fresh ingredients to buy (buy:true) that make this recipe authentic to its style direction
 - Do NOT repeat proteins across nights — if Monday uses chicken, no other night can use chicken
 - For the LIGHT & FRESH night: ingredients should be things easily found at ANY grocery store — pre-washed salad bags, rotisserie chicken, canned proteins, fresh produce. Calories should be lighter (400-550 kcal/person). Dressing must include exact measurements.
-- For the CREATIVE WILDCARD night: be bold and unexpected — surprise the family with something they've never made before
+- For the CREATIVE night: still keep it light and quick — bold on flavor, not on effort or heaviness
 - ${avoidStr}
 - Flag organic:true for meats, eggs, leafy greens, thin-skin produce
-- Servings: ${s}. Target approximately ${g} kcal per serving. ${dietStr} ${methodStr} ${timeStr}
+- Servings: ${s}. Target approximately ${Math.round(g * 0.85)} kcal per serving (weekly plans default lighter than a one-off dinner). ${dietStr} ${methodStr} ${timeStr}
 
 Recipe steps MUST follow professional cookbook standards (America's Test Kitchen / Bon Appétit style):
 - Lead every step with an action verb: Heat, Sear, Brown, Stir, Whisk, Fold, Simmer, Roast, Toss, Season, Garnish
