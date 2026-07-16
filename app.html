@@ -75,6 +75,11 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 /* MODE */
 .mode-sw{display:flex;background:var(--border);border-radius:var(--radius);padding:3px;gap:3px;margin-bottom:1.1rem}
 .mbtn{flex:1;padding:9px 7px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--ink3);border-radius:10px;transition:all .2s;text-align:center;line-height:1.3}
+.mbtn.locked{opacity:.55;cursor:pointer}
+.mbtn.locked .md{color:var(--coral)}
+.tdp-teaser{background:var(--coral-pale);border:1px dashed var(--coral);border-radius:12px;padding:.9rem 1rem;margin-bottom:1rem}
+.tdp-teaser-title{font-size:13px;font-weight:700;color:var(--coral-dark);margin-bottom:4px}
+.tdp-teaser-sub{font-size:12.5px;color:var(--ink2);line-height:1.4}
 .mbtn.act{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.1)}
 .mbtn .mi{font-size:15px;display:block;margin-bottom:1px}
 .mbtn .md{font-size:10px;color:var(--ink3)}
@@ -1339,16 +1344,33 @@ async function initApp() {
 function applyFeatureUnlocks(createdAt) {
   const daysSinceSignup = Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24));
 
+  // Soup Creator — unlocks day 6
   const soupBtn = document.getElementById('bsoup');
-  if (soupBtn) soupBtn.style.display = daysSinceSignup >= 6 ? '' : 'none';
+  const soupUnlocked = daysSinceSignup >= 6;
+  if (soupBtn) {
+    if (soupUnlocked) {
+      soupBtn.classList.remove('locked');
+      soupBtn.onclick = () => setMode('soup');
+      soupBtn.innerHTML = '<span class="mi">🍲</span>Soup Creator<div class="md">One bowl, from your pantry</div>';
+    } else {
+      const daysLeft = 6 - daysSinceSignup;
+      soupBtn.classList.add('locked');
+      soupBtn.onclick = () => showToast(`🔒 Soup Creator unlocks in ${daysLeft} day${daysLeft===1?'':'s'} (Day 6)`);
+      soupBtn.innerHTML = `<span class="mi">🔒</span>Soup Creator<div class="md">Unlocks Day 6 — ${daysLeft} day${daysLeft===1?'':'s'} to go</div>`;
+    }
+  }
 
-  // 3-Day Plan: hide the "Add to 3-Day Plan" buttons and the summary section
-  // until day 12 — they're added dynamically per-card, so this flag is
-  // checked by cardHTML()/renderThreeDayPlan() at render time instead of
-  // toggled here directly.
+  // 3-Day Plan — unlocks day 12
   window._threeDayPlanUnlocked = daysSinceSignup >= 12;
   const tdpSection = document.getElementById('tdp-section');
-  if (tdpSection && !window._threeDayPlanUnlocked) tdpSection.style.display = 'none';
+  if (tdpSection && !window._threeDayPlanUnlocked) {
+    const daysLeft = 12 - daysSinceSignup;
+    tdpSection.style.display = 'block';
+    tdpSection.innerHTML = `<div class="tdp-teaser">
+      <div class="tdp-teaser-title">🔒 Coming Day 12 — ${daysLeft} day${daysLeft===1?'':'s'} to go</div>
+      <div class="tdp-teaser-sub">3-Day Plan: save 3 recipes, get one combined grocery list — sized so nothing goes bad before you cook it.</div>
+    </div>`;
+  }
 }
 
 function updateNavUI() {
@@ -3443,6 +3465,7 @@ async function loadThreeDayPlan() {
 function renderThreeDayPlan(recipes) {
   const el = document.getElementById('tdp-section');
   if (!el) return;
+  if (!window._threeDayPlanUnlocked) return; // teaser stays as set by applyFeatureUnlocks
   if (!recipes.length) { el.innerHTML = ''; el.style.display = 'none'; return; }
   el.style.display = 'block';
 
