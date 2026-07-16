@@ -3194,6 +3194,13 @@ function buildGL(){
       }
     });
   });
+  // Convert recipe-measurement totals into realistic store-purchase units
+  Object.values(ingMap).forEach(ing => {
+    const converted = toShoppingUnit(ing.name, ing.quantity, ing.unit);
+    ing.quantity = converted.qty;
+    ing.unit = converted.unit;
+    ing.buyNote = converted.note;
+  });
   // Format quantities for display
   Object.values(ingMap).forEach(ing => {
     if (ing.quantity > 0) {
@@ -3248,7 +3255,7 @@ function buildGL(){
       const dayLabels = item.days.map(d => dayNames[d].slice(0,3)).join(', ');
       const qtyStr = item.qtyDisplay ? `${item.qtyDisplay}${item.unit ? ' '+item.unit : ''}` : '';
       html += `<div class="glit-row" onclick="this.classList.toggle('ck')">
-        <span class="glit-name">${item.organic?'🌿 ':''}${item.name}${qtyStr ? ` <span style="color:var(--coral);font-weight:600;font-size:12px"> — ${qtyStr}</span>` : ''}</span>
+        <span class="glit-name">${item.organic?'🌿 ':''}${item.name}${qtyStr ? ` <span style="color:var(--coral);font-weight:600;font-size:12px"> — ${qtyStr}</span>` : ''}${item.buyNote ? ` <span style="color:var(--ink3);font-size:11px;font-style:italic"> ${item.buyNote}</span>` : ''}</span>
         <span class="glit-day">${dayLabels}</span>
       </div>`;
     });
@@ -3462,6 +3469,63 @@ async function loadThreeDayPlan() {
   } catch (e) { console.error('loadThreeDayPlan error:', e); }
 }
 
+// Smart Shopping Units — converts a recipe measurement (e.g. "2 tbsp") into
+// what you'd actually buy at the store (e.g. "1 bottle"). Recipes measure in
+// cooking units; stores sell in package units — this bridges the two so the
+// grocery list reads like a real shopping list, not a recipe card.
+function toShoppingUnit(name, qty, unit) {
+  const n = (name || '').toLowerCase();
+  const u = (unit || '').toLowerCase();
+  const smallLiquidUnits = ['tsp', 'tbsp', 'cup', 'cups'];
+  const isSmallLiquid = smallLiquidUnits.includes(u);
+
+  // Canned goods — AI already outputs realistic units like "1 can (15oz)"
+  if (u.includes('can') || n.includes('canned') || n.includes('(canned)')) {
+    return { qty, unit, note: null };
+  }
+
+  // Bottled/pourable pantry liquids (oils, vinegar, sauces, condiments)
+  const bottledLiquids = ['olive oil', 'vegetable oil', 'oil', 'vinegar', 'soy sauce', 'honey', 'maple syrup', 'hot sauce', 'worcestershire', 'fish sauce', 'sesame oil', 'dressing', 'ketchup', 'mustard', 'mayo', 'bbq sauce', 'tahini', 'sriracha'];
+  if (isSmallLiquid && bottledLiquids.some(k => n.includes(k))) {
+    return { qty: 1, unit: 'bottle', note: `(recipe calls for ${qty}${unit ? ' ' + unit : ''})` };
+  }
+
+  // Dry spices & seasonings — bought in small jars regardless of recipe amount
+  const spices = ['cumin', 'paprika', 'cinnamon', 'oregano', 'basil', 'thyme', 'rosemary', 'chili powder', 'garlic powder', 'onion powder', 'turmeric', 'curry powder', 'cayenne', 'nutmeg', 'allspice', 'coriander', 'bay lea', 'red pepper flake', 'italian seasoning', 'taco seasoning', 'seasoning', 'spice blend'];
+  if ((u === 'tsp' || u === 'tbsp') && spices.some(k => n.includes(k))) {
+    return { qty: 1, unit: 'jar/container', note: `(recipe calls for ${qty} ${unit})` };
+  }
+
+  // Fresh herbs — sold by the bunch, not by the tablespoon
+  const freshHerbs = ['fresh cilantro', 'fresh parsley', 'fresh basil', 'fresh dill', 'fresh mint', 'fresh chive', 'cilantro', 'parsley', 'dill', 'mint', 'chives', 'thyme sprig', 'rosemary sprig'];
+  if (isSmallLiquid && freshHerbs.some(k => n.includes(k)) && !n.includes('dried')) {
+    return { qty: 1, unit: 'bunch', note: null };
+  }
+
+  // Broths/stocks — sold in 32oz cartons; round up to how many cartons needed
+  if ((n.includes('broth') || n.includes('stock')) && (u === 'cup' || u === 'cups')) {
+    const cartons = Math.max(1, Math.ceil(qty / 4)); // ~4 cups per 32oz carton
+    return { qty: cartons, unit: cartons === 1 ? 'carton (32oz)' : 'cartons (32oz)', note: null };
+  }
+
+  // Shredded/grated cheese — sold by the bag, not the cup
+  if (n.includes('cheese') && (u === 'cup' || u === 'cups') && !n.includes('block')) {
+    const bags = Math.max(1, Math.ceil(qty / 2)); // ~2 cups shredded per 8oz bag
+    return { qty: bags, unit: bags === 1 ? 'bag' : 'bags', note: null };
+  }
+
+  // Proteins sold by weight — round up to the nearest realistic butcher/pack size
+  const proteins = ['chicken', 'beef', 'pork', 'salmon', 'shrimp', 'turkey', 'lamb', 'steak', 'ground'];
+  if ((u === 'lb' || u === 'lbs' || u === 'pound' || u === 'pounds') && proteins.some(k => n.includes(k))) {
+    const rounded = Math.ceil(qty * 4) / 4; // nearest quarter-pound, matching typical butcher packaging
+    return { qty: rounded, unit: unit, note: null };
+  }
+
+  // Default — leave the AI's original quantity/unit as-is (already realistic
+  // for produce, eggs, bread, etc.)
+  return { qty, unit, note: null };
+}
+
 function renderThreeDayPlan(recipes) {
   const el = document.getElementById('tdp-section');
   if (!el) return;
@@ -3486,6 +3550,15 @@ function renderThreeDayPlan(recipes) {
         if (!ingMap[k].unit && ing.unit) ingMap[k].unit = ing.unit;
       }
     });
+  });
+
+  // Convert recipe-measurement totals into realistic store-purchase units
+  // (e.g. "6 tbsp olive oil" summed across recipes becomes "1 bottle")
+  Object.values(ingMap).forEach(ing => {
+    const converted = toShoppingUnit(ing.name, ing.quantity, ing.unit);
+    ing.quantity = converted.qty;
+    ing.unit = converted.unit;
+    ing.buyNote = converted.note;
   });
 
   // Format quantities for display — same rounding/fraction logic as the weekly list
@@ -3524,7 +3597,7 @@ function renderThreeDayPlan(recipes) {
     items.forEach(item => {
       const qtyStr = item.qtyDisplay ? `${item.qtyDisplay}${item.unit ? ' '+item.unit : ''}` : '';
       html += `<div class="glit-row" onclick="this.classList.toggle('ck')">
-        <span class="glit-name">${item.organic ? '🌿 ' : ''}${item.name}${qtyStr ? ` <span style="color:var(--coral);font-weight:600;font-size:12px"> — ${qtyStr}</span>` : ''}</span>
+        <span class="glit-name">${item.organic ? '🌿 ' : ''}${item.name}${qtyStr ? ` <span style="color:var(--coral);font-weight:600;font-size:12px"> — ${qtyStr}</span>` : ''}${item.buyNote ? ` <span style="color:var(--ink3);font-size:11px;font-style:italic"> ${item.buyNote}</span>` : ''}</span>
       </div>`;
     });
     html += '</div></div>';
@@ -3548,7 +3621,7 @@ function printThreeDayGroceryList() {
     itemsHtml += `<h3>${cat}</h3><ul>`;
     items.forEach(item => {
       const qtyStr = item.qtyDisplay ? `${item.qtyDisplay}${item.unit ? ' ' + item.unit : ''}` : '';
-      itemsHtml += `<li><span class="chk">☐</span> ${item.organic ? '🌿 ' : ''}${item.name}${qtyStr ? ` — <strong>${qtyStr}</strong>` : ''}</li>`;
+      itemsHtml += `<li><span class="chk">☐</span> ${item.organic ? '🌿 ' : ''}${item.name}${qtyStr ? ` — <strong>${qtyStr}</strong>` : ''}${item.buyNote ? ` <em style="color:#8C7B72;font-size:12px">${item.buyNote}</em>` : ''}</li>`;
     });
     itemsHtml += '</ul>';
   });
