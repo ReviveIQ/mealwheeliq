@@ -892,6 +892,26 @@ button, a { touch-action: manipulation; }
     </div>
   </div>
 
+  <!-- SOUP CATEGORY MODAL -->
+  <div id="soup-cat-modal" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width:420px;padding:1.4rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">
+        <h2 style="margin:0;font-size:1.2rem">🍲 What kind of soup?</h2>
+        <button onclick="closeSoupCatModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink3)">×</button>
+      </div>
+      <p style="font-size:13px;color:var(--ink3);margin:-.5rem 0 1rem">Pick a direction, or let us surprise you.</p>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem">
+        <button class="soup-cat-btn any act" id="scat-any" onclick="setSoupCat(null)" style="grid-column:1/-1;background:var(--ink);color:white;border:none;border-radius:12px;padding:.8rem;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🎰 Surprise Me — Any Style</button>
+        <button class="soup-cat-btn" id="scat-broth" onclick="setSoupCat('🥣 Broth & Light')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.8rem .5rem;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🥣 Broth & Light</button>
+        <button class="soup-cat-btn" id="scat-creamy" onclick="setSoupCat('🥛 Creamy & Rich')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.8rem .5rem;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🥛 Creamy & Rich</button>
+        <button class="soup-cat-btn" id="scat-noodle" onclick="setSoupCat('🍜 Noodle & Pasta')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.8rem .5rem;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🍜 Noodle & Pasta</button>
+        <button class="soup-cat-btn" id="scat-hearty" onclick="setSoupCat('🫕 Chunky & Hearty')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.8rem .5rem;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🫕 Chunky & Hearty</button>
+        <button class="soup-cat-btn" id="scat-spicy" onclick="setSoupCat('🌶️ Bold & Spicy')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.8rem .5rem;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🌶️ Bold & Spicy</button>
+        <button class="soup-cat-btn" id="scat-fresh" onclick="setSoupCat('🌱 Fresh & Garden')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.8rem .5rem;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🌱 Fresh & Garden</button>
+      </div>
+    </div>
+  </div>
+
   <!-- SPIN SECTION -->
   <div id="section-spin">
 
@@ -936,19 +956,6 @@ button, a { touch-action: manipulation; }
       <button class="mbtn act" id="bfridge" onclick="setMode('fridge')"><span class="mi">🧊</span>Tonight's Dinner<div class="md">One quick spin</div></button>
       <button class="mbtn" id="bweek" onclick="setMode('week')"><span class="mi">📅</span>Plan My Week<div class="md">5 dinners + grocery list, all at once</div></button>
       <button class="mbtn" id="bsoup" onclick="setMode('soup')"><span class="mi">🍲</span>Soup Creator<div class="md">One bowl, from your pantry</div></button>
-    </div>
-
-    <div id="soup-cat-selector" style="display:none;margin:.75rem 0">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:.6rem;text-align:center">What kind of soup?</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem">
-        <button class="soup-cat-btn any act" id="scat-any" onclick="setSoupCat(null)" style="grid-column:1/-1;background:var(--ink);color:white;border:none;border-radius:12px;padding:.6rem;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🎰 Surprise Me — Any Style</button>
-        <button class="soup-cat-btn" id="scat-broth" onclick="setSoupCat('🥣 Broth & Light')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .4rem;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🥣 Broth & Light</button>
-        <button class="soup-cat-btn" id="scat-creamy" onclick="setSoupCat('🥛 Creamy & Rich')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .4rem;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🥛 Creamy & Rich</button>
-        <button class="soup-cat-btn" id="scat-noodle" onclick="setSoupCat('🍜 Noodle & Pasta')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .4rem;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🍜 Noodle & Pasta</button>
-        <button class="soup-cat-btn" id="scat-hearty" onclick="setSoupCat('🫕 Chunky & Hearty')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .4rem;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🫕 Chunky & Hearty</button>
-        <button class="soup-cat-btn" id="scat-spicy" onclick="setSoupCat('🌶️ Bold & Spicy')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .4rem;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🌶️ Bold & Spicy</button>
-        <button class="soup-cat-btn" id="scat-fresh" onclick="setSoupCat('🌱 Fresh & Garden')" style="background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .4rem;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2)">🌱 Fresh & Garden</button>
-      </div>
     </div>
 
     <div class="onote">🌿 <strong>Why organic matters:</strong> USDA organic = no synthetic pesticides. Harvard research links it to lower pesticide exposure in children. Organic livestock = no antibiotics — the WHO flags this as a key driver of antibiotic resistance. <strong>Green tags</strong> = highest-priority swaps.</div>
@@ -2662,8 +2669,11 @@ let soupBigBatch = false;
 let currentSoupRecipe = null;
 
 function showSoupCategorySelector() {
-  const el = document.getElementById('soup-cat-selector');
-  if (el) el.style.display = 'block';
+  document.getElementById('soup-cat-modal').classList.remove('hidden');
+}
+
+function closeSoupCatModal() {
+  document.getElementById('soup-cat-modal').classList.add('hidden');
 }
 
 function setSoupCat(cat) {
@@ -2691,6 +2701,9 @@ function setSoupCat(cat) {
     activeBtn.style.color = 'white';
     activeBtn.style.border = 'none';
   }
+  // Close the modal once a choice is made — feels responsive, matches
+  // how the pantry modal's "Save & Spin" confirms and closes in one step
+  setTimeout(() => closeSoupCatModal(), 200);
 }
 
 async function generateSoup() {
@@ -4002,9 +4015,8 @@ function setMode(m){
     // Show soup category selector
     showSoupCategorySelector();
   } else {
-    // Hide soup category selector
-    const soupCatEl = document.getElementById('soup-cat-selector');
-    if (soupCatEl) { soupCatEl.style.display = 'none'; }
+    // Ensure the soup modal is closed if switching away from soup mode
+    closeSoupCatModal();
     selectedSoupCategory = null;
     WHEEL_LABELS=["Tonight's Pick","Family Fave","Chef's Special","Something New","Quick Meal","Weekend Cook","Comfort Food","Seasonal Dish"];
     WHEEL_COLORS=['#C94B2A','#2A6B4A','#8B5E3C','#534AB7','#B8860B','#A0522D','#4A8C6F','#1C1714'];
