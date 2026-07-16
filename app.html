@@ -480,6 +480,7 @@ footer a{color:var(--coral);text-decoration:none;margin:0 .25rem}
 .tonight-chip .rm{cursor:pointer;font-size:15px;opacity:.6;line-height:1}
 /* pantry panel */
 .pantry-summary{display:flex;flex-wrap:wrap;gap:.35rem;min-height:32px}
+.pantry-count-summary{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px}
 .pantry-empty-msg{font-size:13px;color:var(--ink3)}
 .link-btn{background:none;border:none;color:var(--green-dark);font-size:inherit;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit}
 .edit-pantry-btn{background:none;border:1px solid var(--border);border-radius:14px;padding:.25rem .65rem;font-size:11px;cursor:pointer;color:var(--ink2);transition:all .15s}
@@ -1629,10 +1630,11 @@ function renderPantrySummary() {
     el.innerHTML = `<div class="pantry-empty-msg">No pantry items yet — <button class="link-btn" onclick="openPantryModal()">add what you have</button></div>`;
   } else {
     const items = [...pantryItems];
-    const show = items.slice(0, 8);
-    const more = items.length - show.length;
-    el.innerHTML = show.map(i => `<span class="ps-tag">${i}</span>`).join('') +
-      (more > 0 ? `<span class="ps-tag" onclick="openPantryModal()" style="cursor:pointer;opacity:.7">+${more} more</span>` : '');
+    const preview = items.slice(0, 3);
+    el.innerHTML = `<span class="pantry-count-summary">
+        ${preview.map(i => `<span class="ps-tag">${i}</span>`).join('')}
+        <button class="link-btn" onclick="openPantryModal()">See full pantry (${items.length} item${items.length !== 1 ? 's' : ''}) →</button>
+      </span>`;
   }
   // Update selectedIngs for spin
   selectedIngs = new Set([...pantryItems, ...tonightItems]);
