@@ -3512,6 +3512,8 @@ function renderThreeDayPlan(recipes) {
     else cats['Other'].push(ing);
   });
 
+  window._tdpPrintData = { recipes, cats };
+
   let html = `<div class="glp">
     <div class="gl-header-row"><h3>🗓️ 3-Day Plan (${recipes.length}/3)</h3></div>
     <div style="margin:6px 0 10px;font-size:13px;color:var(--ink3)">${recipes.map(r => `${r.emoji} ${r.recipe_name}`).join(' · ')}</div>
@@ -3528,9 +3530,50 @@ function renderThreeDayPlan(recipes) {
     html += '</div></div>';
   });
   html += `</div>
-    <button class="cpb" onclick="clearThreeDayPlan()" style="margin-top:10px">🗑️ Clear plan &amp; start fresh</button>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="cpb" onclick="printThreeDayGroceryList()">🖨️ Print / Save as PDF</button>
+      <button class="cpb" onclick="clearThreeDayPlan()">🗑️ Clear plan &amp; start fresh</button>
+    </div>
   </div>`;
   el.innerHTML = html;
+}
+
+function printThreeDayGroceryList() {
+  const data = window._tdpPrintData;
+  if (!data) return;
+
+  let itemsHtml = '';
+  Object.entries(data.cats).forEach(([cat, items]) => {
+    if (!items.length) return;
+    itemsHtml += `<h3>${cat}</h3><ul>`;
+    items.forEach(item => {
+      const qtyStr = item.qtyDisplay ? `${item.qtyDisplay}${item.unit ? ' ' + item.unit : ''}` : '';
+      itemsHtml += `<li><span class="chk">☐</span> ${item.organic ? '🌿 ' : ''}${item.name}${qtyStr ? ` — <strong>${qtyStr}</strong>` : ''}</li>`;
+    });
+    itemsHtml += '</ul>';
+  });
+
+  const recipeList = data.recipes.map(r => `${r.emoji} ${r.recipe_name}`).join(' &middot; ');
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>MealWheelIQ — Grocery List</title>
+    <style>
+      body{font-family:'DM Sans',Arial,sans-serif;color:#1C1714;max-width:640px;margin:2rem auto;padding:0 1rem}
+      h1{font-family:Georgia,serif;font-size:1.5rem;margin-bottom:.2rem}
+      .sub{color:#8C7B72;font-size:13px;margin-bottom:1.5rem}
+      h3{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:#C94B2A;margin:1.2rem 0 .4rem;border-bottom:1px solid #E2D9CE;padding-bottom:4px}
+      ul{list-style:none;padding:0;margin:0}
+      li{padding:.4rem 0;font-size:14px;border-bottom:1px dotted #E2D9CE}
+      .chk{display:inline-block;width:16px}
+      @media print{body{margin:0}}
+    </style></head>
+    <body>
+      <h1>🍽️ MealWheelIQ — 3-Day Grocery List</h1>
+      <div class="sub">${recipeList}</div>
+      ${itemsHtml}
+    </body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 300);
 }
 
 async function clearThreeDayPlan() {
