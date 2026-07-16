@@ -3604,17 +3604,16 @@ function renderThreeDayPlan(recipes) {
   });
   html += `</div>
     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-      <button class="cpb" onclick="printThreeDayGroceryList()">🖨️ Print / Save as PDF</button>
+      <button class="cpb" onclick="saveThreeDayPlanAsPdf()">💾 Save as PDF</button>
+      <button class="cpb" onclick="sendThreeDayPlanToShopper()">📤 Send to Shopper</button>
       <button class="cpb" onclick="clearThreeDayPlan()">🗑️ Clear plan &amp; start fresh</button>
     </div>
   </div>`;
   el.innerHTML = html;
 }
 
-function printThreeDayGroceryList() {
+function buildThreeDayPlanItemsHtml() {
   const data = window._tdpPrintData;
-  if (!data) return;
-
   let itemsHtml = '';
   Object.entries(data.cats).forEach(([cat, items]) => {
     if (!items.length) return;
@@ -3625,7 +3624,14 @@ function printThreeDayGroceryList() {
     });
     itemsHtml += '</ul>';
   });
+  return itemsHtml;
+}
 
+function saveThreeDayPlanAsPdf() {
+  const data = window._tdpPrintData;
+  if (!data) return;
+
+  const itemsHtml = buildThreeDayPlanItemsHtml();
   const recipeList = data.recipes.map(r => `${r.emoji} ${r.recipe_name}`).join(' &middot; ');
   const win = window.open('', '_blank');
   win.document.write(`<!DOCTYPE html><html><head><title>MealWheelIQ — Grocery List</title>
@@ -3637,16 +3643,45 @@ function printThreeDayGroceryList() {
       ul{list-style:none;padding:0;margin:0}
       li{padding:.4rem 0;font-size:14px;border-bottom:1px dotted #E2D9CE}
       .chk{display:inline-block;width:16px}
-      @media print{body{margin:0}}
+      .save-btn{background:#C94B2A;color:white;border:none;border-radius:8px;padding:.7rem 1.4rem;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',Arial,sans-serif;margin-bottom:1.5rem}
+      .hint{font-size:12px;color:#8C7B72;margin-bottom:1.5rem}
+      @media print{.save-btn,.hint{display:none}body{margin:0}}
     </style></head>
     <body>
       <h1>🍽️ MealWheelIQ — 3-Day Grocery List</h1>
       <div class="sub">${recipeList}</div>
+      <button class="save-btn" onclick="window.print()">💾 Save as PDF</button>
+      <div class="hint">Click above, then choose "Save as PDF" as the destination in the print dialog.</div>
       ${itemsHtml}
     </body></html>`);
   win.document.close();
   win.focus();
-  setTimeout(() => win.print(), 300);
+}
+
+function sendThreeDayPlanToShopper() {
+  const data = window._tdpPrintData;
+  if (!data) return;
+
+  let msg = '🛒 3-Day Grocery List\n';
+  msg += data.recipes.map(r => `${r.emoji} ${r.recipe_name}`).join(' · ') + '\n\n';
+
+  Object.entries(data.cats).forEach(([cat, items]) => {
+    if (!items.length) return;
+    msg += `${cat.toUpperCase()}:\n`;
+    items.forEach(item => {
+      const qtyStr = item.qtyDisplay ? `${item.qtyDisplay}${item.unit ? ' ' + item.unit : ''}` : '';
+      msg += `• ${item.name}${qtyStr ? ' — ' + qtyStr : ''}${item.buyNote ? ' ' + item.buyNote : ''}\n`;
+    });
+    msg += '\n';
+  });
+  msg += '📱 From MealWheelIQ — mealwheeliq.com';
+
+  if (navigator.share) {
+    navigator.share({ title: '3-Day Grocery List', text: msg });
+  } else {
+    navigator.clipboard.writeText(msg);
+    showToast('Grocery list copied! Paste it in a text or email to send.');
+  }
 }
 
 async function clearThreeDayPlan() {
