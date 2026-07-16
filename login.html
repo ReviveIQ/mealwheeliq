@@ -132,9 +132,28 @@ footer a{color:var(--ink3)}
         <label>Password</label>
         <input type="password" id="login-password" placeholder="Your password" required>
       </div>
+      <div style="text-align:right;margin-top:-8px;margin-bottom:12px">
+        <a href="#" onclick="showForgotPassword(event)" style="font-size:13px">Forgot password?</a>
+      </div>
       <button type="submit" class="btn-submit" id="login-btn">Sign In</button>
       <div class="terms">No account yet? <a href="#" onclick="showTab('signup')">Create one free</a></div>
     </form>
+
+    <!-- FORGOT PASSWORD -->
+    <div id="forgot-password-panel" style="display:none">
+      <p style="margin-bottom:1rem;font-size:14px">Enter your email and we'll send you a link to reset your password.</p>
+      <form id="forgot-password-form" onsubmit="handleForgotPassword(event)">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="forgot-email" placeholder="you@example.com" required>
+        </div>
+        <button type="submit" class="btn-submit" id="forgot-btn">Send Reset Link</button>
+        <div class="terms"><a href="#" onclick="hideForgotPassword(event)">Back to sign in</a></div>
+      </form>
+      <p id="forgot-success-msg" style="display:none;color:var(--green,#2A6B4A);font-size:14px;margin-top:1rem">
+        ✅ If that email has an account, a reset link is on its way — check your inbox.
+      </p>
+    </div>
 
     <!-- SIGNUP -->
     <form id="signup-form" style="display:none" onsubmit="handleSignup(event)">
@@ -190,9 +209,49 @@ let selectedPlan = 'free';
 function showTab(tab) {
   document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
   document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('forgot-password-panel').style.display = 'none';
   document.getElementById('tab-login').classList.toggle('act', tab === 'login');
   document.getElementById('tab-signup').classList.toggle('act', tab === 'signup');
   hideMessages();
+}
+
+function showForgotPassword(e) {
+  e.preventDefault();
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('forgot-password-panel').style.display = 'block';
+  document.getElementById('forgot-success-msg').style.display = 'none';
+  document.getElementById('forgot-password-form').style.display = 'block';
+}
+
+function hideForgotPassword(e) {
+  e.preventDefault();
+  document.getElementById('forgot-password-panel').style.display = 'none';
+  document.getElementById('login-form').style.display = 'block';
+}
+
+async function handleForgotPassword(e) {
+  e.preventDefault();
+  const email = document.getElementById('forgot-email').value.trim();
+  const btn = document.getElementById('forgot-btn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  try {
+    await fetch(API + '/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    // Always show success, regardless of response — don't reveal if email exists
+    document.getElementById('forgot-password-form').style.display = 'none';
+    document.getElementById('forgot-success-msg').style.display = 'block';
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    document.getElementById('forgot-password-form').style.display = 'none';
+    document.getElementById('forgot-success-msg').style.display = 'block';
+  } finally {
+    btn.textContent = 'Send Reset Link';
+    btn.disabled = false;
+  }
 }
 
 function selectPlan(plan) {
