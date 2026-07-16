@@ -472,6 +472,7 @@ footer a{color:var(--coral);text-decoration:none;margin:0 .25rem}
 .pantry-chip{font-size:12px;padding:.3rem .7rem;border-radius:14px;border:1px solid var(--border);background:var(--bg);cursor:pointer;transition:all .15s}
 .pantry-chip.in-pantry{background:var(--green-pale);border-color:var(--green);color:var(--green-dark);font-weight:500}
 .pantry-saved-list{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+.pantry-list-toggle{font-size:12.5px;font-weight:600;color:var(--green-dark);cursor:pointer;margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border)}
 .pantry-tag{display:flex;align-items:center;gap:5px;font-size:12px;padding:.3rem .65rem;border-radius:14px;background:var(--green-pale);border:1px solid var(--green);color:var(--green-dark)}
 .pantry-tag .rm{cursor:pointer;font-size:15px;opacity:.6;line-height:1}.pantry-tag .rm:hover{opacity:1}
 .tonight-desc{font-size:13px;color:var(--ink2);margin-bottom:.75rem}
@@ -865,7 +866,10 @@ button, a { touch-action: manipulation; }
         <div id="pantry-suggestions" class="pantry-suggestions hidden"></div>
         <div class="staples-note">✅ <strong>Already assumed:</strong> oil, butter, salt, pepper, garlic, onion, all spices & condiments — no need to add these.</div>
         <div class="pantry-categories" id="pantry-categories"></div>
-        <div class="pantry-saved-list" id="pantry-saved-list"></div>
+        <div class="pantry-list-toggle" id="pantry-list-toggle" onclick="togglePantryList()">
+          <span id="pantry-list-toggle-label">▸ Show selected items</span>
+        </div>
+        <div class="pantry-saved-list" id="pantry-saved-list" style="display:none"></div>
       </div>
       <div id="ptab-tonight" class="ptab-content hidden">
         <p class="tonight-desc">Picked something up? Add it just for tonight — won't save to your pantry.</p>
@@ -1619,8 +1623,21 @@ function renderPantryTags() {
       ? '<div style="font-size:12px;color:var(--ink3)">No items yet — search or tap below to add</div>'
       : [...pantryItems].map(i => `<div class="pantry-tag">${i}<span class="rm" onclick="removePantryItem('${i.replace(/'/g,"\'")}')">×</span></div>`).join('');
   }
+  const toggleLabel = document.getElementById('pantry-list-toggle-label');
+  if (toggleLabel) {
+    const isOpen = list && list.style.display !== 'none';
+    toggleLabel.textContent = `${isOpen ? '▾ Hide' : '▸ Show'} selected items (${pantryItems.size})`;
+  }
   // In main app summary
   renderPantrySummary();
+}
+
+function togglePantryList() {
+  const list = document.getElementById('pantry-saved-list');
+  if (!list) return;
+  const isOpen = list.style.display !== 'none';
+  list.style.display = isOpen ? 'none' : 'flex';
+  renderPantryTags();
 }
 
 function renderPantrySummary() {
