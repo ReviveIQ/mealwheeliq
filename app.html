@@ -32,6 +32,15 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .nav-plan.pro{background:var(--green-pale);color:var(--green);border-color:rgba(42,107,74,.2)}
 .nav-user{font-size:12px;color:var(--ink2);font-weight:500}
 .nav-btn{padding:6px 14px;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;border:1px solid var(--border2);background:transparent;color:var(--ink2)}
+.blog-new-dot{position:absolute;top:-3px;right:-3px;width:9px;height:9px;background:var(--coral);border-radius:50%;border:1.5px solid white}
+.blog-search-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:280px;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.1);padding:.75rem;z-index:100}
+.blog-search-dropdown input{width:100%;padding:.5rem .7rem;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:.5rem}
+.blog-search-results{max-height:220px;overflow-y:auto}
+.blog-result-item{display:block;padding:.5rem;border-radius:8px;text-decoration:none;color:var(--ink);font-size:12.5px;line-height:1.35}
+.blog-result-item:hover{background:var(--coral-pale)}
+.blog-result-cat{color:var(--coral);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.blog-search-empty{font-size:12px;color:var(--ink3);padding:.5rem;text-align:center}
+.blog-search-viewall{display:block;text-align:center;font-size:12px;font-weight:600;color:var(--coral);text-decoration:none;padding-top:.5rem;border-top:1px solid var(--border);margin-top:.4rem}
 .panel-action{color:var(--coral);font-weight:600;font-size:13px;text-decoration:none;transition:color .15s}
 .panel-action:hover{color:var(--coral-dark);text-decoration:underline}
 .nav-btn:hover{background:var(--card);color:var(--ink)}
@@ -642,7 +651,14 @@ button, a { touch-action: manipulation; }
   <div class="nav-right">
     <span class="nav-plan" id="nav-plan">Free</span>
     <span class="nav-user" id="nav-user"></span>
-    <a href="/blog/" class="nav-btn" target="_blank" style="text-decoration:none">📖 Blog</a>
+    <div style="position:relative">
+      <button class="nav-btn" id="blog-nav-btn" onclick="toggleBlogSearch(event)" style="position:relative">📖 Blog<span id="blog-new-badge" class="blog-new-dot hidden"></span></button>
+      <div id="blog-search-dropdown" class="blog-search-dropdown hidden">
+        <input type="text" id="blog-search-input" placeholder="Search posts or categories..." oninput="filterBlogSearch()" onclick="event.stopPropagation()">
+        <div id="blog-search-results"></div>
+        <a href="/blog/" target="_blank" class="blog-search-viewall" onclick="markBlogSeen()">See all posts →</a>
+      </div>
+    </div>
     <button class="nav-btn upgrade hidden" id="upgrade-btn" onclick="upgradeAccount('trial')">Upgrade</button>
     <button class="nav-btn" onclick="signOut()">Sign Out</button>
   </div>
@@ -1319,6 +1335,78 @@ let activeCat='All', userToken='', userInfo={}, spinCount=0, userPlan='free';
 // ─── AUTH ───────────────────────────────────────────────────────────────────
 function getToken(){ return localStorage.getItem('mw_token'); }
 
+// Blog post catalog — kept in sync with /blog/index.html. Each post's
+// category matches the established weekly content rotation.
+const BLOG_POSTS = [
+  { slug: 'how-to-meal-plan-around-your-schedule', title: "How to Meal Plan Around Your Family's Schedule", category: 'Meal Planning', date: '2026-07-07' },
+  { slug: 'what-to-make-for-dinner-tonight', title: 'What to Make for Dinner Tonight', category: 'Quick Dinners', date: '2026-07-05' },
+  { slug: 'how-to-plan-a-week-of-family-dinners', title: 'How to Plan a Week of Family Dinners', category: 'Meal Planning', date: '2026-07-05' },
+  { slug: 'easy-weeknight-dinners-under-30-minutes', title: '5 Easy Weeknight Dinners Under 30 Minutes', category: 'Quick Dinners', date: '2026-07-05' },
+  { slug: 'how-to-build-a-family-grocery-list', title: 'How to Build a Family Grocery List That Actually Works', category: 'Grocery & Shopping', date: '2026-07-05' },
+  { slug: 'best-meal-planning-apps-for-families-2026', title: 'The Best Meal Planning Apps for Families in 2026', category: 'Smart Kitchen', date: '2026-07-05' },
+  { slug: 'why-we-stopped-doing-takeout', title: 'Why We Stopped Doing Takeout (And What We Do Instead)', category: 'Family Life', date: '2026-07-05' },
+  { slug: 'organic-grocery-guide', title: "The Organic Grocery Guide: What's Actually Worth It", category: 'Healthy Eating', date: '2026-07-05' },
+  { slug: 'meal-planning-for-beginners', title: 'Meal Planning for Beginners: Start Here', category: 'Beginners', date: '2026-07-05' },
+  { slug: 'how-to-reduce-food-waste', title: 'How to Reduce Food Waste with Smarter Meal Planning', category: 'Budget Cooking', date: '2026-07-05' },
+  { slug: 'feeding-family-of-4-on-a-budget', title: 'Feeding a Family of 4 on a Budget: Real Strategies That Work', category: 'Budget Cooking', date: '2026-07-05' }
+];
+
+function toggleBlogSearch(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('blog-search-dropdown');
+  const isOpen = !dd.classList.contains('hidden');
+  if (isOpen) {
+    dd.classList.add('hidden');
+  } else {
+    dd.classList.remove('hidden');
+    document.getElementById('blog-search-input').value = '';
+    renderBlogResults(BLOG_POSTS.slice(0, 5));
+    document.getElementById('blog-search-input').focus();
+    markBlogSeen();
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const dd = document.getElementById('blog-search-dropdown');
+  const btn = document.getElementById('blog-nav-btn');
+  if (dd && !dd.classList.contains('hidden') && !dd.contains(e.target) && e.target !== btn) {
+    dd.classList.add('hidden');
+  }
+});
+
+function filterBlogSearch() {
+  const q = document.getElementById('blog-search-input').value.toLowerCase().trim();
+  if (!q) { renderBlogResults(BLOG_POSTS.slice(0, 5)); return; }
+  const matches = BLOG_POSTS.filter(p =>
+    p.title.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
+  );
+  renderBlogResults(matches);
+}
+
+function renderBlogResults(posts) {
+  const el = document.getElementById('blog-search-results');
+  if (!posts.length) { el.innerHTML = '<div class="blog-search-empty">No posts match — try a different word.</div>'; return; }
+  el.innerHTML = posts.map(p => `
+    <a href="/blog/${p.slug}.html" target="_blank" class="blog-result-item">
+      <div class="blog-result-cat">${p.category}</div>
+      ${p.title}
+    </a>`).join('');
+}
+
+function markBlogSeen() {
+  const latest = BLOG_POSTS.reduce((max, p) => p.date > max ? p.date : max, '');
+  localStorage.setItem('mw_lastSeenBlogDate', latest);
+  const badge = document.getElementById('blog-new-badge');
+  if (badge) badge.classList.add('hidden');
+}
+
+function checkForNewBlogPost() {
+  const latest = BLOG_POSTS.reduce((max, p) => p.date > max ? p.date : max, '');
+  const lastSeen = localStorage.getItem('mw_lastSeenBlogDate');
+  const badge = document.getElementById('blog-new-badge');
+  if (badge) badge.classList.toggle('hidden', !!lastSeen && lastSeen >= latest);
+}
+
 async function initApp() {
   userToken = getToken();
   if (!userToken) { window.location.href = 'login.html?session=expired'; return; }
@@ -1331,6 +1419,7 @@ async function initApp() {
     spinCount = data.user.spinCount || 0;
     updateNavUI();
     applyFeatureUnlocks(data.user.created_at);
+    checkForNewBlogPost();
     await loadPantryFromDB();
     await loadPreferences();
     buildIngUI();
