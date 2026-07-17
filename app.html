@@ -2709,10 +2709,21 @@ function setSoupCat(cat) {
 async function generateSoup() {
   const ingList = Array.from(selectedIngs).join(', ');
   const s = parseInt(document.getElementById('servings').value) || 2;
-  const g = Math.round((parseInt(document.getElementById('calgoal').value) || 2000) * 0.35);
+  const baseG = Math.round((parseInt(document.getElementById('calgoal').value) || 2000) * 0.35);
   const dietStr = getDietPromptText();
   const methodStr = getCookingMethodPrompt();
   const cravingText = getCravingText();
+
+  // Soup categories genuinely differ in richness — a broth-based soup should
+  // be meaningfully lighter than a cream-based one, not share one flat target
+  const categoryCalorieMultiplier = {
+    '🥣 Broth & Light': 0.55,
+    '🌱 Fresh & Garden': 0.6,
+    '🍜 Noodle & Pasta': 0.85,
+    '🌶️ Bold & Spicy': 0.9,
+    '🫕 Chunky & Hearty': 1.05,
+    '🥛 Creamy & Rich': 1.15
+  };
 
   // Pick 3 DIFFERENT soup styles (no repeats) instead of one random pick,
   // so a soup spin gives genuine variety just like Tonight's Dinner does.
@@ -2733,6 +2744,13 @@ async function generateSoup() {
 
   const makeSoupPrompt = (soupLabel, soupStyle, idx) => {
     const varietyNote = idx > 0 ? ' This soup must use a genuinely different base, protein, and flavor profile than the other soups in this set — do not repeat the same core ingredients.' : '';
+    const multiplier = categoryCalorieMultiplier[soupLabel] || 1;
+    const g = Math.round(baseG * multiplier);
+    const calorieGuidance = multiplier <= 0.6
+      ? `This is a BROTH-BASED/LIGHT soup — it should genuinely be lower calorie than a cream or hearty soup because it has little to no added fat, cream, or starch. Target ${g} kcal per serving and keep it there — do not add cream, excess oil, or starchy thickeners that would push calories up. A broth soup with 700+ kcal is a sign too much fat/starch was added; keep it genuinely light.`
+      : multiplier >= 1.1
+      ? `This is a RICH/HEARTY soup — cream, cheese, or a thick starchy base is expected here. Target ${g} kcal per serving.`
+      : `Target ${g} kcal per serving.`;
     return `You are ${chefName}, a professional chef with deep expertise in soups, stocks, and braises. Generate 1 soup recipe.${cravingLine}
 
 SOUP STYLE: ${soupStyle}${varietyNote}
@@ -2749,12 +2767,12 @@ SOUP RECIPE RULES:
 - Be specific about simmer times and visual doneness cues
 - Suggest 3-5 ingredients to buy (buy:true) that elevate this soup
 - Flag organic:true for meats, eggs, leafy greens
-- Servings: ${s}. Target approximately ${g} kcal per serving. ${dietStr} ${methodStr}
+- Servings: ${s}. ${calorieGuidance} ${dietStr} ${methodStr}
 
 Steps: 6-8 steps, lead with action verbs, include timing and sensory cues (color, smell, texture).
 INGREDIENT QUANTITIES: For every ingredient, include a realistic quantity and unit scaled to the serving count. Use standard grocery units: lbs, oz, cups, tbsp, tsp, cloves, can (15oz), bunch, head, piece. Examples for 2 servings: chicken breast = "1.5 lbs", olive oil = "2 tbsp", garlic = "4 cloves", broth = "2 cups", pasta = "8 oz".
 
-NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other source). The formula is: calories_per_serving = (protein_g×4) + (carbs_g×4) + (fat_g×9). This must hold within 10% — no exceptions. WORKED EXAMPLE: if protein_g=35, carbs_g=40, fat_g=20, then calories = (35×4)+(40×4)+(20×9) = 140+160+180 = 480 kcal. Before writing your final numbers, do this exact multiplication yourself for every recipe and adjust protein_g/carbs_g/fat_g (not just calories_per_serving) until they match. A recipe reporting high grams of protein/carbs/fat alongside a low calorie count is a math error — recalculate. Also use realistic single-serving portions (a typical dinner serving is 400-900 kcal, 20-50g protein, not 100g+ protein unless it's an extreme high-protein request). Respond ONLY with valid JSON: {"recipes":[{"name":"Soup Name","emoji":"🍲","time":"45 min","difficulty":"Easy","style":"Soup","calories_per_serving":480,"protein_g":28,"carbs_g":42,"fat_g":16,"ingredients":[{"name":"ingredient","quantity":"2","unit":"lbs","organic":false,"buy":false}],"steps":["Step 1."]}]}`;
+NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other source). The formula is: calories_per_serving = (protein_g×4) + (carbs_g×4) + (fat_g×9). This must hold within 10% — no exceptions. WORKED EXAMPLE: if protein_g=35, carbs_g=40, fat_g=20, then calories = (35×4)+(40×4)+(20×9) = 140+160+180 = 480 kcal. Before writing your final numbers, do this exact multiplication yourself for every recipe and adjust protein_g/carbs_g/fat_g (not just calories_per_serving) until they match. A recipe reporting high grams of protein/carbs/fat alongside a low calorie count is a math error — recalculate. Also use realistic single-serving portions matched to the calorie target above — a light broth soup should show correspondingly modest protein/carb/fat grams, not just a low calorie number with high macros. Respond ONLY with valid JSON: {"recipes":[{"name":"Soup Name","emoji":"🍲","time":"45 min","difficulty":"Easy","style":"Soup","calories_per_serving":480,"protein_g":28,"carbs_g":42,"fat_g":16,"ingredients":[{"name":"ingredient","quantity":"2","unit":"lbs","organic":false,"buy":false}],"steps":["Step 1."]}]}`;
   };
 
   // Show loading state
