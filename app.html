@@ -3019,7 +3019,7 @@ async function generateRecipe(wi) {
   const dietStr=getDietPromptText();
   const methodStr=getCookingMethodPrompt();
   const timeStr = getTimeConstraintText();
-  const count=mode==='week'?1:4;
+  const count=mode==='week'?1:5;
   // Recipe index 2 = "stretch" recipe with ~30% buy ingredients for meal inspiration
   const makePrompt = (recipeIndex) => {
     const isStretch = recipeIndex === 2 && mode !== 'week';
@@ -3066,11 +3066,24 @@ NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other
   };
 
   // Style variety — each of the 3 recipes gets a different cuisine/technique direction
+  // Real cuisine pool — each variety slot gets an EXPLICITLY assigned,
+  // guaranteed-distinct cuisine (not a loose suggestion list), so the AI
+  // can't land on overlapping choices like "Korean" and "Korean-fusion BBQ"
+  // in the same spin.
+  const CUISINE_POOL = [
+    'Italian', 'Mexican', 'Thai', 'Japanese', 'Korean', 'Indian', 'Vietnamese',
+    'French', 'Greek', 'Mediterranean', 'Middle Eastern', 'Caribbean',
+    'Cajun/Creole', 'Chinese', 'Spanish', 'Moroccan', 'Peruvian', 'American Southern'
+  ];
+  const shuffledCuisines = [...CUISINE_POOL].sort(() => Math.random() - 0.5);
+  const [cuisine1, cuisine2, cuisine4] = shuffledCuisines;
+
   const varietyStyles = [
     styleHint, // Recipe 0: exactly what was requested
-    `${styleHint} — use a completely different cuisine style, cooking technique, AND different primary protein/vegetable base than you'd normally default to. Even under dietary restrictions, do not repeat the same core ingredient combination as another recipe in this set (e.g. if one recipe centers on cauliflower and chickpeas, this one must NOT also center on cauliflower and chickpeas — pick a genuinely different base like mushrooms, lentils, tofu, eggplant, or squash).`,
-    `${styleHint} — take an unexpected international angle. Actively rotate away from Mediterranean/Middle Eastern flavors (tahini, chickpeas, cauliflower, za'atar, yogurt sauces) if either other recipe in this set already leans that direction — pick from Thai, Vietnamese, Japanese, Korean, Indian, or Mexican traditions instead, which all have naturally rice/corn-based (not wheat-based) staples that work well gluten-free. This recipe's primary protein/vegetable base MUST be different from both other recipes in this set — do not default to the same safe combination (like cauliflower + chickpeas) just because it fits the dietary restrictions. Dietary restrictions narrow ingredient choices, they do not mean every recipe should look the same or come from the same region.`,
-    styleHint // Recipe 3: guaranteed salad — introLine already handles the framing, no extra style injection needed
+    `${styleHint} — this recipe MUST be ${cuisine1} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine1} cooking. Do not repeat the same core ingredient combination as another recipe in this set.`,
+    `${styleHint} — this recipe MUST be ${cuisine2} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine2} cooking. This recipe's primary protein/vegetable base MUST be different from every other recipe in this set — do not default to the same safe combination just because it fits any dietary restrictions.`,
+    styleHint, // Recipe 3: guaranteed salad — introLine already handles the framing, no extra style injection needed
+    `${styleHint} — this recipe MUST be ${cuisine4} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine4} cooking. Must be genuinely different in protein, base, and technique from every other recipe in this set.`
   ];
 
   // Avoid list — all recipes shown this session so respin gives fresh results
