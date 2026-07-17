@@ -3633,8 +3633,11 @@ async function loadFavorites(){
     if(!recipes.length){el.innerHTML='<div class="empty-state">Heart a recipe after spinning to save it here.</div>';return;}
     el.innerHTML=recipes.map(r=>{
       const ings = typeof r.ingredients === 'string' ? typeof r.ingredients === 'string' ? JSON.parse(r.ingredients||'[]') : (r.ingredients||[]) : (r.ingredients||[]);
+      const steps = typeof r.steps === 'string' ? JSON.parse(r.steps||'[]') : (r.steps||[]);
       const buyList = ings.filter(i=>i.buy).map(i=>i.name);
       const haveList = ings.filter(i=>!i.buy);
+      window._favPrintData = window._favPrintData || {};
+      window._favPrintData[r.id] = { name: r.recipe_name, emoji: r.emoji, time: r.cook_time, difficulty: r.difficulty, calories: r.calories_per_serving, ings, steps };
       return `
       <div class="fav-card">
         <div class="fav-card-header">
@@ -3649,6 +3652,7 @@ async function loadFavorites(){
           <button class="fav-action-btn send" onclick="sendToShopper(${r.id})">📨 Send to shopper</button>
           ${window._threeDayPlanUnlocked?`<button class="fav-action-btn" id="tdp-fav-btn-${r.id}" onclick="addToThreeDayPlan(${r.id}, document.getElementById('tdp-fav-btn-${r.id}'))">🗓️ Add to 3-Day Plan</button>`:''}
           <button class="fav-action-btn" onclick="shareFavorite(${r.id})">🔗 Share recipe</button>
+          <button class="fav-action-btn" onclick="printFavoriteRecipe(${r.id})">🖨️ Print</button>
           <button class="fav-action-btn remove" onclick="removeFavorite(${r.id}, this)">✕ Remove</button>
         </div>
       </div>`;
@@ -3847,6 +3851,46 @@ function buildThreeDayPlanItemsHtml() {
     itemsHtml += '</ul>';
   });
   return itemsHtml;
+}
+
+function printFavoriteRecipe(recipeId) {
+  const r = window._favPrintData && window._favPrintData[recipeId];
+  if (!r) return;
+
+  const ingredientListHtml = r.ings.map(i =>
+    `<li>${i.quantity || ''} ${i.unit || ''} ${i.name}</li>`
+  ).join('');
+  const stepsListHtml = r.steps.map(s => `<li>${s}</li>`).join('');
+
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>${r.name} — MealWheelIQ</title>
+    <style>
+      body{font-family:'DM Sans',Arial,sans-serif;color:#1C1714;max-width:640px;margin:2rem auto;padding:0 1rem}
+      h1{font-family:Georgia,serif;font-size:1.5rem;margin-bottom:.2rem}
+      .sub{color:#8C7B72;font-size:13px;margin-bottom:1.5rem}
+      h3{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:#C94B2A;margin:1.2rem 0 .4rem;border-bottom:1px solid #E2D9CE;padding-bottom:4px}
+      ul,ol{padding-left:1.2rem;margin:0}
+      li{padding:.4rem 0;font-size:14px;border-bottom:1px dotted #E2D9CE}
+      .save-btn{background:#C94B2A;color:white;border:none;border-radius:8px;padding:.7rem 1.4rem;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',Arial,sans-serif;margin-bottom:1.5rem}
+      .back-btn{background:none;color:#8C7B72;border:1px solid #E2D9CE;border-radius:8px;padding:.5rem 1rem;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',Arial,sans-serif;margin-bottom:1.2rem}
+      .hint{font-size:12px;color:#8C7B72;margin-bottom:1.5rem}
+      @media print{.save-btn,.hint,.back-btn{display:none}body{margin:0}}
+    </style></head>
+    <body>
+      <button class="back-btn" onclick="window.close()">← Back to MealWheelIQ</button>
+      <h1>${r.emoji || '🍽️'} ${r.name}</h1>
+      <div class="sub">${r.time || '30 min'} · ${r.difficulty || 'Easy'} · ${r.calories || 0} kcal per serving</div>
+      <button class="save-btn" onclick="window.print()">💾 Save as PDF</button>
+      <div class="hint">Click above, then choose "Save as PDF" as the destination in the print dialog.</div>
+
+      <h3>Ingredients</h3>
+      <ul>${ingredientListHtml}</ul>
+
+      <h3>Instructions</h3>
+      <ol>${stepsListHtml}</ol>
+    </body></html>`);
+  win.document.close();
+  win.focus();
 }
 
 function saveThreeDayPlanAsPdf() {
