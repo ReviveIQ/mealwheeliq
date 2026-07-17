@@ -1337,8 +1337,8 @@ const INGREDIENT_DB = {
   "Specialty":["White Wine","Red Wine","Beer","Mirin","Sake","Coconut Aminos","Gochujang","Curry Paste","Tahini","Sambal Oelek","Puff Pastry","Wonton Wrappers"]
 };
 
-const WC=['#C94B2A','#2A6B4A','#534AB7','#B8860B','#185FA5','#8B3A3A','#1D7A5A','#6B4A8B'];
-const WHEEL_LABELS=["Tonight's Pick","Family Fave","Chef's Special","Something New","Quick Meal","Weekend Cook","Comfort Food","Seasonal Dish"];
+let WC=['#C94B2A','#2A6B4A','#534AB7','#B8860B','#185FA5','#8B3A3A','#1D7A5A','#6B4A8B'];
+let WHEEL_LABELS=["Tonight's Pick","Family Fave","Chef's Special","Something New","Quick Meal","Weekend Cook","Comfort Food","Seasonal Dish"];
 const DAYS=['Mon','Tue','Wed','Thu','Fri'];
 
 let selectedIngs=new Set(), mode='fridge', spinning=false, ang=0, wk=[];
@@ -4010,7 +4010,7 @@ function setMode(m){
   // Swap wheel segments for soup mode
   if(m==='soup') {
     WHEEL_LABELS=['🥣 Broth & Light','🥛 Creamy & Rich','🍜 Noodle & Pasta','🫕 Chunky & Hearty','🌶️ Bold & Spicy','🌱 Fresh & Garden','🥣 Broth & Light','🥛 Creamy & Rich'];
-    WHEEL_COLORS=['#2A6B4A','#C94B2A','#8B5E3C','#5C4033','#A83200','#2A6B4A','#2A6B4A','#C94B2A'];
+    WC=['#2A6B4A','#C94B2A','#8B5E3C','#5C4033','#A83200','#2A6B4A','#2A6B4A','#C94B2A'];
     document.getElementById('sbtn').textContent='🍲 Spin & Make Soup';
     // Show soup category selector
     showSoupCategorySelector();
@@ -4019,7 +4019,7 @@ function setMode(m){
     closeSoupCatModal();
     selectedSoupCategory = null;
     WHEEL_LABELS=["Tonight's Pick","Family Fave","Chef's Special","Something New","Quick Meal","Weekend Cook","Comfort Food","Seasonal Dish"];
-    WHEEL_COLORS=['#C94B2A','#2A6B4A','#8B5E3C','#534AB7','#B8860B','#A0522D','#4A8C6F','#1C1714'];
+    WC=['#C94B2A','#2A6B4A','#8B5E3C','#534AB7','#B8860B','#A0522D','#4A8C6F','#1C1714'];
     document.getElementById('sbtn').textContent='✨ Spin & Generate Recipe';
   }
   drawWheel();
