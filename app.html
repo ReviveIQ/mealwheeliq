@@ -253,6 +253,7 @@ canvas{border-radius:50%;display:block;box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .stab.act{color:var(--coral);border-bottom-color:var(--coral)}
 
 .fav-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;margin-bottom:.65rem}
+.fav-card-img{width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:.7rem;display:block}
 .fav-card-header{display:flex;gap:.75rem;align-items:flex-start;margin-bottom:.5rem}
 .fav-emoji{font-size:28px;flex-shrink:0}
 .fav-info{flex:1;min-width:0}
@@ -3640,6 +3641,7 @@ async function loadFavorites(){
       window._favPrintData[r.id] = { name: r.recipe_name, emoji: r.emoji, time: r.cook_time, difficulty: r.difficulty, calories: r.calories_per_serving, ings, steps };
       return `
       <div class="fav-card">
+        ${r.image_url ? `<img src="${r.image_url}" alt="${r.recipe_name}" class="fav-card-img" loading="lazy">` : ''}
         <div class="fav-card-header">
           <span class="fav-emoji">${r.emoji||'🍽️'}</span>
           <div class="fav-info">
