@@ -661,6 +661,7 @@ button, a { touch-action: manipulation; }
         <a href="/blog/" target="_blank" class="blog-search-viewall" onclick="markBlogSeen()">See all posts →</a>
       </div>
     </div>
+    <button class="nav-btn hidden" id="install-btn" onclick="handleInstallClick()">📲 Add to Home Screen</button>
     <button class="nav-btn upgrade hidden" id="upgrade-btn" onclick="upgradeAccount('trial')">Upgrade</button>
     <button class="nav-btn" onclick="signOut()">Sign Out</button>
   </div>
@@ -893,6 +894,23 @@ button, a { touch-action: manipulation; }
   </div>
 
   <!-- SOUP CATEGORY MODAL -->
+  <!-- iOS INSTALL INSTRUCTIONS MODAL (Apple doesn't allow a programmatic install prompt) -->
+  <div id="ios-install-modal" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width:380px;padding:1.4rem;text-align:center">
+      <div style="display:flex;justify-content:flex-end">
+        <button onclick="document.getElementById('ios-install-modal').classList.add('hidden')" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink3)">×</button>
+      </div>
+      <div style="font-size:2.5rem;margin-bottom:.5rem">📲</div>
+      <h2 style="margin-bottom:.6rem">Add MealWheelIQ to your Home Screen</h2>
+      <div style="text-align:left;font-size:14px;line-height:1.8;background:var(--cream);border-radius:12px;padding:1rem;margin-top:.5rem">
+        <div>1. Tap the <strong>Share</strong> button <span style="font-size:1.1rem">⬆️</span> in Safari's toolbar</div>
+        <div>2. Scroll down and tap <strong>"Add to Home Screen"</strong></div>
+        <div>3. Tap <strong>"Add"</strong> in the top right</div>
+      </div>
+      <p style="font-size:12px;color:var(--ink3);margin-top:1rem">You'll get a real app icon and it'll open full-screen, no browser bar.</p>
+    </div>
+  </div>
+
   <div id="soup-cat-modal" class="modal-overlay hidden">
     <div class="modal-box" style="max-width:420px;padding:1.4rem">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">
@@ -1419,6 +1437,49 @@ function checkForNewBlogPost() {
   if (badge) badge.classList.toggle('hidden', !!lastSeen && lastSeen >= latest);
 }
 
+// PWA install — Android/Chrome supports a real native prompt via the
+// beforeinstallprompt event; iOS Safari has no programmatic API at all
+// (Apple's restriction), so we show manual instructions there instead.
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const btn = document.getElementById('install-btn');
+  if (btn) btn.classList.remove('hidden');
+});
+
+function isIOSDevice() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+function isRunningStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+function initInstallButton() {
+  const btn = document.getElementById('install-btn');
+  if (!btn || isRunningStandalone()) return; // already installed — nothing to show
+  if (isIOSDevice()) {
+    // iOS never fires beforeinstallprompt — always show the button with instructions
+    btn.classList.remove('hidden');
+  }
+  // Android/Chrome: button stays hidden until beforeinstallprompt actually fires
+}
+
+async function handleInstallClick() {
+  if (isIOSDevice()) {
+    document.getElementById('ios-install-modal').classList.remove('hidden');
+    return;
+  }
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    document.getElementById('install-btn').classList.add('hidden');
+  }
+}
+
 async function initApp() {
   userToken = getToken();
   if (!userToken) { window.location.href = 'login.html?session=expired'; return; }
@@ -1432,6 +1493,7 @@ async function initApp() {
     updateNavUI();
     applyFeatureUnlocks(data.user.created_at);
     checkForNewBlogPost();
+    initInstallButton();
     await loadPantryFromDB();
     await loadPreferences();
     buildIngUI();
