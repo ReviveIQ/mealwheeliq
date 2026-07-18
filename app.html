@@ -1026,6 +1026,7 @@ button, a { touch-action: manipulation; }
             <button class="diet-btn" id="diet-lowcalorie" onclick="toggleDiet('lowcalorie')">🔢 Low-Calorie</button>
             <button class="diet-btn" id="diet-hearthealthy" onclick="toggleDiet('hearthealthy')">🫀 Heart-Healthy</button>
             <button class="diet-btn" id="diet-antiinflammatory" onclick="toggleDiet('antiinflammatory')">🌿 Anti-Inflammatory</button>
+            <button class="diet-btn" id="diet-tenone" onclick="toggleDiet('tenone')">⚖️ 10:1 Protein Rule</button>
           </div>
         </div>
 
@@ -4277,6 +4278,7 @@ function getDietPromptText() {
     lowcalorie: 'low-calorie (target approximately 400 kcal per serving — lean proteins, lots of vegetables, minimal added fats, avoid excess starches and rich sauces)',
     hearthealthy: 'heart-healthy (minimize saturated fat and sodium, prioritize omega-3s, soluble fiber, and healthy unsaturated fats — olive oil, fatty fish, legumes)',
     antiinflammatory: 'anti-inflammatory (prioritize fatty fish, leafy greens, berries, turmeric, ginger, olive oil — avoid refined grains, processed foods, and excess sugar)',
+    tenone: 'STRICT 10:1 PROTEIN RULE — calories_per_serving divided by protein_g must be 10 or less (i.e. at least 1g of protein for every 10 calories). This means calories_per_serving ≤ protein_g × 10. WORKED EXAMPLE: if the recipe has 40g protein, calories_per_serving must be 400 or less (40 × 10 = 400) — not more. Build the recipe around lean, protein-dense ingredients (chicken breast, egg whites, white fish, shrimp, Greek yogurt, cottage cheese, tofu, lean ground turkey) and minimize added fats/oils and refined carbs, which add calories without adding protein and would break this ratio. Double-check this exact math before finalizing your numbers — a recipe with 25g protein and 500 calories FAILS this rule (500/25=20) and must be adjusted.',
     paleo: 'paleo (meat, fish, eggs, vegetables, fruits, nuts, seeds only — no grains, legumes, dairy, refined sugar, or processed foods)',
     whole30: 'Whole30 compliant (no grains, dairy, legumes, added sugar, alcohol, or processed additives — whole unprocessed foods only)',
     mediterranean: 'Mediterranean diet (olive oil as primary fat, fish 2-3x/week, whole grains, vegetables, legumes, moderate dairy, minimal red meat)',
