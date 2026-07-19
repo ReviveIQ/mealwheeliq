@@ -1038,6 +1038,7 @@ button, a { touch-action: manipulation; }
             <button class="diet-btn" id="diet-paleo" onclick="toggleDiet('paleo')">🦴 Paleo</button>
             <button class="diet-btn" id="diet-whole30" onclick="toggleDiet('whole30')">🌀 Whole30</button>
             <button class="diet-btn" id="diet-mediterranean" onclick="toggleDiet('mediterranean')">🫙 Mediterranean Diet</button>
+            <button class="diet-btn" id="diet-grainfree" onclick="toggleDiet('grainfree')">🥒 Grain-Free</button>
             <button class="diet-btn" id="diet-carnivore" onclick="toggleDiet('carnivore')">🥩 Carnivore</button>
             <button class="diet-btn" id="diet-diabetic" onclick="toggleDiet('diabetic')">💊 Diabetic-Friendly</button>
             <button class="diet-btn" id="diet-pregnancy" onclick="toggleDiet('pregnancy')">🤰 Pregnancy-Safe</button>
@@ -4282,6 +4283,7 @@ function getDietPromptText() {
     paleo: 'paleo (meat, fish, eggs, vegetables, fruits, nuts, seeds only — no grains, legumes, dairy, refined sugar, or processed foods)',
     whole30: 'Whole30 compliant (no grains, dairy, legumes, added sugar, alcohol, or processed additives — whole unprocessed foods only)',
     mediterranean: 'Mediterranean diet (olive oil as primary fat, fish 2-3x/week, whole grains, vegetables, legumes, moderate dairy, minimal red meat)',
+    grainfree: 'STRICTLY grain-free — no rice, pasta, bread, couscous, quinoa, oats, corn, or any grain-based ingredient, even ones normally considered gluten-free (rice and quinoa are grains and are NOT allowed here). Replace every starch base with a vegetable-based alternative instead: zucchini noodles, spaghetti squash, cauliflower rice, shredded cabbage, or roasted root vegetables (sweet potato, parsnip) in place of the grain. WORKED EXAMPLE: a recipe that would normally serve over rice should instead serve over zucchini noodles or cauliflower rice — do not simply omit the base, replace it with a real vegetable substitute that still makes the dish feel complete. Also prefer lighter, whole-food fats — olive oil or avocado oil — over butter or heavy cream-based sauces, unless a small amount of butter is essential to the dish\'s identity.',
     carnivore: 'carnivore diet (meat, fish, eggs, and animal products only — absolutely no plant foods, no vegetables, no grains, no legumes, no fruit)',
     diabetic: 'diabetic-friendly (low glycemic index foods, target under 45g carbs per meal, prioritize fiber-rich vegetables, lean proteins, and healthy fats — minimize white rice, white bread, white potatoes, sugary sauces)',
     lowpurine: 'low-purine for gout management (avoid organ meats, anchovies, sardines, mussels, yeast extracts. Limit red meat and shellfish. Encourage low-fat dairy, vegetables, whole grains, cherries, and adequate hydration)',
