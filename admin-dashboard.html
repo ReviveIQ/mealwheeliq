@@ -193,7 +193,7 @@ function renderTable() {
 
   tbody.innerHTML = filtered.map(u => {
     const joined = new Date(u.created_at).toLocaleDateString();
-    const lastActive = u.last_active ? new Date(u.last_active).toLocaleDateString() : '—';
+    const lastActive = u.last_active ? new Date(u.last_active).toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' }) : '—';
     const plan = u.plan || 'free';
     return `<tr>
       <td>${u.id}</td>
