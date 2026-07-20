@@ -3221,7 +3221,16 @@ NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other
         const raw=data.content.map(b=>b.text||'').join('');
         const clean=raw.replace(/```json|```/g,'').trim();
         const parsed=JSON.parse(clean);
-        return parsed.recipes||[];
+        const parsedRecipes = parsed.recipes||[];
+        // Filter out structurally incomplete recipes — JSON.parse can
+        // succeed while the recipe object itself is missing required
+        // fields (name, ingredients, steps), which previously rendered
+        // as a broken "undefined" card instead of being caught here
+        return parsedRecipes.filter(r =>
+          r && r.name && typeof r.name === 'string' &&
+          Array.isArray(r.ingredients) && r.ingredients.length > 0 &&
+          Array.isArray(r.steps) && r.steps.length > 0
+        );
       } catch(e) { return []; }
     });
 
