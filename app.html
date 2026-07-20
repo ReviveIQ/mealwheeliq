@@ -982,9 +982,9 @@ button, a { touch-action: manipulation; }
     <div class="ing-panel">
       <div class="panel-title" id="diet-panel-toggle" onclick="toggleDietPanel()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
         <span>Dietary preferences <span id="diet-active-count" style="font-weight:400;color:var(--ink3);font-size:12px"></span></span>
-        <span id="diet-chevron" style="transition:transform .2s">▾</span>
+        <span id="diet-chevron" style="transition:transform .2s;transform:rotate(180deg)">▾</span>
       </div>
-      <div class="diet-filters" id="diet-filters" style="display:none">
+      <div class="diet-filters" id="diet-filters" style="display:block">
 
         <div class="diet-cat">
           <div class="diet-cat-header" onclick="toggleDietCat('restrictions')">
