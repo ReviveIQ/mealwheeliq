@@ -1071,6 +1071,24 @@ button, a { touch-action: manipulation; }
         </div>
 
         <div class="diet-cat">
+          <div class="diet-cat-header" onclick="toggleDietCat('cuisine')">
+            <span>International Cuisine</span><span class="diet-cat-chevron" id="chev-cuisine">▾</span>
+          </div>
+          <div class="diet-cat-body" id="cat-cuisine" style="display:none">
+            <button class="diet-btn" id="diet-cuisine-italian" onclick="toggleDiet('cuisine_italian')">🇮🇹 Italian</button>
+            <button class="diet-btn" id="diet-cuisine-french" onclick="toggleDiet('cuisine_french')">🇫🇷 French</button>
+            <button class="diet-btn" id="diet-cuisine-mexican" onclick="toggleDiet('cuisine_mexican')">🇲🇽 Mexican</button>
+            <button class="diet-btn" id="diet-cuisine-thai" onclick="toggleDiet('cuisine_thai')">🇹🇭 Thai</button>
+            <button class="diet-btn" id="diet-cuisine-japanese" onclick="toggleDiet('cuisine_japanese')">🇯🇵 Japanese</button>
+            <button class="diet-btn" id="diet-cuisine-indian" onclick="toggleDiet('cuisine_indian')">🇮🇳 Indian</button>
+            <button class="diet-btn" id="diet-cuisine-chinese" onclick="toggleDiet('cuisine_chinese')">🇨🇳 Chinese</button>
+            <button class="diet-btn" id="diet-cuisine-greek" onclick="toggleDiet('cuisine_greek')">🇬🇷 Greek</button>
+            <button class="diet-btn" id="diet-cuisine-korean" onclick="toggleDiet('cuisine_korean')">🇰🇷 Korean</button>
+            <button class="diet-btn" id="diet-cuisine-spanish" onclick="toggleDiet('cuisine_spanish')">🇪🇸 Spanish</button>
+          </div>
+        </div>
+
+        <div class="diet-cat">
           <div class="diet-cat-header" onclick="toggleDietCat('method')">
             <span>Cooking Method</span><span class="diet-cat-chevron" id="chev-method">▾</span>
           </div>
@@ -3145,7 +3163,19 @@ NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other
   const shuffledCuisines = [...CUISINE_POOL].sort(() => Math.random() - 0.5);
   const [cuisine1, cuisine2, cuisine4] = shuffledCuisines;
 
-  const varietyStyles = [
+  // If the user has an explicit International Cuisine preference active
+  // (e.g. "Italian"), don't fight it with a randomly-assigned different
+  // cuisine per slot — that would directly contradict what they asked for.
+  // Let all slots follow their chosen cuisine (already injected via dietStr)
+  // and get variety from different dishes/techniques within it instead.
+  const hasExplicitCuisine = [...activeDiets].some(d => d.startsWith('cuisine_'));
+
+  const varietyStyles = hasExplicitCuisine ? [
+    styleHint, styleHint,
+    `${styleHint} — a genuinely different dish and technique than the other recipes in this set, but staying within the requested cuisine. Do not repeat the same core ingredient combination as another recipe in this set.`,
+    styleHint,
+    `${styleHint} — a genuinely different dish, protein, and technique than every other recipe in this set, but staying within the requested cuisine.`
+  ] : [
     styleHint, // Recipe 0: exactly what was requested
     `${styleHint} — this recipe MUST be ${cuisine1} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine1} cooking. Do not repeat the same core ingredient combination as another recipe in this set.`,
     `${styleHint} — this recipe MUST be ${cuisine2} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine2} cooking. This recipe's primary protein/vegetable base MUST be different from every other recipe in this set — do not default to the same safe combination just because it fits any dietary restrictions.`,
@@ -4288,6 +4318,16 @@ function getDietPromptText() {
     diabetic: 'diabetic-friendly (low glycemic index foods, target under 45g carbs per meal, prioritize fiber-rich vegetables, lean proteins, and healthy fats — minimize white rice, white bread, white potatoes, sugary sauces)',
     lowpurine: 'low-purine for gout management (avoid organ meats, anchovies, sardines, mussels, yeast extracts. Limit red meat and shellfish. Encourage low-fat dairy, vegetables, whole grains, cherries, and adequate hydration)',
     kidneyfriendly: 'kidney-friendly (limit potassium: no bananas, oranges, potatoes, tomatoes, avocados in large amounts. Limit phosphorus: no dairy in large amounts, no nuts, no whole grains. Limit sodium under 500mg/serving. Keep protein moderate — not excessive)',
+    cuisine_italian: 'STRONGLY Italian cuisine — authentic techniques, ingredients, and flavor profiles (olive oil, garlic, tomatoes, basil, parmesan, pasta traditions, risotto, etc.)',
+    cuisine_french: 'STRONGLY French cuisine — authentic techniques and flavor profiles (butter, wine reductions, classic sauces, herbes de Provence, careful technique)',
+    cuisine_mexican: 'STRONGLY Mexican cuisine — authentic techniques and flavor profiles (chiles, lime, cilantro, cumin, corn/masa traditions, real regional dishes not Tex-Mex generic)',
+    cuisine_thai: 'STRONGLY Thai cuisine — authentic techniques and flavor profiles (fish sauce, lime, chili, lemongrass, Thai basil, balance of sweet/sour/salty/spicy)',
+    cuisine_japanese: 'STRONGLY Japanese cuisine — authentic techniques and flavor profiles (soy, mirin, miso, dashi, rice, simple clean preparations)',
+    cuisine_indian: 'STRONGLY Indian cuisine — authentic techniques and flavor profiles (real spice blends, not just curry powder — cumin, coriander, turmeric, garam masala, ginger-garlic paste, proper tempering technique)',
+    cuisine_chinese: 'STRONGLY Chinese cuisine — authentic techniques and flavor profiles (soy, ginger, garlic, scallion, proper stir-fry technique, real regional dishes not generic Americanized takeout)',
+    cuisine_greek: 'STRONGLY Greek cuisine — authentic techniques and flavor profiles (olive oil, lemon, oregano, feta, yogurt, grilled proteins)',
+    cuisine_korean: 'STRONGLY Korean cuisine — authentic techniques and flavor profiles (gochujang, soy, sesame, garlic, real banchan-inspired sides where relevant)',
+    cuisine_spanish: 'STRONGLY Spanish cuisine — authentic techniques and flavor profiles (olive oil, smoked paprika, garlic, sherry vinegar, real regional dishes like paella, tapas traditions)',
     fodmap: 'LOW-FODMAP for IBS management — this overrides assumed staples: NO garlic and NO onion (use garlic-infused oil for flavor instead, or green tops of scallions only). No wheat, no rye. No legumes (beans, lentils, chickpeas). No lactose (hard cheeses and lactose-free dairy OK). No high-fructose fruits (apples, pears, mangoes, honey). Allowed: rice, oats, eggs, meat, fish, tofu, most vegetables except onion/garlic/cauliflower/mushrooms.'
   };
 
