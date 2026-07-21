@@ -284,6 +284,19 @@ function setLoading(btnId, loading, label) {
   btn.innerHTML = loading ? '<span class="spinner"></span> Please wait...' : label;
 }
 
+async function applyPendingScanIfAny(authToken) {
+  const scanToken = new URLSearchParams(window.location.search).get('scanToken');
+  if (!scanToken) return;
+  try {
+    await fetch(API + '/quickscan/' + scanToken + '/apply', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + authToken }
+    });
+  } catch (e) {
+    console.error('Could not apply pending scan:', e);
+  }
+}
+
 async function handleLogin(e) {
   e.preventDefault();
   hideMessages();
@@ -300,6 +313,7 @@ async function handleLogin(e) {
     if (!resp.ok) { showError(data.error || 'Login failed'); setLoading('login-btn', false, 'Sign In'); return; }
     localStorage.setItem('mw_token', data.token);
     localStorage.setItem('mw_user', JSON.stringify(data.user));
+    await applyPendingScanIfAny(data.token);
     showSuccess('Welcome back! Redirecting...');
     setTimeout(() => window.location.href = 'app.html', 1000);
   } catch {
@@ -337,6 +351,7 @@ async function handleSignup(e) {
       if (subData.url) { setTimeout(() => window.location.href = subData.url, 1000); return; }
     }
     showSuccess('Account created! Redirecting...');
+    await applyPendingScanIfAny(data.token);
     setTimeout(() => window.location.href = 'app.html', 1000);
   } catch {
     showError('Could not connect. Please try again.');
@@ -362,7 +377,7 @@ if (params.get('session') === 'expired') showError('Session expired. Please sign
 
   // ── Facebook Login ────────────────────────────────────────────────────────
   function fbLogin() {
-    FB.login(function(response) {
+    FB.login(async function(response) {
       if (response.authResponse) {
         FB.api('/me', { fields: 'name,email' }, async function(user) {
           try {
@@ -381,6 +396,7 @@ if (params.get('session') === 'expired') showError('Session expired. Please sign
             if (data.token) {
               localStorage.setItem('mw_token', data.token);
               localStorage.setItem('mw_user', JSON.stringify({ email: data.email, plan: data.plan }));
+              await applyPendingScanIfAny(data.token);
               window.location.href = '/app.html';
             } else {
               alert('Facebook login failed: ' + (data.error || 'Unknown error'));
