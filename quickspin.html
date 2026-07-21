@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QuickSpin — Dinner in 10 seconds · MealWheelIQ</title>
-  <meta name="description" content="One spin. Real recipe. $2.49. No account needed.">
+  <meta name="description" content="One spin. Real recipe. $2.99. No account needed.">
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
   <link rel="apple-touch-icon" href="/icons/icon-180.png">
   <meta name="theme-color" content="#C94B2A">
@@ -156,14 +156,14 @@
       <div class="step-badge">QuickSpin — No account needed</div>
       <h1 class="step-title">Dinner decided<br>in one spin.</h1>
       <p class="step-sub">Your AI chef builds a real recipe from what you have — delivered straight to your email or phone.</p>
-      <div class="price-tag">💳 $2.49 · one-time · no subscription</div>
+      <div class="price-tag">💳 $2.99 · one-time · no subscription</div>
       <div class="mode-grid">
         <div class="mode-card selected" id="mode-tonight" onclick="selectMode('tonight')">
           <span class="mode-emoji">🧊</span>
           <div class="mode-text">
             <div class="mode-name">Tonight's Dinner</div>
             <div class="mode-desc">1 recipe · full ingredients & steps · 1 mix-up to try a different dish</div>
-            <span class="mode-price">$2.49 one-time</span>
+            <span class="mode-price">$2.99 one-time</span>
           </div>
         </div>
         <div class="mode-card" id="mode-week" onclick="selectMode('week')">
@@ -171,7 +171,7 @@
           <div class="mode-text">
             <div class="mode-name">Plan My Week</div>
             <div class="mode-desc">5 dinners · full recipes & steps · grocery list · 1 mix-up on any night</div>
-            <span class="mode-price">$2.49 one-time</span>
+            <span class="mode-price">$2.99 one-time</span>
           </div>
         </div>
       </div>
@@ -237,7 +237,7 @@
       <!-- CONTACT + PAY -->
       <div style="background:var(--ink);border-radius:16px;padding:1.25rem;margin-top:1rem">
         <div style="font-size:14px;font-weight:700;color:white;margin-bottom:.75rem;text-align:center">
-          🔓 Unlock everything for $2.49
+          🔓 Unlock everything for $2.99
         </div>
         <label class="field-label" style="color:rgba(255,255,255,.7);font-size:12px">Where should we send your results?</label>
         <div class="contact-toggle" style="margin-bottom:.6rem">
@@ -247,7 +247,7 @@
         <input class="inp" id="contact-input" type="email" placeholder="your@email.com" style="margin-bottom:.4rem">
         <p style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:.85rem">Recipe + grocery list sent here instantly after payment.</p>
         <button class="btn-primary" id="checkout-btn" onclick="startCheckout()" style="font-size:17px;background:var(--coral)">
-          🔓 Unlock full plan — $2.49
+          🔓 Unlock full plan — $2.99
         </button>
         <p style="font-size:11px;color:rgba(255,255,255,.35);text-align:center;margin-top:.6rem">Secured by Stripe · One-time charge · No subscription</p>
       </div>
@@ -608,7 +608,7 @@ async function startCheckout() {
     console.error(e);
     alert('Checkout failed. Please try again.');
     btn.disabled = false;
-    btn.textContent = '🔓 Unlock full plan — $2.49';
+    btn.textContent = '🔓 Unlock full plan — $2.99';
   }
 }
 
