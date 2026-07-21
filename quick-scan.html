@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Scan — MealWheelIQ</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+<style>
+:root{
+  --coral:#C94B2A;--coral-dark:#A83D22;
+  --green:#2A6B4A;--green-pale:#EAF3EE;
+  --ink:#1C1714;--ink2:#4A3F38;--ink3:#8C7B72;
+  --cream:#FAF7F2;--card:#FFFFFF;--border:#E2D9CE;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.2rem}
+.card{background:var(--card);border-radius:20px;padding:2rem 1.5rem;max-width:440px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.07);text-align:center}
+h1{font-family:Georgia,serif;font-size:1.5rem;margin-bottom:.4rem}
+p.sub{color:var(--ink3);font-size:14px;margin-bottom:1.5rem;line-height:1.5}
+#file-input{display:none}
+.snap-btn{background:var(--coral);color:white;border:none;border-radius:16px;padding:1.1rem;font-size:16px;font-weight:700;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
+.snap-btn:disabled{opacity:.6;cursor:not-allowed}
+.preview-img{width:100%;border-radius:14px;margin:1rem 0;max-height:280px;object-fit:cover}
+.items-list{text-align:left;background:var(--green-pale);border-radius:14px;padding:1rem 1.2rem;margin:1.2rem 0}
+.items-list .label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--green);margin-bottom:.6rem}
+.item-chip{display:inline-block;background:white;border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px;margin:3px;color:var(--ink2)}
+.login-btn{background:var(--ink);color:white;border:none;border-radius:16px;padding:1.1rem;font-size:16px;font-weight:700;cursor:pointer;width:100%;text-decoration:none;display:block;margin-top:.5rem}
+.status-msg{font-size:14px;color:var(--ink3);margin:1rem 0}
+.error-msg{font-size:14px;color:#C0392B;margin:1rem 0}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--coral);border-radius:50%;animation:spin 0.8s linear infinite;margin:1.5rem auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <h1>📸 Quick Scan</h1>
+  <p class="sub" id="sub-text">Snap a photo of your fridge, freezer, or pantry — no login needed yet.</p>
+
+  <div id="pre-scan-state">
+    <input type="file" id="file-input" accept="image/*" capture="environment">
+    <button class="snap-btn" onclick="document.getElementById('file-input').click()">📷 Take or Choose a Photo</button>
+  </div>
+
+  <div id="scanning-state" style="display:none">
+    <div class="spinner"></div>
+    <p class="status-msg">Identifying what's in your photo...</p>
+  </div>
+
+  <div id="result-state" style="display:none">
+    <img id="preview-img" class="preview-img">
+    <div class="items-list">
+      <div class="label">We found:</div>
+      <div id="items-container"></div>
+    </div>
+    <a href="#" id="login-link" class="login-btn">Log in to save & get recipes →</a>
+  </div>
+
+  <div id="error-state" style="display:none">
+    <p class="error-msg" id="error-text"></p>
+    <button class="snap-btn" onclick="location.reload()">Try Again</button>
+  </div>
+</div>
+
+<script>
+const API = 'https://api.mealwheeliq.com';
+const params = new URLSearchParams(window.location.search);
+const token = params.get('token');
+
+if (!token) {
+  showError('This link is missing some information. Please use the link from your email.');
+} else {
+  document.getElementById('login-link').href = `/login.html?scanToken=${token}`;
+}
+
+document.getElementById('file-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  document.getElementById('pre-scan-state').style.display = 'none';
+  document.getElementById('scanning-state').style.display = 'block';
+
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const base64 = reader.result.split(',')[1];
+    document.getElementById('preview-img').src = reader.result;
+
+    try {
+      const resp = await fetch(`${API}/quickscan/${token}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, mediaType: file.type })
+      });
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        showError(data.error || 'Something went wrong. Please try again.');
+        return;
+      }
+
+      if (!data.items || !data.items.length) {
+        showError("We couldn't identify any food items in that photo. Try a clearer, well-lit shot.");
+        return;
+      }
+
+      document.getElementById('items-container').innerHTML = data.items.map(i =>
+        `<span class="item-chip">${i}</span>`
+      ).join('');
+      document.getElementById('scanning-state').style.display = 'none';
+      document.getElementById('result-state').style.display = 'block';
+    } catch (err) {
+      showError('Could not reach the server. Please check your connection and try again.');
+    }
+  };
+  reader.readAsDataURL(file);
+});
+
+function showError(msg) {
+  document.getElementById('pre-scan-state').style.display = 'none';
+  document.getElementById('scanning-state').style.display = 'none';
+  document.getElementById('result-state').style.display = 'none';
+  document.getElementById('error-text').textContent = msg;
+  document.getElementById('error-state').style.display = 'block';
+}
+</script>
+</body>
+</html>
