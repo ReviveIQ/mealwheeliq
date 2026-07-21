@@ -32,6 +32,7 @@
   .actions button{border:none;border-radius:5px;padding:3px 6px;font-size:10px;cursor:pointer;font-weight:600;white-space:nowrap}
   .btn-clear{background:#FDF6E3;color:#B8860B}
   .btn-delete{background:#FDEDEC;color:#C0392B}
+  .btn-email{background:#E6F1FB;color:#185FA5}
   .table-wrap{max-height:70vh;overflow:auto;border-radius:12px}
   .search-box{margin-bottom:1rem}
   .search-box input{width:100%;max-width:320px;padding:.6rem .8rem;border:1px solid #E2D9CE;border-radius:8px;font-size:14px}
@@ -79,7 +80,7 @@
         <col style="width:65px">
         <col style="width:70px">
         <col style="width:60px">
-        <col style="width:140px">
+        <col style="width:210px">
       </colgroup>
       <thead>
         <tr>
@@ -106,6 +107,22 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div id="email-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:14px;padding:1.5rem;max-width:480px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,.2)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <h3 style="margin:0;font-size:1.1rem">✉️ Send Email</h3>
+      <button onclick="closeEmailModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#8C7B72">×</button>
+    </div>
+    <div style="font-size:13px;color:#8C7B72;margin-bottom:1rem">To: <strong id="email-modal-recipient" style="color:#1C1714"></strong></div>
+    <input type="text" id="email-modal-subject" placeholder="Subject" style="width:100%;padding:.6rem .8rem;border:1px solid #E2D9CE;border-radius:8px;font-size:14px;margin-bottom:.7rem;font-family:inherit">
+    <textarea id="email-modal-message" placeholder="Your message..." rows="6" style="width:100%;padding:.6rem .8rem;border:1px solid #E2D9CE;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical"></textarea>
+    <div style="display:flex;gap:8px;margin-top:1rem;justify-content:flex-end">
+      <button onclick="closeEmailModal()" style="background:none;border:1px solid #E2D9CE;border-radius:8px;padding:.6rem 1.2rem;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+      <button id="email-modal-send-btn" onclick="sendCustomEmail()" style="background:#C94B2A;color:white;border:none;border-radius:8px;padding:.6rem 1.2rem;font-size:13px;font-weight:600;cursor:pointer">Send</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const API = 'https://api.mealwheeliq.com';
@@ -212,6 +229,7 @@ function renderTable() {
       <td><strong>${u.total_events}</strong></td>
       <td class="actions">
         <button class="btn-clear" onclick="clearCookbook(${u.id})">Clear Cookbook</button>
+        <button class="btn-email" onclick="openEmailModal(${u.id}, '${u.email}')">✉️ Email</button>
         <button class="btn-delete" onclick="deleteUser(${u.id}, '${u.email}')">Delete</button>
       </td>
     </tr>`;
@@ -226,6 +244,47 @@ async function clearCookbook(userId) {
     showToast(data.success ? `Cleared ${data.recipesCleared} recipes, ${data.mealPlansCleared} meal plans` : 'Failed: ' + data.error);
     loadDashboard();
   } catch (e) { showToast('Error clearing cookbook'); }
+}
+
+let emailModalUserId = null;
+
+function openEmailModal(userId, email) {
+  emailModalUserId = userId;
+  document.getElementById('email-modal-recipient').textContent = `${email} (ID ${userId})`;
+  document.getElementById('email-modal-subject').value = '';
+  document.getElementById('email-modal-message').value = '';
+  document.getElementById('email-modal').style.display = 'flex';
+}
+
+function closeEmailModal() {
+  document.getElementById('email-modal').style.display = 'none';
+  emailModalUserId = null;
+}
+
+async function sendCustomEmail() {
+  const subject = document.getElementById('email-modal-subject').value.trim();
+  const message = document.getElementById('email-modal-message').value.trim();
+  if (!subject || !message) { showToast('Subject and message are both required'); return; }
+
+  const btn = document.getElementById('email-modal-send-btn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  try {
+    const resp = await fetch(`${API}/admin/send-email?secret=${encodeURIComponent(adminSecret)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: emailModalUserId, subject, message })
+    });
+    const data = await resp.json();
+    showToast(data.success ? `Email sent to ${data.sentTo}` : 'Failed: ' + data.error);
+    if (data.success) closeEmailModal();
+  } catch (e) {
+    showToast('Error sending email');
+  } finally {
+    btn.textContent = 'Send';
+    btn.disabled = false;
+  }
 }
 
 async function deleteUser(userId, email) {
