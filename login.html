@@ -176,11 +176,6 @@ footer a{color:var(--ink3)}
           <div class="pp-price">$0 — 5 spins</div>
           <div style="font-size:10px;color:var(--ink3);margin-top:3px">No credit card</div>
         </div>
-        <div class="plan-pill" id="pill-trial" onclick="selectPlan('trial')">
-          <div class="pp-name">Weekly Trial</div>
-          <div class="pp-price">$4.99 / week</div>
-          <div style="font-size:10px;color:var(--ink3);margin-top:3px">Full access</div>
-        </div>
         <div class="plan-pill" id="pill-home_chef" onclick="selectPlan('home_chef')">
           <div class="pp-name">Home Chef</div>
           <div class="pp-price">$9.99 / mo</div>
@@ -256,7 +251,7 @@ async function handleForgotPassword(e) {
 
 function selectPlan(plan) {
   selectedPlan = plan;
-  ['free','trial','home_chef','family'].forEach(p => {
+  ['free','home_chef','family'].forEach(p => {
     document.getElementById('pill-'+p).classList.toggle('selected', p === plan);
   });
 }
