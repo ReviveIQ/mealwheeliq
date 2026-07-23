@@ -2389,7 +2389,7 @@ User's available ingredients: ${ingList}
 ASSUMED KITCHEN STAPLES (never mark buy:true): olive oil, vegetable oil, butter, salt, black pepper, garlic powder, onion powder, all common spices, soy sauce, Worcestershire, hot sauce, mustard, ketchup, mayo, honey, vinegar, flour, sugar, chicken broth, garlic, onion.
 
 Suggest 3-5 fresh ingredients to buy (buy:true) that fit this style. Flag organic:true for meats, eggs, leafy greens.
-Servings: ${s}. Target approximately ${g} kcal per serving. ${avoidStr}
+Servings: ${s}. Target ${g} kcal per serving — treat this as a ceiling, not a loose approximation. Do not exceed ${Math.round(g * 1.3)} kcal per serving. Check your protein×4 + carbs×4 + fat×9 math before finalizing and scale portions down if it's running hot. ${avoidStr}
 
 Recipe steps: Lead with action verbs, 5-7 steps, timing and visual cues, final step seasons and serves.
 INGREDIENT QUANTITIES: For every ingredient, include a realistic quantity and unit scaled to the serving count. Use standard grocery units: lbs, oz, cups, tbsp, tsp, cloves, can (15oz), bunch, head, piece. Examples for 2 servings: chicken breast = "1.5 lbs", olive oil = "2 tbsp", garlic = "4 cloves", broth = "2 cups", pasta = "8 oz".
@@ -3000,7 +3000,7 @@ WEEK PLANNING RULES:
 - For the CREATIVE night: still keep it light and quick — bold on flavor, not on effort or heaviness
 - ${avoidStr}
 - Flag organic:true for meats, eggs, leafy greens, thin-skin produce
-- Servings: ${s}. Target approximately ${Math.round(g * 0.85)} kcal per serving (weekly plans default lighter than a one-off dinner). ${dietStr} ${methodStr} ${timeStr}
+- Servings: ${s}. Target ${Math.round(g * 0.85)} kcal per serving (weekly plans default lighter than a one-off dinner) — treat this as a ceiling, not a loose approximation. Do not exceed ${Math.round(g * 0.85 * 1.3)} kcal per serving. Check your protein×4 + carbs×4 + fat×9 math before finalizing and scale portions down if it's running hot. ${dietStr} ${methodStr} ${timeStr}
 
 Recipe steps MUST follow professional cookbook standards (America's Test Kitchen / Bon Appétit style):
 - Lead every step with an action verb: Heat, Sear, Brown, Stir, Whisk, Fold, Simmer, Roast, Toss, Season, Garnish
@@ -3135,7 +3135,7 @@ Aromatics: garlic, onion (assume always on hand)
 
 ${buyInstruction}
 Flag organic:true for meats, eggs, leafy greens, thin-skin produce.
-Servings: ${s}. Target approximately ${g} kcal per serving for dinner. ${avoidStr} ${dietStr} ${methodStr} ${timeStr}
+Servings: ${s}. Target ${g} kcal per serving for dinner — treat this as a CEILING, not a loose approximation. Do not exceed ${Math.round(g * 1.3)} kcal per serving under any circumstances. WORKED EXAMPLE: if the target is 630 kcal, a finished recipe landing at 1259 kcal is a real failure — that means portions, cheese, cream, or fat were added well beyond what the target allows. Before finalizing, check your own protein/carb/fat grams against the calorie formula (protein×4 + carbs×4 + fat×9) and scale ingredient quantities down if the math is running hot, rather than leaving portions large and just writing a lower number. ${avoidStr} ${dietStr} ${methodStr} ${timeStr}
 
 Recipe steps MUST follow professional cookbook standards (America's Test Kitchen / Bon Appétit style):
 - Lead every step with an action verb: Heat, Sear, Brown, Stir, Whisk, Fold, Simmer, Roast, Toss, Season, Garnish
