@@ -678,6 +678,19 @@ button, a { touch-action: manipulation; }
 .chef-shop-btn.equip{background:var(--ink);color:white}
 .chef-shop-equipped{display:block;font-size:11px;font-weight:700;color:var(--green)}
 
+/* ─── LAYERED ILLUSTRATED AVATAR ──────────────────────────────────────── */
+.chef-avatar-stage{position:relative;width:200px;height:200px;margin:0 auto;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,var(--cream),var(--green-pale))}
+.chef-layer{position:absolute;display:block}
+.chef-layer-bg{inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.chef-layer-base{left:50%;top:55%;width:72%;height:auto;transform:translate(-50%,-50%);z-index:2}
+.chef-layer-apron{left:50%;top:70%;width:56%;height:auto;transform:translate(-50%,-50%);z-index:3}
+.chef-layer-tool{right:4%;bottom:6%;width:26%;height:auto;z-index:4}
+.chef-layer-hat{left:50%;top:16%;width:42%;height:auto;transform:translate(-50%,-50%);z-index:5}
+.chef-hero-emoji-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:4.5rem;z-index:2}
+.chef-shop-thumb{position:relative;width:100%;height:56px;margin-bottom:.3rem;display:flex;align-items:center;justify-content:center}
+.chef-shop-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.chef-shop-thumb .chef-shop-emoji{font-size:1.6rem;position:relative}
+
 </style>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#C94B2A">
@@ -4514,6 +4527,19 @@ function renderChefBadge(data) {
   el.innerHTML = `${data.rank.rank.emoji} <span class="chef-badge-title">${data.rank.rank.title}</span> <span class="chef-badge-pts">${data.totalPoints} pts</span>`;
 }
 
+// Predictable static asset URLs — one-time-generated illustrated layers,
+// served free forever off GitHub Pages. If an asset hasn't been generated
+// yet (or fails to load for any reason), onerror handlers below fall back
+// to the original emoji so the page never shows a broken image icon.
+const AVATAR_ART_BASE = 'https://mealwheeliq.com/avatar-art/';
+function avatarArtUrl(key) { return `${AVATAR_ART_BASE}${key}.png`; }
+
+function avatarBaseArtError(imgEl) {
+  imgEl.style.display = 'none';
+  const fallback = document.getElementById('chef-emoji-fallback');
+  if (fallback) fallback.classList.remove('hidden');
+}
+
 function renderMyChefSection() {
   const el = document.getElementById('mychef-content');
   const data = currentPointsData;
@@ -4523,13 +4549,32 @@ function renderMyChefSection() {
   const catalogData = avatarCatalog || { catalog: [], genderEmoji: { male: '👨\u200d🍳', female: '👩\u200d🍳', neutral: '🧑\u200d🍳' } };
   const baseEmoji = catalogData.genderEmoji[avatar.gender] || catalogData.genderEmoji.neutral;
 
-  const equippedBadges = ['hat', 'apron', 'tool', 'background']
+  const equippedItems = ['hat', 'apron', 'tool', 'background']
     .map(cat => avatar.equipped?.[cat])
     .filter(Boolean)
     .map(key => catalogData.catalog.find(i => i.key === key))
-    .filter(Boolean)
-    .map(i => `<span class="chef-outfit-badge" title="${i.name}">${i.emoji}</span>`)
-    .join('');
+    .filter(Boolean);
+  const equippedBadges = equippedItems.map(i => `<span class="chef-outfit-badge" title="${i.name}">${i.emoji}</span>`).join('');
+
+  // Layered illustrated avatar — background, base body, then apron/tool/hat
+  // stacked on top. Each accessory layer just hides itself on error (the
+  // small badge row above still confirms what's equipped even if the art
+  // for one specific item hasn't generated yet).
+  const bgKey = avatar.equipped?.background;
+  const hatKey = avatar.equipped?.hat;
+  const apronKey = avatar.equipped?.apron;
+  const toolKey = avatar.equipped?.tool;
+  const baseArtKey = `base-${avatar.gender || 'neutral'}`;
+
+  const avatarStageHtml = `
+    <div class="chef-avatar-stage">
+      ${bgKey ? `<img class="chef-layer chef-layer-bg" src="${avatarArtUrl(bgKey)}" alt="" onerror="this.style.display='none'">` : ''}
+      <img class="chef-layer chef-layer-base" src="${avatarArtUrl(baseArtKey)}" alt="Your chef" onerror="avatarBaseArtError(this)">
+      <div class="chef-hero-emoji-fallback hidden" id="chef-emoji-fallback">${baseEmoji}</div>
+      ${apronKey ? `<img class="chef-layer chef-layer-apron" src="${avatarArtUrl(apronKey)}" alt="" onerror="this.style.display='none'">` : ''}
+      ${toolKey ? `<img class="chef-layer chef-layer-tool" src="${avatarArtUrl(toolKey)}" alt="" onerror="this.style.display='none'">` : ''}
+      ${hatKey ? `<img class="chef-layer chef-layer-hat" src="${avatarArtUrl(hatKey)}" alt="" onerror="this.style.display='none'">` : ''}
+    </div>`;
 
   const ladderHtml = RANKS.map(r => {
     const unlocked = data.totalPoints >= r.threshold;
@@ -4562,7 +4607,10 @@ function renderMyChefSection() {
         actionHtml = `<button class="chef-shop-btn buy" ${canAfford ? '' : 'disabled'} onclick="buyAvatarItem('${i.key}')">${i.cost} pts</button>`;
       }
       return `<div class="chef-shop-item${equipped ? ' equipped' : ''}">
-        <div class="chef-shop-emoji">${i.emoji}</div>
+        <div class="chef-shop-thumb">
+          <img src="${avatarArtUrl(i.key)}" alt="${i.name}" onload="this.nextElementSibling.style.display='none'" onerror="this.style.display='none'">
+          <div class="chef-shop-emoji">${i.emoji}</div>
+        </div>
         <div class="chef-shop-name">${i.name}</div>
         ${actionHtml}
       </div>`;
@@ -4572,7 +4620,7 @@ function renderMyChefSection() {
 
   el.innerHTML = `
     <div class="chef-hero">
-      <div class="chef-hero-emoji">${baseEmoji}</div>
+      ${avatarStageHtml}
       ${equippedBadges ? `<div class="chef-outfit-row">${equippedBadges}</div>` : ''}
       <div class="chef-hero-title">${rank.title}</div>
       <div class="chef-hero-scene">${rank.kitchenScene}</div>
