@@ -990,6 +990,23 @@ button, a { touch-action: manipulation; }
       <div class="diet-filters" id="diet-filters" style="display:block">
 
         <div class="diet-cat">
+          <div class="diet-cat-header" onclick="toggleDietCat('protein')">
+            <span>Single Protein Focus</span><span class="diet-cat-chevron" id="chev-protein">▾</span>
+          </div>
+          <div class="diet-cat-body" id="cat-protein" style="display:none">
+            <button class="diet-btn protein-btn" id="protein-chicken" onclick="selectProtein('chicken')">🍗 Chicken</button>
+            <button class="diet-btn protein-btn" id="protein-beef" onclick="selectProtein('beef')">🥩 Beef</button>
+            <button class="diet-btn protein-btn" id="protein-pork" onclick="selectProtein('pork')">🐖 Pork</button>
+            <button class="diet-btn protein-btn" id="protein-turkey" onclick="selectProtein('turkey')">🦃 Turkey</button>
+            <button class="diet-btn protein-btn" id="protein-fish" onclick="selectProtein('fish')">🐟 Fish</button>
+            <button class="diet-btn protein-btn" id="protein-shrimp" onclick="selectProtein('shrimp')">🍤 Shrimp/Shellfish</button>
+            <button class="diet-btn protein-btn" id="protein-tofu" onclick="selectProtein('tofu')">🌱 Tofu/Plant-Based</button>
+            <button class="diet-btn protein-btn" id="protein-eggs" onclick="selectProtein('eggs')">🥚 Eggs</button>
+          </div>
+          <div style="font-size:11px;color:var(--ink3);padding:2px 4px 8px">Tap a protein to build every recipe in your next spin around it. Tap again to clear.</div>
+        </div>
+
+        <div class="diet-cat">
           <div class="diet-cat-header" onclick="toggleDietCat('restrictions')">
             <span>Dietary Restrictions</span><span class="diet-cat-chevron" id="chev-restrictions">▾</span>
           </div>
@@ -2520,6 +2537,12 @@ async function loadPreferences() {
         : prefs.dietary_preferences;
       if (Array.isArray(diets)) {
         diets.forEach(d => {
+          if (d.startsWith('protein:')) {
+            selectedProtein = d.slice(8);
+            const pbtn = document.getElementById('protein-' + selectedProtein);
+            if (pbtn) pbtn.classList.add('act');
+            return;
+          }
           activeDiets.add(d);
           const btn = document.getElementById('diet-' + d);
           if (btn) btn.classList.add('act');
@@ -2538,7 +2561,7 @@ async function savePreferences() {
       body: JSON.stringify({
         daily_calorie_goal: parseInt(document.getElementById('calgoal').value),
         servings: parseInt(document.getElementById('servings').value),
-        dietary_preferences: Array.from(activeDiets)
+        dietary_preferences: Array.from(activeDiets).concat(selectedProtein ? ['protein:' + selectedProtein] : [])
       })
     });
   } catch {}
@@ -3000,7 +3023,7 @@ WEEK PLANNING RULES:
 - For the CREATIVE night: still keep it light and quick — bold on flavor, not on effort or heaviness
 - ${avoidStr}
 - Flag organic:true for meats, eggs, leafy greens, thin-skin produce
-- Servings: ${s}. Target ${Math.round(g * 0.85)} kcal per serving (weekly plans default lighter than a one-off dinner) — treat this as a ceiling, not a loose approximation. Do not exceed ${Math.round(g * 0.85 * 1.1)} kcal per serving. Check your protein×4 + carbs×4 + fat×9 math before finalizing and scale portions down if it's running hot. ${dietStr} ${methodStr} ${timeStr}
+- Servings: ${s}. Target ${Math.round(g * 0.85)} kcal per serving (weekly plans default lighter than a one-off dinner) — treat this as a ceiling, not a loose approximation. Do not exceed ${Math.round(g * 0.85 * 1.1)} kcal per serving. Check your protein×4 + carbs×4 + fat×9 math before finalizing and scale portions down if it's running hot. ${dietStr} ${proteinStr}${methodStr} ${timeStr}
 
 Recipe steps MUST follow professional cookbook standards (America's Test Kitchen / Bon Appétit style):
 - Lead every step with an action verb: Heat, Sear, Brown, Stir, Whisk, Fold, Simmer, Roast, Toss, Season, Garnish
@@ -3105,6 +3128,8 @@ async function generateRecipe(wi) {
   const dietStr=getDietPromptText();
   const methodStr=getCookingMethodPrompt();
   const timeStr = getTimeConstraintText();
+  const proteinStr = getProteinPromptText();
+  const proteinFocusOpt = selectedProtein ? PROTEIN_OPTIONS.find(p => p.key === selectedProtein) : null;
   const count=mode==='week'?1:5;
   // Recipe index 2 = "stretch" recipe with ~30% buy ingredients for meal inspiration
   const makePrompt = (recipeIndex) => {
@@ -3113,7 +3138,7 @@ async function generateRecipe(wi) {
     const buyInstruction = mode === 'week'
       ? 'You may suggest additional ingredients to buy as needed — mark them buy:true.'
       : isSalad
-        ? "SALAD FREEDOM: This is a guaranteed hearty, healthy option — encourage the user toward a great salad whether or not they have every ingredient on hand. Freely include fresh produce and a protein (grilled chicken, salmon, steak, shrimp, chickpeas, etc.) even if not in their pantry — mark those buy:true. Up to half the ingredients can be buy:true."
+        ? `SALAD FREEDOM: This is a guaranteed hearty, healthy option — encourage the user toward a great salad whether or not they have every ingredient on hand. Freely include fresh produce and a protein (${proteinFocusOpt ? proteinFocusOpt.text : 'grilled chicken, salmon, steak, shrimp, chickpeas, etc.'}) even if not in their pantry — mark those buy:true. Up to half the ingredients can be buy:true.`
         : isStretch
         ? 'INSPIRATION RECIPE: Include 2–4 exciting ingredients to buy (buy:true) that complement what the user has. About 30% of ingredients should be buy:true. This expands their meal ideas beyond the pantry.'
         : 'PANTRY RULE: Maximum 2 ingredients should be buy:true. Build the recipe around what the user already has.';
@@ -3135,7 +3160,7 @@ Aromatics: garlic, onion (assume always on hand)
 
 ${buyInstruction}
 Flag organic:true for meats, eggs, leafy greens, thin-skin produce.
-Servings: ${s}. Target ${g} kcal per serving for dinner — treat this as a CEILING, not a loose approximation. Do not exceed ${Math.round(g * 1.1)} kcal per serving under any circumstances. WORKED EXAMPLE: if the target is 630 kcal, a finished recipe landing at 1259 kcal is a real failure — that means portions, cheese, cream, or fat were added well beyond what the target allows. Before finalizing, check your own protein/carb/fat grams against the calorie formula (protein×4 + carbs×4 + fat×9) and scale ingredient quantities down if the math is running hot, rather than leaving portions large and just writing a lower number. ${avoidStr} ${dietStr} ${methodStr} ${timeStr}
+Servings: ${s}. Target ${g} kcal per serving for dinner — treat this as a CEILING, not a loose approximation. Do not exceed ${Math.round(g * 1.1)} kcal per serving under any circumstances. WORKED EXAMPLE: if the target is 630 kcal, a finished recipe landing at 1259 kcal is a real failure — that means portions, cheese, cream, or fat were added well beyond what the target allows. Before finalizing, check your own protein/carb/fat grams against the calorie formula (protein×4 + carbs×4 + fat×9) and scale ingredient quantities down if the math is running hot, rather than leaving portions large and just writing a lower number. ${avoidStr} ${dietStr} ${proteinStr}${methodStr} ${timeStr}
 
 Recipe steps MUST follow professional cookbook standards (America's Test Kitchen / Bon Appétit style):
 - Lead every step with an action verb: Heat, Sear, Brown, Stir, Whisk, Fold, Simmer, Roast, Toss, Season, Garnish
@@ -3173,17 +3198,28 @@ NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other
   // and get variety from different dishes/techniques within it instead.
   const hasExplicitCuisine = [...activeDiets].some(d => d.startsWith('cuisine_'));
 
+  // When a single protein focus is active, the "different protein per recipe"
+  // variety instructions below directly contradict it — swap in protein-locked
+  // phrasing instead so the AI gets one consistent instruction, not two that fight.
   const varietyStyles = hasExplicitCuisine ? [
     styleHint, styleHint,
     `${styleHint} — a genuinely different dish and technique than the other recipes in this set, but staying within the requested cuisine. Do not repeat the same core ingredient combination as another recipe in this set.`,
     styleHint,
-    `${styleHint} — a genuinely different dish, protein, and technique than every other recipe in this set, but staying within the requested cuisine.`
+    proteinFocusOpt
+      ? `${styleHint} — a genuinely different dish and technique than every other recipe in this set, but staying within the requested cuisine. The protein stays ${proteinFocusOpt.text} — vary everything else.`
+      : `${styleHint} — a genuinely different dish, protein, and technique than every other recipe in this set, but staying within the requested cuisine.`
   ] : [
     styleHint, // Recipe 0: exactly what was requested
-    `${styleHint} — this recipe MUST be ${cuisine1} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine1} cooking. Do not repeat the same core ingredient combination as another recipe in this set.`,
-    `${styleHint} — this recipe MUST be ${cuisine2} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine2} cooking. This recipe's primary protein/vegetable base MUST be different from every other recipe in this set — do not default to the same safe combination just because it fits any dietary restrictions.`,
+    proteinFocusOpt
+      ? `${styleHint} — this recipe MUST be ${cuisine1} cuisine, specifically. Use techniques and spices authentic to ${cuisine1} cooking, built around ${proteinFocusOpt.text}. Do not repeat the same core ingredient combination as another recipe in this set.`
+      : `${styleHint} — this recipe MUST be ${cuisine1} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine1} cooking. Do not repeat the same core ingredient combination as another recipe in this set.`,
+    proteinFocusOpt
+      ? `${styleHint} — this recipe MUST be ${cuisine2} cuisine, specifically. Use techniques and spices authentic to ${cuisine2} cooking, built around ${proteinFocusOpt.text}. Vary the vegetables, starch, and sauce from the other recipes in this set instead of the protein.`
+      : `${styleHint} — this recipe MUST be ${cuisine2} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine2} cooking. This recipe's primary protein/vegetable base MUST be different from every other recipe in this set — do not default to the same safe combination just because it fits any dietary restrictions.`,
     styleHint, // Recipe 3: guaranteed salad — introLine already handles the framing, no extra style injection needed
-    `${styleHint} — this recipe MUST be ${cuisine4} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine4} cooking. Must be genuinely different in protein, base, and technique from every other recipe in this set.`
+    proteinFocusOpt
+      ? `${styleHint} — this recipe MUST be ${cuisine4} cuisine, specifically. Use techniques and spices authentic to ${cuisine4} cooking, built around ${proteinFocusOpt.text}. Must be genuinely different in dish and technique from every other recipe in this set.`
+      : `${styleHint} — this recipe MUST be ${cuisine4} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine4} cooking. Must be genuinely different in protein, base, and technique from every other recipe in this set.`
   ];
 
   // Avoid list — all recipes shown this session so respin gives fresh results
@@ -4269,6 +4305,43 @@ function updateDietActiveCount() {
   const el = document.getElementById('diet-active-count');
   if (!el) return;
   el.textContent = activeDiets.size > 0 ? `· ${activeDiets.size} active` : '';
+}
+
+// ─── SINGLE PROTEIN FOCUS ───────────────────────────────────────────────────
+// Lets a user lock every recipe in a spin/week/soup batch to one protein
+// (e.g. "only chicken this time") instead of the app's default behavior of
+// forcing a different protein into each recipe for variety.
+let selectedProtein = null; // null = no focus (default variety behavior)
+
+const PROTEIN_OPTIONS = [
+  { key: 'chicken', label: '🍗 Chicken', text: 'chicken (breast, thighs, or ground)' },
+  { key: 'beef', label: '🥩 Beef', text: 'beef' },
+  { key: 'pork', label: '🐖 Pork', text: 'pork' },
+  { key: 'turkey', label: '🦃 Turkey', text: 'turkey' },
+  { key: 'fish', label: '🐟 Fish', text: 'fish (any white or oily fish)' },
+  { key: 'shrimp', label: '🍤 Shrimp/Shellfish', text: 'shrimp or other shellfish' },
+  { key: 'tofu', label: '🌱 Tofu/Plant-Based', text: 'tofu, tempeh, or another plant-based protein' },
+  { key: 'eggs', label: '🥚 Eggs', text: 'eggs' }
+];
+
+function selectProtein(key) {
+  selectedProtein = (selectedProtein === key) ? null : key;
+  document.querySelectorAll('.protein-btn').forEach(b => b.classList.remove('act'));
+  if (selectedProtein) {
+    const btn = document.getElementById('protein-' + selectedProtein);
+    if (btn) btn.classList.add('act');
+  }
+  savePreferences();
+}
+
+// Strong, explicit instruction injected into every recipe prompt when active —
+// follows this file's established pattern of structuring AI overrides
+// explicitly in the prompt payload rather than assuming context.
+function getProteinPromptText() {
+  if (!selectedProtein) return '';
+  const opt = PROTEIN_OPTIONS.find(p => p.key === selectedProtein);
+  if (!opt) return '';
+  return `SINGLE PROTEIN FOCUS — every recipe generated in this set must be built around ${opt.text} as the primary protein. Do not substitute a different protein and do not omit the protein. Get variety from cuisine, cooking technique, and sides instead of the protein. `;
 }
 
 // Weeknight-quick is the default assumption for a spin — nobody spinning the
