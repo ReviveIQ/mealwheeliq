@@ -52,6 +52,7 @@ p.sub{color:var(--ink3);font-size:14px;margin-bottom:1.5rem;line-height:1.5}
     <div class="success-box">
       <div class="label">Nice work! 🎉</div>
       <div class="msg">Your photo is saved to your MealWheelIQ history. Want to show it off?</div>
+      <div class="points-msg" id="points-msg" style="display:none;margin-top:.6rem;font-weight:700;color:var(--coral);font-size:14px"></div>
     </div>
     <button class="snap-btn" id="share-btn" onclick="sharePhoto()">📤 Share This</button>
     <a href="https://mealwheeliq.com/app.html" class="secondary-btn">Back to MealWheelIQ →</a>
@@ -102,6 +103,11 @@ document.getElementById('file-input').addEventListener('change', async (e) => {
     if (lastRecipeName) {
       document.querySelector('.success-box .msg').textContent =
         `Your photo of ${lastRecipeName} is saved to your MealWheelIQ history. Want to show it off?`;
+    }
+    if (data.pointsAwarded) {
+      const pointsEl = document.getElementById('points-msg');
+      pointsEl.textContent = `+${data.pointsAwarded} points toward your chef rank 🧑‍🍳`;
+      pointsEl.style.display = 'block';
     }
     document.getElementById('uploading-state').style.display = 'none';
     document.getElementById('result-state').style.display = 'block';
