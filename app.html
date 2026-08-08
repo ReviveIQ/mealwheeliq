@@ -3697,6 +3697,31 @@ async function shareFavorite(id) {
   } catch(e) { console.error(e); }
 }
 
+// "I made this!" — mints a no-login upload token (same mechanism a future
+// share-your-meal email would use) and opens the upload page in a new tab
+// so the camera/share flow feels identical whether it starts in-app or from
+// an email link.
+async function shareCookedIt(id, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Opening...'; }
+  try {
+    const resp = await fetch(API+'/favorites', {headers:{'Authorization':'Bearer '+userToken}});
+    const recipes = await resp.json();
+    const r = recipes.find(x => x.id === id);
+    const tokenResp = await fetch(API+'/cooked-it/token', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+userToken},
+      body: JSON.stringify({ recipeId: id, recipeName: r ? r.recipe_name : null })
+    });
+    const data = await tokenResp.json();
+    if (data.url) window.open(data.url, '_blank');
+  } catch(e) {
+    console.error(e);
+    showToast('Could not open the upload page — please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📸 I made this!'; }
+  }
+}
+
 async function removeFavorite(id, btn) {
   if (!confirm('Remove from favorites?')) return;
   try {
@@ -3733,6 +3758,7 @@ async function loadFavorites(){
         <div class="fav-actions">
           <button class="fav-action-btn send" onclick="sendToShopper(${r.id})">📨 Send to shopper</button>
           ${window._threeDayPlanUnlocked?`<button class="fav-action-btn" id="tdp-fav-btn-${r.id}" onclick="addToThreeDayPlan(${r.id}, document.getElementById('tdp-fav-btn-${r.id}'))">🗓️ Add to 3-Day Plan</button>`:''}
+          <button class="fav-action-btn" onclick="shareCookedIt(${r.id}, this)">📸 I made this!</button>
           <button class="fav-action-btn" onclick="shareFavorite(${r.id})">🔗 Share recipe</button>
           <button class="fav-action-btn" onclick="printFavoriteRecipe(${r.id})">🖨️ Print</button>
           <button class="fav-action-btn remove" onclick="removeFavorite(${r.id}, this)">✕ Remove</button>
