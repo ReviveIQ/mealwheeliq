@@ -632,6 +632,31 @@ footer a{color:var(--coral);text-decoration:none;margin:0 .25rem}
 /* ── Prevent double-tap zoom on buttons ── */
 button, a { touch-action: manipulation; }
 
+/* ─── CHEF RANK / POINTS (MVP) ────────────────────────────────────────── */
+.chef-badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:14px;background:var(--gold-pale);color:var(--gold);border:1px solid rgba(184,134,11,.25);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.chef-badge:hover{opacity:.85}
+.chef-badge-pts{color:var(--ink3);font-weight:600}
+.chef-hero{text-align:center;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.4rem 1rem;margin-bottom:1rem}
+.chef-hero-emoji{font-size:2.6rem;line-height:1}
+.chef-hero-title{font-family:Georgia,serif;font-size:1.3rem;margin-top:.3rem}
+.chef-hero-scene{font-size:12px;color:var(--ink3);margin-top:2px}
+.chef-hero-points{font-size:13px;font-weight:700;color:var(--coral);margin-top:.6rem}
+.chef-progress-bg{background:var(--border);border-radius:8px;height:8px;margin-top:.8rem;overflow:hidden}
+.chef-progress-fill{background:var(--coral);height:100%;border-radius:8px;transition:width .4s}
+.chef-progress-label{font-size:11.5px;color:var(--ink3);margin-top:.4rem}
+.chef-earn-panel{background:var(--green-pale);border-radius:14px;padding:1rem 1.2rem;margin-bottom:1rem}
+.chef-earn-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--green);margin-bottom:.5rem}
+.chef-earn-row{display:flex;justify-content:space-between;font-size:13px;color:var(--ink2);padding:3px 0}
+.chef-earn-row span{font-weight:700;color:var(--green)}
+.chef-ladder-row{display:flex;align-items:center;gap:.7rem;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.7rem .9rem;margin-bottom:.5rem}
+.chef-ladder-row.current{border-color:var(--coral);background:#FFF4EF}
+.chef-ladder-row.locked{opacity:.55}
+.chef-ladder-emoji{font-size:1.4rem}
+.chef-ladder-info{flex:1}
+.chef-ladder-title{font-size:13.5px;font-weight:700;color:var(--ink)}
+.chef-ladder-scene{font-size:11.5px;color:var(--ink3)}
+.chef-ladder-threshold{font-size:11.5px;color:var(--ink3);font-weight:600;white-space:nowrap}
+
 </style>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#C94B2A">
@@ -656,6 +681,7 @@ button, a { touch-action: manipulation; }
   <a href="index.html" class="nav-logo"><img src="/icons/icon-32.png" alt="" class="nav-logo-icon">MealWheel<span>IQ</span></a>
   <div class="nav-right">
     <span class="nav-plan" id="nav-plan">Free</span>
+    <span class="chef-badge" id="chef-badge" onclick="showSection('mychef')" title="Your chef rank">🍞 Toaster Novice</span>
     <span class="nav-user" id="nav-user"></span>
     <div style="position:relative">
       <button class="nav-btn" id="blog-nav-btn" onclick="toggleBlogSearch(event)" style="position:relative">📖 Blog<span id="blog-new-badge" class="blog-new-dot hidden"></span></button>
@@ -695,6 +721,7 @@ button, a { touch-action: manipulation; }
     <button class="stab" id="stab-favorites" onclick="showSection('favorites')">⭐ Favorites</button>
     <button class="stab" id="stab-mealplans" onclick="showSection('mealplans')">📅 Meal Plans</button>
     <button class="stab" id="stab-blog" onclick="showSection('blog')">✍️ Blog</button>
+    <button class="stab" id="stab-mychef" onclick="showSection('mychef')">🧑\u200d🍳 My Chef</button>
   </div>
 
   <!-- SHARE MODAL -->
@@ -1297,6 +1324,13 @@ button, a { touch-action: manipulation; }
     </div>
   </div>
 
+  <!-- MY CHEF SECTION -->
+  <div id="section-mychef" class="hidden">
+    <div id="mychef-content">
+      <div class="empty-state">Loading your chef rank...</div>
+    </div>
+  </div>
+
 </div><!-- end app -->
 
 <script>
@@ -1540,6 +1574,7 @@ async function initApp() {
     buildIngUI();
     drawWheel();
     loadThreeDayPlan();
+    loadPoints();
   } catch(e) {
     console.error('Init failed:', e);
   }
@@ -2913,6 +2948,7 @@ NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other
     currentSoupRecipe = recipes[0];
     soupBigBatch = false;
     displaySoupRecipes(recipes, s);
+    awardSpinPoints('soup');
 
   } catch(e) {
     console.error('Soup generation failed:', e);
@@ -3093,6 +3129,7 @@ NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other
     document.getElementById('sbtn').disabled = false;
     document.getElementById('sbtn').textContent = '🎉 See My Week!';
     spinCount += 5; if (userPlan === 'free') updateSpinCounter();
+    awardSpinPoints('week');
     updateWkLabel();
     showWeekResults();
     loadHistory();
@@ -3275,6 +3312,7 @@ NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other
 
     spinning=false; document.getElementById('sbtn').disabled=false;
     spinCount++; if(userPlan==='free') updateSpinCounter();
+    awardSpinPoints(mode);
 
     if(mode==='week'){
       if(recipes[0]) wk.push(recipes[0]);
@@ -3694,6 +3732,7 @@ async function shareFavorite(id) {
       await navigator.clipboard.writeText(text + ' — mealwheeliq.com');
       alert('Recipe link copied!');
     }
+    awardSharePoints('favorite_recipe');
   } catch(e) { console.error(e); }
 }
 
@@ -4144,13 +4183,17 @@ function shareRecipe(name){
 
 // ─── SECTIONS & MODES ────────────────────────────────────────────────────────
 function showSection(sec){
-  ['spin','history','favorites','mealplans','blog'].forEach(s=>{
+  ['spin','history','favorites','mealplans','blog','mychef'].forEach(s=>{
     document.getElementById('section-'+s).classList.toggle('hidden',s!==sec);
     document.getElementById('stab-'+s).classList.toggle('act',s===sec);
   });
   if(sec==='history')loadHistory();
   if(sec==='favorites')loadFavorites();
   if(sec==='mealplans')loadMealPlans();
+  if(sec==='mychef'){
+    if(currentPointsData) renderMyChefSection(currentPointsData);
+    loadPoints();
+  }
 }
 
 async function loadMealPlans(){
@@ -4370,6 +4413,125 @@ function getProteinPromptText() {
   return `SINGLE PROTEIN FOCUS — every recipe generated in this set must be built around ${opt.text} as the primary protein. Do not substitute a different protein and do not omit the protein. Get variety from cuisine, cooking technique, and sides instead of the protein. `;
 }
 
+// ─── CHEF RANK / POINTS (MVP slice) ─────────────────────────────────────────
+// Mirror of the RANKS array in server.js — keep both in sync. First 6 rungs
+// of the full 17-rank "toaster to Michelin" ladder from the gamification spec.
+const RANKS = [
+  { rank: 1, key: 'toaster_novice', title: 'Toaster Novice', threshold: 0, emoji: '🍞', kitchenScene: 'Studio apartment counter, toaster' },
+  { rank: 2, key: 'hot_water_helper', title: 'Hot Water Helper', threshold: 75, emoji: '☕', kitchenScene: 'Same counter + electric kettle' },
+  { rank: 3, key: 'microwave_apprentice', title: 'Microwave Apprentice', threshold: 175, emoji: '📻', kitchenScene: 'Counter + microwave' },
+  { rank: 4, key: 'stovetop_starter', title: 'Stovetop Starter', threshold: 350, emoji: '🍳', kitchenScene: 'Small apartment stove, one pan' },
+  { rank: 5, key: 'home_cook', title: 'Home Cook', threshold: 650, emoji: '🥘', kitchenScene: 'Real kitchen, two burners + oven' },
+  { rank: 6, key: 'home_chef', title: 'Home Chef', threshold: 1200, emoji: '🧑\u200d🍳', kitchenScene: 'Full home kitchen, prep station' }
+];
+
+let currentPointsData = null; // last fetched { totalPoints, rank } from GET /points/me
+
+function getRankForPoints(points) {
+  let current = RANKS[0];
+  for (const r of RANKS) {
+    if (points >= r.threshold) current = r; else break;
+  }
+  const idx = RANKS.findIndex(r => r.key === current.key);
+  const next = RANKS[idx + 1] || null;
+  return {
+    rank: current,
+    next,
+    pointsToNext: next ? next.threshold - points : 0,
+    progressPct: next
+      ? Math.min(100, Math.round(((points - current.threshold) / (next.threshold - current.threshold)) * 100))
+      : 100
+  };
+}
+
+// Fetches the current total + rank and refreshes every place the badge shows
+// up (header chip, My Chef tab if open). Safe to call often — cheap GET.
+async function loadPoints() {
+  try {
+    const resp = await fetch(API + '/points/me', { headers: { 'Authorization': 'Bearer ' + userToken } });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    currentPointsData = data;
+    renderChefBadge(data);
+    if (!document.getElementById('section-mychef')?.classList.contains('hidden')) {
+      renderMyChefSection(data);
+    }
+  } catch (e) { console.error('loadPoints error:', e); }
+}
+
+function renderChefBadge(data) {
+  const el = document.getElementById('chef-badge');
+  if (!el || !data) return;
+  el.innerHTML = `${data.rank.rank.emoji} <span class="chef-badge-title">${data.rank.rank.title}</span> <span class="chef-badge-pts">${data.totalPoints} pts</span>`;
+}
+
+function renderMyChefSection(data) {
+  const el = document.getElementById('mychef-content');
+  if (!el || !data) return;
+  const { rank, next, pointsToNext, progressPct } = data.rank;
+  const ladderHtml = RANKS.map(r => {
+    const unlocked = data.totalPoints >= r.threshold;
+    const isCurrent = r.key === rank.key;
+    return `<div class="chef-ladder-row${isCurrent ? ' current' : ''}${unlocked ? '' : ' locked'}">
+      <span class="chef-ladder-emoji">${unlocked ? r.emoji : '🔒'}</span>
+      <div class="chef-ladder-info">
+        <div class="chef-ladder-title">${r.title}${isCurrent ? ' — you are here' : ''}</div>
+        <div class="chef-ladder-scene">${r.kitchenScene}</div>
+      </div>
+      <span class="chef-ladder-threshold">${r.threshold} pts</span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="chef-hero">
+      <div class="chef-hero-emoji">${rank.emoji}</div>
+      <div class="chef-hero-title">${rank.title}</div>
+      <div class="chef-hero-scene">${rank.kitchenScene}</div>
+      <div class="chef-hero-points">${data.totalPoints} points</div>
+      ${next ? `
+        <div class="chef-progress-bg"><div class="chef-progress-fill" style="width:${progressPct}%"></div></div>
+        <div class="chef-progress-label">${pointsToNext} points to ${next.title} ${next.emoji}</div>
+      ` : `<div class="chef-progress-label">Top of the current ladder — more ranks coming soon 👨‍🍳</div>`}
+    </div>
+    <div class="chef-earn-panel">
+      <div class="chef-earn-title">Ways to earn points</div>
+      <div class="chef-earn-row">🎡 Spin the wheel <span>+5</span></div>
+      <div class="chef-earn-row">⏰ First spin of the day <span>+10 bonus</span></div>
+      <div class="chef-earn-row">📤 Share a recipe <span>+15</span></div>
+      <div class="chef-earn-row">📸 Upload a "Cooked It" photo <span>+20</span></div>
+    </div>
+    <div class="chef-ladder">${ladderHtml}</div>
+  `;
+}
+
+// Fire-and-forget point awards — called after a spin completes or a share
+// action fires. Never blocks the user-facing action if it fails.
+async function awardSpinPoints(mode) {
+  try {
+    const resp = await fetch(API + '/points/spin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+      body: JSON.stringify({ mode: mode || 'fridge' })
+    });
+    const data = await resp.json();
+    if (data.awarded) showToast(`+${data.awarded} points! ${data.rank.rank.emoji} ${data.rank.rank.title}`);
+    loadPoints();
+  } catch (e) { console.error('awardSpinPoints error:', e); }
+}
+
+async function awardSharePoints(source) {
+  try {
+    const resp = await fetch(API + '/points/share', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+      body: JSON.stringify({ source: source || 'unknown' })
+    });
+    const data = await resp.json();
+    if (data.awarded) showToast(`+${data.awarded} points for sharing! ${data.rank.rank.emoji} ${data.rank.rank.title}`);
+    loadPoints();
+  } catch (e) { console.error('awardSharePoints error:', e); }
+}
+
 // Weeknight-quick is the default assumption for a spin — nobody spinning the
 // wheel wants a 3-hour braise for tonight unless they explicitly ask for one.
 function getTimeConstraintText() {
@@ -4572,6 +4734,7 @@ async function shareToFacebook(recipeId, recipeName) {
   // immediately with no extra wait or build step.
   const shareUrl = `https://mealwheeliq.com/og/${recipeId}.html`;
   openFBShare(shareUrl);
+  awardSharePoints('facebook');
 }
 
 function openFBShare(shareUrl) {
