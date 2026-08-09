@@ -126,6 +126,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .diet-cat-body{display:flex;flex-wrap:wrap;gap:6px;padding-top:.5rem}
 .diet-group-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin:.6rem 0 .25rem;width:100%;flex-basis:100%}
 .diet-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid var(--border2);border-radius:20px;font-size:11.5px;font-weight:500;cursor:pointer;background:var(--cream);color:var(--ink2);transition:all .15s;font-family:'DM Sans',sans-serif}
+.protein-focus-check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2);cursor:pointer;padding:2px 4px;font-family:'DM Sans',sans-serif}
+.protein-focus-check input{width:16px;height:16px;cursor:pointer;flex-shrink:0}
+.protein-focus-input{width:100%;margin-top:8px;padding:.65rem .85rem;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink1);box-sizing:border-box}
+.protein-focus-input:focus{outline:none;border-color:var(--coral)}
 .diet-btn:hover{border-color:var(--green);background:var(--green-pale)}
 .diet-btn.act{border-color:var(--green);background:var(--green-pale);color:var(--green-dark)}
 .search-bar{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);margin-bottom:.75rem}
@@ -1054,17 +1058,14 @@ button, a { touch-action: manipulation; }
           <div class="diet-cat-header" onclick="toggleDietCat('protein')">
             <span>Single Protein Focus</span><span class="diet-cat-chevron" id="chev-protein">▾</span>
           </div>
-          <div class="diet-cat-body" id="cat-protein" style="display:none">
-            <button class="diet-btn protein-btn" id="protein-chicken" onclick="selectProtein('chicken')">🍗 Chicken</button>
-            <button class="diet-btn protein-btn" id="protein-beef" onclick="selectProtein('beef')">🥩 Beef</button>
-            <button class="diet-btn protein-btn" id="protein-pork" onclick="selectProtein('pork')">🐖 Pork</button>
-            <button class="diet-btn protein-btn" id="protein-turkey" onclick="selectProtein('turkey')">🦃 Turkey</button>
-            <button class="diet-btn protein-btn" id="protein-fish" onclick="selectProtein('fish')">🐟 Fish</button>
-            <button class="diet-btn protein-btn" id="protein-shrimp" onclick="selectProtein('shrimp')">🍤 Shrimp/Shellfish</button>
-            <button class="diet-btn protein-btn" id="protein-tofu" onclick="selectProtein('tofu')">🌱 Tofu/Plant-Based</button>
-            <button class="diet-btn protein-btn" id="protein-eggs" onclick="selectProtein('eggs')">🥚 Eggs</button>
+          <div class="diet-cat-body" id="cat-protein" style="display:none;flex-direction:column;align-items:stretch">
+            <label class="protein-focus-check">
+              <input type="checkbox" id="protein-focus-toggle" onchange="toggleProteinFocus()">
+              <span>Build every recipe around one protein</span>
+            </label>
+            <input type="text" id="protein-focus-text" class="protein-focus-input hidden" placeholder="e.g. chicken thighs, salmon, chickpeas..." maxlength="60" oninput="onProteinTextChange()">
           </div>
-          <div style="font-size:11px;color:var(--ink3);padding:2px 4px 8px">Tap a protein to build every recipe in your next spin around it. Tap again to clear.</div>
+          <div style="font-size:11px;color:var(--ink3);padding:2px 4px 8px">Check the box, type any protein, and every recipe in your next spin will be built around it.</div>
         </div>
 
         <div class="diet-cat">
@@ -2608,8 +2609,12 @@ async function loadPreferences() {
         diets.forEach(d => {
           if (d.startsWith('protein:')) {
             selectedProtein = d.slice(8);
-            const pbtn = document.getElementById('protein-' + selectedProtein);
-            if (pbtn) pbtn.classList.add('act');
+            if (selectedProtein) {
+              const cb = document.getElementById('protein-focus-toggle');
+              const txt = document.getElementById('protein-focus-text');
+              if (cb) cb.checked = true;
+              if (txt) { txt.value = selectedProtein; txt.classList.remove('hidden'); }
+            }
             return;
           }
           activeDiets.add(d);
@@ -3200,7 +3205,7 @@ async function generateRecipe(wi) {
   const methodStr=getCookingMethodPrompt();
   const timeStr = getTimeConstraintText();
   const proteinStr = getProteinPromptText();
-  const proteinFocusOpt = selectedProtein ? PROTEIN_OPTIONS.find(p => p.key === selectedProtein) : null;
+  const proteinFocusOpt = selectedProtein ? selectedProtein : null;
   const count=mode==='week'?1:5;
   // Recipe index 2 = "stretch" recipe with ~30% buy ingredients for meal inspiration
   const makePrompt = (recipeIndex) => {
@@ -3209,7 +3214,7 @@ async function generateRecipe(wi) {
     const buyInstruction = mode === 'week'
       ? 'You may suggest additional ingredients to buy as needed — mark them buy:true.'
       : isSalad
-        ? `SALAD FREEDOM: This is a guaranteed hearty, healthy option — encourage the user toward a great salad whether or not they have every ingredient on hand. Freely include fresh produce and a protein (${proteinFocusOpt ? proteinFocusOpt.text : 'grilled chicken, salmon, steak, shrimp, chickpeas, etc.'}) even if not in their pantry — mark those buy:true. Up to half the ingredients can be buy:true.`
+        ? `SALAD FREEDOM: This is a guaranteed hearty, healthy option — encourage the user toward a great salad whether or not they have every ingredient on hand. Freely include fresh produce and a protein (${proteinFocusOpt ? proteinFocusOpt : 'grilled chicken, salmon, steak, shrimp, chickpeas, etc.'}) even if not in their pantry — mark those buy:true. Up to half the ingredients can be buy:true.`
         : isStretch
         ? 'INSPIRATION RECIPE: Include 2–4 exciting ingredients to buy (buy:true) that complement what the user has. About 30% of ingredients should be buy:true. This expands their meal ideas beyond the pantry.'
         : 'PANTRY RULE: Maximum 2 ingredients should be buy:true. Build the recipe around what the user already has.';
@@ -3277,19 +3282,19 @@ NUTRITION ACCURACY — calories come from protein, carbs, and fat ONLY (no other
     `${styleHint} — a genuinely different dish and technique than the other recipes in this set, but staying within the requested cuisine. Do not repeat the same core ingredient combination as another recipe in this set.`,
     styleHint,
     proteinFocusOpt
-      ? `${styleHint} — a genuinely different dish and technique than every other recipe in this set, but staying within the requested cuisine. The protein stays ${proteinFocusOpt.text} — vary everything else.`
+      ? `${styleHint} — a genuinely different dish and technique than every other recipe in this set, but staying within the requested cuisine. The protein stays ${proteinFocusOpt} — vary everything else.`
       : `${styleHint} — a genuinely different dish, protein, and technique than every other recipe in this set, but staying within the requested cuisine.`
   ] : [
     styleHint, // Recipe 0: exactly what was requested
     proteinFocusOpt
-      ? `${styleHint} — this recipe MUST be ${cuisine1} cuisine, specifically. Use techniques and spices authentic to ${cuisine1} cooking, built around ${proteinFocusOpt.text}. Do not repeat the same core ingredient combination as another recipe in this set.`
+      ? `${styleHint} — this recipe MUST be ${cuisine1} cuisine, specifically. Use techniques and spices authentic to ${cuisine1} cooking, built around ${proteinFocusOpt}. Do not repeat the same core ingredient combination as another recipe in this set.`
       : `${styleHint} — this recipe MUST be ${cuisine1} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine1} cooking. Do not repeat the same core ingredient combination as another recipe in this set.`,
     proteinFocusOpt
-      ? `${styleHint} — this recipe MUST be ${cuisine2} cuisine, specifically. Use techniques and spices authentic to ${cuisine2} cooking, built around ${proteinFocusOpt.text}. Vary the vegetables, starch, and sauce from the other recipes in this set instead of the protein.`
+      ? `${styleHint} — this recipe MUST be ${cuisine2} cuisine, specifically. Use techniques and spices authentic to ${cuisine2} cooking, built around ${proteinFocusOpt}. Vary the vegetables, starch, and sauce from the other recipes in this set instead of the protein.`
       : `${styleHint} — this recipe MUST be ${cuisine2} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine2} cooking. This recipe's primary protein/vegetable base MUST be different from every other recipe in this set — do not default to the same safe combination just because it fits any dietary restrictions.`,
     styleHint, // Recipe 3: guaranteed salad — introLine already handles the framing, no extra style injection needed
     proteinFocusOpt
-      ? `${styleHint} — this recipe MUST be ${cuisine4} cuisine, specifically. Use techniques and spices authentic to ${cuisine4} cooking, built around ${proteinFocusOpt.text}. Must be genuinely different in dish and technique from every other recipe in this set.`
+      ? `${styleHint} — this recipe MUST be ${cuisine4} cuisine, specifically. Use techniques and spices authentic to ${cuisine4} cooking, built around ${proteinFocusOpt}. Must be genuinely different in dish and technique from every other recipe in this set.`
       : `${styleHint} — this recipe MUST be ${cuisine4} cuisine, specifically. Use techniques, spices, and a primary protein/vegetable base authentic to ${cuisine4} cooking. Must be genuinely different in protein, base, and technique from every other recipe in this set.`
   ];
 
@@ -4413,27 +4418,26 @@ function updateDietActiveCount() {
 // ─── SINGLE PROTEIN FOCUS ───────────────────────────────────────────────────
 // Lets a user lock every recipe in a spin/week/soup batch to one protein
 // (e.g. "only chicken this time") instead of the app's default behavior of
-// forcing a different protein into each recipe for variety.
-let selectedProtein = null; // null = no focus (default variety behavior)
+// forcing a different protein into each recipe for variety. Free-text field —
+// no preset list, so the user can type anything (duck, chickpeas, salmon
+// collars, whatever they've actually got).
+let selectedProtein = ''; // '' = no focus (default variety behavior)
 
-const PROTEIN_OPTIONS = [
-  { key: 'chicken', label: '🍗 Chicken', text: 'chicken (breast, thighs, or ground)' },
-  { key: 'beef', label: '🥩 Beef', text: 'beef' },
-  { key: 'pork', label: '🐖 Pork', text: 'pork' },
-  { key: 'turkey', label: '🦃 Turkey', text: 'turkey' },
-  { key: 'fish', label: '🐟 Fish', text: 'fish (any white or oily fish)' },
-  { key: 'shrimp', label: '🍤 Shrimp/Shellfish', text: 'shrimp or other shellfish' },
-  { key: 'tofu', label: '🌱 Tofu/Plant-Based', text: 'tofu, tempeh, or another plant-based protein' },
-  { key: 'eggs', label: '🥚 Eggs', text: 'eggs' }
-];
-
-function selectProtein(key) {
-  selectedProtein = (selectedProtein === key) ? null : key;
-  document.querySelectorAll('.protein-btn').forEach(b => b.classList.remove('act'));
-  if (selectedProtein) {
-    const btn = document.getElementById('protein-' + selectedProtein);
-    if (btn) btn.classList.add('act');
+function toggleProteinFocus() {
+  const checked = document.getElementById('protein-focus-toggle').checked;
+  const textInput = document.getElementById('protein-focus-text');
+  textInput.classList.toggle('hidden', !checked);
+  if (checked) {
+    textInput.focus();
+    selectedProtein = textInput.value.trim();
+  } else {
+    selectedProtein = '';
   }
+  savePreferences();
+}
+
+function onProteinTextChange() {
+  selectedProtein = document.getElementById('protein-focus-text').value.trim();
   savePreferences();
 }
 
@@ -4442,9 +4446,7 @@ function selectProtein(key) {
 // explicitly in the prompt payload rather than assuming context.
 function getProteinPromptText() {
   if (!selectedProtein) return '';
-  const opt = PROTEIN_OPTIONS.find(p => p.key === selectedProtein);
-  if (!opt) return '';
-  return `SINGLE PROTEIN FOCUS — every recipe generated in this set must be built around ${opt.text} as the primary protein. Do not substitute a different protein and do not omit the protein. Get variety from cuisine, cooking technique, and sides instead of the protein. `;
+  return `SINGLE PROTEIN FOCUS — every recipe generated in this set must be built around ${selectedProtein} as the primary protein. Do not substitute a different protein and do not omit the protein. Get variety from cuisine, cooking technique, and sides instead of the protein. `;
 }
 
 // ─── CHEF RANK / POINTS (MVP slice) ─────────────────────────────────────────
